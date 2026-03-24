@@ -33,7 +33,9 @@ class FoodScouterService {
         this.labelsPath,
       ];
 
-      const python = spawn(this.pythonPath, args);
+      const python = spawn(this.pythonPath, args, {
+        env: { ...process.env, PYTHONIOENCODING: "utf-8" },
+      });
 
       let stdout = "";
       let stderr = "";

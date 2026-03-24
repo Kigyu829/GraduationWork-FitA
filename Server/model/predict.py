@@ -1,155 +1,115 @@
 """
-Food Scouter CNN 추론 스크립트
-Node.js 서버에서 child_process.spawn()으로 호출됩니다.
+단일 이미지 추론 스크립트
+Node.js 서버에서 호출되며, JSON으로 결과를 출력합니다.
 
 사용법:
-  python predict.py --image ./uploads/food.jpg --model ./weights/food_scouter_v1.pth --labels ./data/labels.json
+  python src/predict.py --image ./test.jpg --model ./weights/food_scouter_v1.pth
 
-출력 (JSON):
-  {"class_name": "bibimbap", "confidence": 0.92, "top_5": [...]}
+출력 (stdout → JSON):
+  {
+    "class_name": "bibimbap",
+    "class_name_kr": "비빔밥",
+    "confidence": 0.9234,
+    "top_5": [
+      {"class_name": "bibimbap", "confidence": 0.9234},
+      {"class_name": "fried_rice", "confidence": 0.0321},
+      ...
+    ]
+  }
 """
 
-import argparse
-import json
+import os
 import sys
+import json
+import argparse
+
 import torch
-import torch.nn as nn
-from torchvision import transforms
+import torch.nn.functional as F
+import numpy as np
 from PIL import Image
 
-
-# ── CNN 모델 아키텍처 (직접 구현) ──
-class FoodScouterCNN(nn.Module):
-    """
-    음식 이미지 분류를 위한 경량 CNN 모델
-    - 입력: 224x224 RGB 이미지
-    - Conv 블록 4개 + FC 레이어 2개
-    - Batch Normalization + Dropout 적용
-    """
-
-    def __init__(self, num_classes=50):
-        super(FoodScouterCNN, self).__init__()
-
-        # Conv Block 1: 3 → 32 채널
-        self.conv1 = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(32, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(2, 2),  # 224 → 112
-        )
-
-        # Conv Block 2: 32 → 64 채널
-        self.conv2 = nn.Sequential(
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(64, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(2, 2),  # 112 → 56
-        )
-
-        # Conv Block 3: 64 → 128 채널
-        self.conv3 = nn.Sequential(
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(128, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(2, 2),  # 56 → 28
-        )
-
-        # Conv Block 4: 128 → 256 채널
-        self.conv4 = nn.Sequential(
-            nn.Conv2d(128, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(256, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(inplace=True),
-            nn.AdaptiveAvgPool2d((4, 4)),  # 28 → 4
-        )
-
-        # Fully Connected
-        self.classifier = nn.Sequential(
-            nn.Dropout(0.5),
-            nn.Linear(256 * 4 * 4, 512),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.3),
-            nn.Linear(512, num_classes),
-        )
-
-    def forward(self, x):
-        x = self.conv1(x)
-        x = self.conv2(x)
-        x = self.conv3(x)
-        x = self.conv4(x)
-        x = x.view(x.size(0), -1)  # Flatten
-        x = self.classifier(x)
-        return x
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import config
+from model import FoodScouterCNN
+from transforms import get_val_transforms, get_tta_transforms
 
 
-# ── 이미지 전처리 파이프라인 ──
-def get_transform():
-    return transforms.Compose(
-        [
-            transforms.Resize((224, 224)),
-            transforms.ToTensor(),
-            transforms.Normalize(
-                mean=[0.485, 0.456, 0.406],  # ImageNet 평균
-                std=[0.229, 0.224, 0.225],  # ImageNet 표준편차
-            ),
-        ]
-    )
+# 영문 → 한글 매핑 (서버 응답에 한글명 포함)
+ENGLISH_TO_KOREAN = {
+    "bibimbap": "비빔밥", "kimchi_fried_rice": "김치볶음밥",
+    "fried_rice": "볶음밥", "curry_rice": "카레라이스",
+    "gimbap": "김밥", "white_rice": "흰쌀밥",
+    "kimchi_jjigae": "김치찌개", "doenjang_jjigae": "된장찌개",
+    "sundubu_jjigae": "순두부찌개", "budae_jjigae": "부대찌개",
+    "miyeok_guk": "미역국", "kongnamul_guk": "콩나물국",
+    "samgyetang": "삼계탕", "seolleongtang": "설렁탕",
+    "ramyeon": "라면", "jajangmyeon": "자장면",
+    "jjamppong": "짬뽕", "naengmyeon": "냉면",
+    "kalguksu": "칼국수", "pasta": "파스타",
+    "bulgogi": "불고기", "samgyeopsal": "삼겹살",
+    "galbi": "갈비", "dakgalbi": "닭갈비",
+    "jeyuk_bokkeum": "제육볶음", "jokbal": "족발",
+    "bossam": "보쌈", "donkatsu": "돈까스",
+    "tangsuyuk": "탕수육", "fried_chicken": "치킨",
+    "steak": "스테이크", "kimchi": "김치",
+    "japchae": "잡채", "gyeran_mari": "계란말이",
+    "tteokbokki": "떡볶이", "mandu": "만두",
+    "pizza": "피자", "hamburger": "햄버거",
+    "sandwich": "샌드위치", "sushi": "초밥",
+    "salad": "샐러드", "chicken_breast": "닭가슴살",
+    "sweet_potato": "고구마", "fruit": "과일",
+    "bread": "빵", "yogurt": "요거트",
+    "grilled_fish": "생선구이", "jeon": "전",
+}
 
 
-# ── 추론 함수 ──
-def predict(image_path, model_path, labels_path):
-    # 디바이스 설정
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def predict_single(image_path, model, classes, device, use_tta=False):
+    """단일 이미지 추론"""
+    image = np.array(Image.open(image_path).convert("RGB"))
 
-    # 라벨 로드
-    with open(labels_path, "r", encoding="utf-8") as f:
-        labels = json.load(f)
+    if use_tta:
+        # Test Time Augmentation: 여러 변환의 예측을 평균
+        tta_transforms = get_tta_transforms()
+        all_probs = []
 
-    num_classes = len(labels)
+        for transform in tta_transforms:
+            transformed = transform(image=image)
+            input_tensor = transformed["image"].unsqueeze(0).to(device)
 
-    # 모델 로드
-    model = FoodScouterCNN(num_classes=num_classes)
-    model.load_state_dict(torch.load(model_path, map_location=device))
-    model.to(device)
-    model.eval()
+            with torch.no_grad():
+                output = model(input_tensor)
+                probs = F.softmax(output, dim=1)
+                all_probs.append(probs)
 
-    # 이미지 로드 및 전처리
-    image = Image.open(image_path).convert("RGB")
-    transform = get_transform()
-    input_tensor = transform(image).unsqueeze(0).to(device)
+        # 평균 확률
+        avg_probs = torch.stack(all_probs).mean(dim=0)
+        confidence, predicted_idx = torch.max(avg_probs, 1)
+        top5_prob, top5_idx = torch.topk(avg_probs, min(5, len(classes)), dim=1)
+    else:
+        transform = get_val_transforms()
+        transformed = transform(image=image)
+        input_tensor = transformed["image"].unsqueeze(0).to(device)
 
-    # 추론
-    with torch.no_grad():
-        output = model(input_tensor)
-        probabilities = torch.softmax(output, dim=1)
-        confidence, predicted_idx = torch.max(probabilities, 1)
+        with torch.no_grad():
+            output = model(input_tensor)
+            probabilities = F.softmax(output, dim=1)
+            confidence, predicted_idx = torch.max(probabilities, 1)
+            top5_prob, top5_idx = torch.topk(probabilities, min(5, len(classes)), dim=1)
 
-    # Top-5 결과
-    top5_prob, top5_idx = torch.topk(probabilities, min(5, num_classes), dim=1)
+    # 결과 포맷
+    predicted_class = classes[predicted_idx.item()]
     top_5 = []
     for i in range(top5_prob.size(1)):
-        idx = top5_idx[0][i].item()
-        label_key = str(idx)
-        top_5.append(
-            {
-                "class_name": labels.get(label_key, f"unknown_{idx}"),
-                "confidence": round(top5_prob[0][i].item(), 4),
-            }
-        )
+        cls_name = classes[top5_idx[0][i].item()]
+        top_5.append({
+            "class_name": cls_name,
+            "class_name_kr": ENGLISH_TO_KOREAN.get(cls_name, cls_name),
+            "confidence": round(top5_prob[0][i].item(), 4),
+        })
 
     result = {
-        "class_name": labels.get(str(predicted_idx.item()), "unknown"),
+        "class_name": predicted_class,
+        "class_name_kr": ENGLISH_TO_KOREAN.get(predicted_class, predicted_class),
         "confidence": round(confidence.item(), 4),
         "top_5": top_5,
     }
@@ -157,19 +117,45 @@ def predict(image_path, model_path, labels_path):
     return result
 
 
-# ── 메인 실행 ──
-if __name__ == "__main__":
+def load_model(model_path, device):
+    """저장된 모델 로드"""
+    checkpoint = torch.load(model_path, map_location=device)
+
+    classes = checkpoint.get("classes", [])
+    num_classes = checkpoint.get("num_classes", len(classes))
+
+    model = FoodScouterCNN(num_classes=num_classes)
+    model.load_state_dict(checkpoint["model_state_dict"])
+    model.to(device)
+    model.eval()
+
+    return model, classes
+
+
+def main():
     parser = argparse.ArgumentParser(description="Food Scouter CNN Prediction")
     parser.add_argument("--image", required=True, help="이미지 파일 경로")
-    parser.add_argument("--model", required=True, help="모델 가중치 파일 경로")
-    parser.add_argument("--labels", required=True, help="라벨 JSON 파일 경로")
-
+    parser.add_argument(
+        "--model",
+        default=os.path.join(config.WEIGHTS_DIR, config.MODEL_FILENAME),
+        help="모델 가중치 파일 경로",
+    )
+    parser.add_argument("--labels", default=None, help="라벨 JSON 파일 (미사용, 호환용)")
+    parser.add_argument("--tta", action="store_true", help="Test Time Augmentation 사용")
     args = parser.parse_args()
 
     try:
-        result = predict(args.image, args.model, args.labels)
-        # Node.js가 stdout을 JSON으로 파싱
+        model, classes = load_model(args.model, config.DEVICE)
+        result = predict_single(args.image, model, classes, config.DEVICE, use_tta=args.tta)
+
+        # JSON으로 stdout 출력 (Node.js가 파싱)
         print(json.dumps(result, ensure_ascii=False))
+
     except Exception as e:
-        print(json.dumps({"error": str(e)}), file=sys.stderr)
+        error_result = {"error": str(e)}
+        print(json.dumps(error_result), file=sys.stderr)
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
