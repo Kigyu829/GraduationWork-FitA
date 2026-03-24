@@ -4,7 +4,7 @@ AI 기반 다이어트 코칭 앱. CNN 음식 인식 → 식단 자동 검증 �
  프로젝트 구조
 Graduation_Work/
 ├── Server/          # Node.js 백엔드 API 서버
-├── Android/         # 안드로이드 클라이언트 (Kotlin)
+├── Android/         # 안드로이드 클라이언트 (Java)
 └── model_CNN/       # PyTorch 음식 분류 CNN 모델
 
  사전 준비
