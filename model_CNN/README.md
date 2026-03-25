@@ -110,3 +110,7 @@ tensorboard --logdir=results/tensorboard
 
 학습 완료 후 `weights/food_scouter_v1.pth`를 서버의 `model/weights/`에 복사하면
 Node.js 서버에서 자동으로 로드합니다.
+
+
+
+python -m http.server 8080
