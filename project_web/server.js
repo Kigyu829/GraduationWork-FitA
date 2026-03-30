@@ -157,7 +157,7 @@ app.post('/api/verify/meal', upload.single('image'), async (req, res) => {
         res.json(result);
 
     } catch (error) {
-        console.error('❌ CNN 서버 통신 실패:', error.message);
+        console.error('CNN 서버 통신 실패:', error.message);
         res.status(502).json({
             success: false,
             message: `CNN 서버(${CNN_SERVER})에 연결할 수 없습니다. CNN 서버가 실행 중인지 확인해주세요.`,
