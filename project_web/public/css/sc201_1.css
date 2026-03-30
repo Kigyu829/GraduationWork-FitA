@@ -1,0 +1,172 @@
+/* ============================================================
+   sc201_1.css — 로그인 페이지 전용 스타일
+   의존: common.css
+   ============================================================ */
+
+/* ── 페이지 레이아웃 ── */
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 20px;
+}
+
+.login-wrap {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+/* ── 로그인 카드 ── */
+/* form-card, form-header, input-group, primary-btn → common.css */
+
+.login-card {
+  /* form-card 클래스 사용하되 max-width 지정 */
+  max-width: 420px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-header h1 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+.login-header p {
+  font-size: 13px;
+  color: var(--text-sec);
+  line-height: 1.6;
+}
+
+/* ── 아이디 저장 + 회원가입 행 ── */
+.login-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-sec);
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--teal);
+  cursor: pointer;
+}
+
+.signup-link {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--teal);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.signup-link:hover { opacity: 0.75; }
+
+/* ── 소셜 로그인 ── */
+.social-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0;
+}
+
+.social-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.social-divider-text {
+  font-size: 11px;
+  color: var(--text-mute);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.social-btns {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.social-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 22px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  line-height: 1;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  color: var(--text);
+  font-family: 'Nanum Gothic', sans-serif;
+}
+
+.social-btn:hover { transform: scale(1.06); }
+
+.social-btn.naver:hover  { background: rgba(3, 199, 90, 0.12);  border-color: #03C75A; }
+.social-btn.kakao:hover  { background: rgba(254, 229, 0, 0.12); border-color: #FEE500; }
+.social-btn.google:hover { background: rgba(234, 67, 53, 0.12); border-color: #EA4335; }
+
+/* ── 에러 메시지 ── */
+.error-msg {
+  display: none;
+  font-size: 12px;
+  color: var(--red);
+  background: var(--red-dim);
+  border: 1px solid rgba(255, 11, 85, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-weight: 700;
+}
+
+.error-msg.show { display: block; }
+
+/* ── 하단 링크 ── */
+.page-footer-link {
+  font-size: 12px;
+  color: var(--text-mute);
+  text-align: center;
+}
+
+.page-footer-link a {
+  color: var(--text-sec);
+  text-decoration: none;
+  font-weight: 700;
+  transition: color 0.15s;
+}
+
+.page-footer-link a:hover { color: var(--teal); }
+
+/* ── 반응형 ── */
+@media (max-width: 480px) {
+  .form-card  { padding: 28px 20px; }
+  .login-header h1 { font-size: 20px; }
+}

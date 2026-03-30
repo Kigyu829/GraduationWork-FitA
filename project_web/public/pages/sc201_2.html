@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>회원가입 – HealthDash</title>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/sc201_2.css" />
+</head>
+<body>
+
+  <!-- ── 회원가입 완료 팝업 (PPT 4) ── -->
+  <div class="success-overlay" id="successOverlay">
+    <div class="success-card">
+      <div class="success-icon">✓</div>
+      <div class="success-title">가입이 완료되었습니다!</div>
+      <p class="success-sub">환영합니다 <strong id="welcomeName">닉네임</strong>님!<br>지금 바로 건강 관리를 시작해보세요.</p>
+      <button class="success-btn" id="successContinueBtn">시작하기 →</button>
+    </div>
+  </div>
+
+  <!-- ── 회원가입 폼 ── -->
+  <div class="signup-wrap">
+
+    <a href="sc101.html" class="site-logo">
+      <div class="site-logo-icon">🏃</div>
+      <span class="site-logo-text">HealthDash</span>
+    </a>
+
+    <section class="form-card">
+      <div class="signup-header">
+        <span class="page-badge">JOIN FREE</span>
+        <h1>회원가입</h1>
+        <p>아래 정보를 입력하고 HealthDash를 시작하세요.</p>
+      </div>
+
+      <form id="signupForm" class="signup-form">
+
+        <!-- 이메일 -->
+        <div class="input-group">
+          <label for="signupEmail">이메일</label>
+          <input type="email" id="signupEmail" name="email"
+            placeholder="example@email.com" autocomplete="email" required />
+          <span class="field-hint" id="emailHint"></span>
+        </div>
+
+        <!-- 닉네임 -->
+        <div class="input-group">
+          <label for="signupNickname">닉네임</label>
+          <input type="text" id="signupNickname" name="nickname"
+            placeholder="사용할 닉네임 입력" maxlength="20" required />
+          <span class="field-hint" id="nicknameHint"></span>
+        </div>
+
+        <!-- 비밀번호 -->
+        <div class="input-group">
+          <label for="signupPw">비밀번호</label>
+          <input type="password" id="signupPw" name="password"
+            placeholder="8자 이상 입력" autocomplete="new-password" required />
+          <span class="field-hint" id="pwHint"></span>
+        </div>
+
+        <!-- 비밀번호 확인 -->
+        <div class="input-group">
+          <label for="signupPwConfirm">비밀번호 확인</label>
+          <input type="password" id="signupPwConfirm" name="passwordConfirm"
+            placeholder="비밀번호 재입력" autocomplete="new-password" required />
+          <span class="field-hint" id="pwConfirmHint"></span>
+        </div>
+
+        <!-- 전화번호 + 인증번호 전송 -->
+        <div class="input-group">
+          <label>전화번호</label>
+          <div class="verify-row">
+            <div class="input-group" style="margin:0;">
+              <input type="tel" id="signupPhone" name="phone"
+                placeholder="010-0000-0000" required />
+            </div>
+            <button type="button" class="verify-send-btn" id="sendVerifyBtn">인증번호 전송</button>
+          </div>
+        </div>
+
+        <!-- 인증번호 입력 -->
+        <div class="input-group" id="verifyCodeGroup" style="display:none;">
+          <label for="verifyCode">인증번호</label>
+          <input type="text" id="verifyCode" name="verifyCode"
+            placeholder="인증번호 6자리 입력" maxlength="6" />
+          <span class="field-hint" id="verifyHint"></span>
+        </div>
+
+        <!-- 가입하기 버튼 -->
+        <button type="submit" class="primary-btn" style="width:100%;">가입하기</button>
+
+      </form>
+    </section>
+
+    <div class="page-footer-link">
+      이미 계정이 있으신가요? <a href="sc201_1.html">로그인</a>
+    </div>
+  </div>
+
+  <script src="../js/common.js"></script>
+  <script src="../js/sc201_2.js"></script>
+</body>
+</html>
