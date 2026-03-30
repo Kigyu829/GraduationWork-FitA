@@ -1,26 +1,28 @@
-# 학습 데이터 (15만장 이미지)
-model_CNN/data/raw/
-model_CNN/data/processed/
+# 모델 가중치 (전체)
+*.pth
 
-# 모델 가중치 (100MB+)
-model_CNN/weights/*.pth
-Server/model/weights/*.pth
-
-# 체크포인트
-model_CNN/weights/checkpoint_*
-
-# 학습 결과
-model_CNN/results/tensorboard/
-
-# Node.js
-Server/node_modules/
-Server/.env
-Server/uploads/
-
-# Python
+# Python 캐시
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+
+# 학습 데이터
+model_CNN/data/raw/
+model_CNN/data/processed/
+
+# 학습 결과
+model_CNN/results/tensorboard/
+model_CNN/weights/checkpoint_*
+
+# Node.js
+node_modules/
+package-lock.json
+
+# 환경변수
+.env
+
+# 업로드 이미지
+uploads/
 
 # OS
 .DS_Store

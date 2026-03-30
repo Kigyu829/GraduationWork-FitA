@@ -20,7 +20,7 @@ RESULTS_DIR = os.path.join(BASE_DIR, "results")
 # 데이터셋 설정
 # ══════════════════════════════════════════
 NUM_CLASSES = 150          # AI Hub 한국 음식 클래스 수
-IMG_SIZE = 224             # 입력 이미지 크기
+IMG_SIZE = 256             # 입력 이미지 크기
 TRAIN_RATIO = 0.8          # 학습 데이터 비율
 VAL_RATIO = 0.1            # 검증 데이터 비율
 TEST_RATIO = 0.1           # 테스트 데이터 비율
@@ -29,9 +29,9 @@ MIN_SAMPLES_PER_CLASS = 50 # 클래스당 최소 이미지 수 (너무 적으면
 # ══════════════════════════════════════════
 # 학습 하이퍼파라미터
 # ══════════════════════════════════════════
-BATCH_SIZE = 32
-NUM_EPOCHS = 100
-LEARNING_RATE = 0.001
+BATCH_SIZE = 16
+NUM_EPOCHS = 150
+LEARNING_RATE = 0.0005
 WEIGHT_DECAY = 1e-4
 MOMENTUM = 0.9
 
@@ -42,14 +42,14 @@ LR_GAMMA = 0.1             # StepLR용
 LR_MIN = 1e-6              # CosineAnnealing 최소 LR
 
 # Early Stopping
-PATIENCE = 15              # 검증 손실이 개선되지 않으면 중단
+PATIENCE = 25              # 검증 손실이 개선되지 않으면 중단
 MIN_DELTA = 0.001          # 개선으로 인정할 최소 변화량
 
 # ══════════════════════════════════════════
 # 모델 설정
 # ══════════════════════════════════════════
 MODEL_NAME = "FoodScouterCNN"
-DROPOUT_RATE = 0.5
+DROPOUT_RATE = 0.6
 USE_PRETRAINED_BACKBONE = False  # True면 ResNet 백본 사용 (비교 실험용)
 
 # ══════════════════════════════════════════

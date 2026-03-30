@@ -1,0 +1,497 @@
+/* ============================================================
+   common.css — 전체 공통 스타일
+   모든 페이지에서 가장 먼저 로드
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap');
+
+/* ── 리셋 ── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── 디자인 토큰 ── */
+:root {
+  /* 배경 */
+  --bg:        #09131a;
+  --surface:   #132029;
+  --card:      #172530;
+
+  /* 테두리 */
+  --border:    #243840;
+  --border2:   #2e4d5c;
+
+  /* 브랜드 컬러 */
+  --teal:      #66D0BC;
+  --teal-dim:  rgba(102, 208, 188, 0.12);
+  --red:       #FF0B55;
+  --red-dim:   rgba(255, 11, 85, 0.12);
+
+  /* 텍스트 */
+  --text:      #FFFFFF;
+  --text-sec:  #8faebb;
+  --text-mute: #4d6b7a;
+
+  /* 보더 라디우스 */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+}
+
+/* ── 베이스 ── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Nanum Gothic', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── 공통 버튼 ── */
+.btn-primary,
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--teal);
+  color: #09131a;
+  font-size: 14px;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.15s, transform 0.1s;
+  letter-spacing: 0.02em;
+}
+.btn-primary:hover,
+.primary-btn:hover  { opacity: 0.88; }
+.btn-primary:active,
+.primary-btn:active { transform: scale(0.99); }
+
+.btn-secondary,
+.secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-sec);
+  font-size: 14px;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.btn-secondary:hover,
+.secondary-btn:hover {
+  background: var(--card);
+  color: var(--text);
+}
+
+/* ── 공통 인풋 그룹 ── */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-group label,
+label.field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-sec);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin: 0;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Nanum Gothic', sans-serif;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+.input-group select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238faebb' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.input-group input::placeholder,
+.input-group textarea::placeholder { color: var(--text-mute); }
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+  border-color: var(--teal);
+  background: #1a2e3a;
+}
+
+.input-group select option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* 유효성 상태 */
+.input-group input.error  { border-color: var(--red); }
+.input-group input.valid  { border-color: var(--teal); }
+
+/* 인라인 힌트 */
+.field-hint          { font-size: 11px; color: var(--text-mute); line-height: 1.4; }
+.field-hint.error    { color: var(--red); }
+.field-hint.valid    { color: var(--teal); }
+
+/* ── 폼 공통 레이아웃 ── */
+.health-form,
+.login-form,
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.form-actions .primary-btn,
+.form-actions .secondary-btn {
+  flex: 1;
+}
+
+/* ── 카드 공통 ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-sec);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.card-badge {
+  font-size: 10px;
+  color: var(--teal);
+  background: var(--teal-dim);
+  border: 1px solid rgba(102, 208, 188, 0.2);
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-weight: 800;
+}
+
+.card-badge-red {
+  color: var(--red);
+  background: var(--red-dim);
+  border-color: rgba(255, 11, 85, 0.2);
+}
+
+/* ── 스텝바 (sc202, sc203 공통) ── */
+.step-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 28px;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--border2);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-mute);
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.step-item.active .step-circle {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #09131a;
+}
+
+.step-item.done .step-circle {
+  background: rgba(102, 208, 188, 0.15);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+.step-label {
+  font-size: 10px;
+  color: var(--text-mute);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.step-item.active .step-label { color: var(--teal); }
+
+.step-line {
+  width: 48px;
+  height: 1px;
+  background: var(--border);
+  margin: 0 4px;
+  margin-bottom: 18px;
+}
+
+.step-line.done { background: var(--teal); }
+
+/* ── 폼 카드 (sc202, sc203, sc201 공통) ── */
+.form-card {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px 32px;
+}
+
+.form-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.form-header h1 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  margin: 0 0 8px;
+}
+
+.form-header p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-sec);
+  line-height: 1.6;
+}
+
+/* ── 뱃지 (step-badge, signup-badge 등) ── */
+.step-badge,
+.page-badge {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 4px 14px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.step-badge {
+  background: var(--red-dim);
+  border: 1px solid rgba(255, 11, 85, 0.25);
+  color: var(--red);
+}
+
+.page-badge {
+  background: var(--teal-dim);
+  border: 1px solid rgba(102, 208, 188, 0.25);
+  color: var(--teal);
+}
+
+/* ── 로고 (공통 컴포넌트) ── */
+.site-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+}
+
+.site-logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.site-logo-text {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+/* ── 로그아웃 버튼 (사이드바 공통) ── */
+.logout-btn {
+  width: 100%;
+  height: 40px;
+  border: 1px solid rgba(255, 11, 85, 0.3);
+  border-radius: var(--radius-sm);
+  background: var(--red-dim);
+  color: var(--red);
+  font-size: 12px;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  margin-top: auto;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 11, 85, 0.2);
+  border-color: var(--red);
+}
+
+/* ── 사이드바 공통 ── */
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-top {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 6px 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2px;
+}
+
+.sidebar-logo-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.sidebar-logo-text {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.sidebar-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+}
+
+.menu-card { flex: 1; }
+
+.menu-card-title {
+  font-size: 9px;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 800;
+  margin-bottom: 8px;
+  padding: 0 2px;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.menu-btn {
+  width: 100%;
+  height: 38px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 12px;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-weight: 700;
+  text-align: left;
+  padding: 0 10px;
+  background: transparent;
+  color: var(--text-sec);
+  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.menu-btn:hover {
+  background: var(--teal-dim);
+  color: var(--teal);
+}
+
+.menu-btn-icon {
+  font-size: 13px;
+  width: 16px;
+  text-align: center;
+}

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>목표 설정</title>
+  <link rel="stylesheet" href="../css/sc203.css" />
+</head>
+<body class="health-page">
+  <div class="health-container">
+    <div style="width:100%; max-width:520px;">
+
+      <!-- 스텝 바 -->
+      <div class="step-bar">
+        <div class="step-item done">
+          <div class="step-circle">✓</div>
+          <span class="step-label">신체 정보</span>
+        </div>
+        <div class="step-line done"></div>
+        <div class="step-item active">
+          <div class="step-circle">2</div>
+          <span class="step-label">목표 설정</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item">
+          <div class="step-circle">✓</div>
+          <span class="step-label">완료</span>
+        </div>
+      </div>
+
+      <section class="form-card">
+        <div class="form-header">
+          <span class="step-badge">STEP 2 / 2</span>
+          <h1>목표를 설정해주세요</h1>
+          <p>목표 감량 무게와 달성 기간을 입력해주세요.</p>
+        </div>
+
+        <form id="bodyInfoForm2" class="health-form">
+
+          <div class="input-group">
+            <label for="activityLevel">평소 활동량</label>
+            <select id="activityLevel" name="activity" required>
+              <option value="">선택하세요</option>
+              <option value="낮음">낮음 — 주로 앉아서 생활</option>
+              <option value="보통">보통 — 가벼운 활동 포함</option>
+              <option value="높음">높음 — 규칙적인 운동</option>
+            </select>
+          </div>
+
+          <div class="input-grid">
+            <div class="input-group">
+              <label for="targetLoss">목표 감량 (kg)</label>
+              <input type="number" id="targetLoss" name="targetLoss"
+                placeholder="예: 5" min="1" step="0.1" required />
+            </div>
+
+            <div class="input-group">
+              <label for="goalPeriod">달성 기간</label>
+              <select id="goalPeriod" name="goalPeriod" required>
+                <option value="">선택하세요</option>
+                <option value="4주">4주</option>
+                <option value="8주">8주</option>
+                <option value="12주">12주</option>
+                <option value="16주">16주</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- BMI 카드 -->
+          <div class="bmi-preview">
+            <div class="bmi-box">
+              <div class="bmi-left">
+                <span class="bmi-label">현재 BMI</span>
+                <strong id="bmiValue">-</strong>
+              </div>
+              <div class="bmi-divider"></div>
+              <div class="bmi-right">
+                <p id="bmiStatus">이전 단계 정보를 불러오는 중입니다.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 목표 프리뷰 -->
+          <div class="goal-preview">
+            <p class="info-text muted" id="goalInfo">목표 감량과 기간을 입력하면 목표가 표시됩니다.</p>
+          </div>
+
+          <div class="form-actions">
+            <a href="sc202.html" class="secondary-btn">← 이전</a>
+            <button type="submit" class="primary-btn">완료하기</button>
+          </div>
+
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script src="../js/sc203.js"></script>
+</body>
+</html>
