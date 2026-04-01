@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food Scouter - 테스트</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0f;
+  --card: #13131a;
+  --border: #1e1e2a;
+  --accent: #22c55e;
+  --accent-dim: #16a34a;
+  --danger: #ef4444;
+  --text: #e4e4e7;
+  --muted: #71717a;
+  --glass: rgba(255,255,255,0.03);
+}
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Ambient glow */
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.logo {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.3;
+  background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 8px;
+  font-weight: 300;
+}
+
+/* Upload Area */
+.upload-area {
+  border: 2px dashed var(--border);
+  border-radius: 20px;
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--glass);
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-area:hover {
+  border-color: var(--accent);
+  background: rgba(34,197,94,0.03);
+}
+
+.upload-area.has-image {
+  padding: 0;
+  border-style: solid;
+  border-color: var(--accent-dim);
+}
+
+.upload-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  border-radius: 14px;
+  background: rgba(34,197,94,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--accent);
+}
+
+.upload-text {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.upload-hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+#file-input { display: none; }
+
+#preview {
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+  border-radius: 18px;
+  display: none;
+}
+
+/* Controls */
+.controls {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #000;
+}
+
+.btn-primary:hover { background: #16a34a; transform: translateY(-1px); }
+.btn-primary:disabled { background: #1e1e2a; color: #52525b; cursor: not-allowed; transform: none; }
+
+.btn-secondary {
+  background: var(--card);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover { border-color: #3f3f46; color: var(--text); }
+
+/* Meal Type Selector */
+.meal-selector {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.meal-chip {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.meal-chip.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(34,197,94,0.06);
+}
+
+/* Result Card */
+.result {
+  margin-top: 24px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  display: none;
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.result-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.result-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-success { background: rgba(34,197,94,0.15); color: var(--accent); }
+.badge-fail { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+.detected-food {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.detected-food-kr {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.confidence-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.confidence-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s ease;
+  background: var(--accent);
+}
+
+.confidence-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* Top 5 */
+.top5 {
+  margin-top: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.top5-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.top5-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 13px;
+}
+
+.top5-rank {
+  width: 20px;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.top5-name {
+  flex: 1;
+  margin-left: 8px;
+}
+
+.top5-score {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Loading */
+.loading {
+  display: none;
+  text-align: center;
+  margin-top: 24px;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-text {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Server Status */
+.server-status {
+  margin-top: 32px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--danger);
+}
+
+.status-dot.online { background: var(--accent); }
+
+/* API URL input */
+.api-config {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.api-input {
+  flex: 1;
+  padding: 10px 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'Noto Sans KR', monospace;
+  font-size: 12px;
+  outline: none;
+}
+
+.api-input:focus { border-color: var(--accent); }
+
+.btn-sm {
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="logo">Food Scouter</div>
+    <div class="title">음식 사진을 올려<br>AI가 판별합니다</div>
+    <div class="subtitle">CNN 모델 테스트 페이지</div>
+  </div>
+
+  <!-- Upload -->
+  <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
+    <div class="upload-icon" id="upload-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+    </div>
+    <div class="upload-text" id="upload-text">클릭하여 음식 사진 업로드</div>
+    <div class="upload-hint" id="upload-hint">JPG, PNG, WEBP (최대 10MB)</div>
+    <img id="preview" alt="preview">
+    <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp">
+  </div>
+
+  <!-- Meal Type -->
+  <div class="meal-selector">
+    <button class="meal-chip active" data-type="breakfast" onclick="selectMeal(this)">아침</button>
+    <button class="meal-chip" data-type="lunch" onclick="selectMeal(this)">점심</button>
+    <button class="meal-chip" data-type="dinner" onclick="selectMeal(this)">저녁</button>
+    <button class="meal-chip" data-type="snack" onclick="selectMeal(this)">간식</button>
+  </div>
+
+  <!-- Buttons -->
+  <div class="controls">
+    <button class="btn btn-primary" id="analyze-btn" disabled onclick="analyze()">분석하기</button>
+    <button class="btn btn-secondary" onclick="reset()">초기화</button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">CNN 모델이 분석 중...</div>
+  </div>
+
+  <!-- Result -->
+  <div class="result" id="result">
+    <div class="result-header">
+      <span class="result-title">분석 결과</span>
+      <span class="result-badge" id="result-badge"></span>
+    </div>
+    <div class="detected-food" id="detected-food"></div>
+    <div class="detected-food-kr" id="detected-food-kr"></div>
+
+    <div class="confidence-label">
+      <span>신뢰도</span>
+      <span id="confidence-value">0%</span>
+    </div>
+    <div class="confidence-bar-bg">
+      <div class="confidence-bar" id="confidence-bar" style="width:0%"></div>
+    </div>
+
+    <div class="top5" id="top5"></div>
+  </div>
+
+  <!-- Server Config -->
+  <div class="server-status">
+    <div class="status-dot" id="status-dot"></div>
+    <span id="status-text">서버 연결 확인 중...</span>
+  </div>
+
+  <div class="api-config">
+    <input class="api-input" id="api-url" value="http://localhost:3000" placeholder="서버 주소">
+    <button class="btn-sm" onclick="checkServer()">연결 확인</button>
+  </div>
+
+</div>
+
+<script>
+let selectedFile = null;
+let mealType = 'breakfast';
+
+// File upload handling
+document.getElementById('file-input').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  selectedFile = file;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const preview = document.getElementById('preview');
+    const area = document.getElementById('upload-area');
+    preview.src = ev.target.result;
+    preview.style.display = 'block';
+    area.classList.add('has-image');
+    document.getElementById('upload-icon').style.display = 'none';
+    document.getElementById('upload-text').style.display = 'none';
+    document.getElementById('upload-hint').style.display = 'none';
+    document.getElementById('analyze-btn').disabled = false;
+  };
+  reader.readAsDataURL(file);
+});
+
+// Meal type selector
+function selectMeal(el) {
+  document.querySelectorAll('.meal-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  mealType = el.dataset.type;
+}
+
+// Analyze
+async function analyze() {
+  if (!selectedFile) return;
+
+  const apiUrl = document.getElementById('api-url').value;
+  const loading = document.getElementById('loading');
+  const result = document.getElementById('result');
+
+  loading.style.display = 'block';
+  result.style.display = 'none';
+  document.getElementById('analyze-btn').disabled = true;
+
+  const formData = new FormData();
+  formData.append('image', selectedFile);
+  formData.append('meal_type', mealType);
+  formData.append('plan_id', '1'); // 테스트용
+
+  try {
+    const response = await fetch(`${apiUrl}/api/verify/meal`, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer test-token'
+      },
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      showResult(data.data);
+    } else {
+      alert('분석 실패: ' + (data.message || '알 수 없는 오류'));
+    }
+  } catch (err) {
+    // 서버 없을 때 — predict.py 직접 호출 결과를 시뮬레이션하는 안내
+    alert('서버 연결 실패!\n\n서버 없이 테스트하려면 PowerShell에서:\npython src/predict.py --image 이미지경로\n\n서버 연동 테스트는 Server 폴더에서:\nnpm run dev\n실행 후 다시 시도하세요.');
+  } finally {
+    loading.style.display = 'none';
+    document.getElementById('analyze-btn').disabled = false;
+  }
+}
+
+// Show result
+function showResult(data) {
+  const result = document.getElementById('result');
+  result.style.display = 'block';
+
+  document.getElementById('detected-food').textContent = data.detected_food || 'unknown';
+  document.getElementById('detected-food-kr').textContent = data.detected_food_kr || '';
+
+  const conf = Math.round((data.confidence || 0) * 100);
+  document.getElementById('confidence-value').textContent = conf + '%';
+
+  const bar = document.getElementById('confidence-bar');
+  bar.style.width = '0%';
+  bar.style.background = conf >= 60 ? 'var(--accent)' : 'var(--danger)';
+  setTimeout(() => bar.style.width = conf + '%', 100);
+
+  // Badge
+  const badge = document.getElementById('result-badge');
+  if (data.is_verified) {
+    badge.textContent = '일치';
+    badge.className = 'result-badge badge-success';
+  } else {
+    badge.textContent = '불일치';
+    badge.className = 'result-badge badge-fail';
+  }
+
+  // Top 5
+  const top5 = document.getElementById('top5');
+  if (data.top_5 && data.top_5.length > 0) {
+    let html = '<div class="top5-title">Top-5 후보</div>';
+    data.top_5.forEach((item, i) => {
+      const score = Math.round(item.confidence * 100);
+      html += `
+        <div class="top5-item">
+          <span class="top5-rank">${i + 1}</span>
+          <span class="top5-name">${item.class_name_kr || item.class_name}</span>
+          <span class="top5-score">${score}%</span>
+        </div>`;
+    });
+    top5.innerHTML = html;
+  }
+}
+
+// Reset
+function reset() {
+  selectedFile = null;
+  const preview = document.getElementById('preview');
+  const area = document.getElementById('upload-area');
+  preview.style.display = 'none';
+  preview.src = '';
+  area.classList.remove('has-image');
+  document.getElementById('upload-icon').style.display = 'flex';
+  document.getElementById('upload-text').style.display = 'block';
+  document.getElementById('upload-hint').style.display = 'block';
+  document.getElementById('file-input').value = '';
+  document.getElementById('analyze-btn').disabled = true;
+  document.getElementById('result').style.display = 'none';
+}
+
+// Server check
+async function checkServer() {
+  const apiUrl = document.getElementById('api-url').value;
+  const dot = document.getElementById('status-dot');
+  const text = document.getElementById('status-text');
+
+  text.textContent = '연결 확인 중...';
+
+  try {
+    const res = await fetch(`${apiUrl}/api/health`, { signal: AbortSignal.timeout(3000) });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      dot.classList.add('online');
+      text.textContent = `서버 연결됨 (${apiUrl})`;
+    }
+  } catch {
+    dot.classList.remove('online');
+    text.textContent = '서버에 연결할 수 없습니다';
+  }
+}
+
+// Initial server check
+window.addEventListener('load', checkServer);
+</script>
+</body>
+</html>

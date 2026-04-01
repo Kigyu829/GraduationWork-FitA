@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>신체정보 입력 1</title>
+  <link rel="stylesheet" href="../css/sc202.css" />
+</head>
+<body class="health-page">
+  <div class="health-container">
+    <div style="width:100%; max-width:560px;">
+
+      <!-- 스텝 바 -->
+      <div class="step-bar">
+        <div class="step-item active">
+          <div class="step-circle">1</div>
+          <span class="step-label">신체 정보</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item">
+          <div class="step-circle">2</div>
+          <span class="step-label">목표 설정</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item">
+          <div class="step-circle">✓</div>
+          <span class="step-label">완료</span>
+        </div>
+      </div>
+
+      <section class="form-card">
+        <div class="form-header">
+          <span class="step-badge">STEP 1 / 2</span>
+          <h1>기본 신체 정보를<br>입력해주세요</h1>
+          <p>맞춤형 건강 관리를 위해 필요한 정보예요.</p>
+        </div>
+
+        <form id="bodyInfoForm1" class="health-form">
+          <div class="input-grid two-col">
+
+            <div class="input-group">
+              <label for="gender">성별</label>
+              <select id="gender" name="gender" required>
+                <option value="">선택하세요</option>
+                <option value="여성">여성</option>
+                <option value="남성">남성</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label>생년월일</label>
+              <div class="birth-wrap">
+                <input type="number" id="birthYear"  placeholder="년" min="1900" max="2100" required />
+                <input type="number" id="birthMonth" placeholder="월" min="1"    max="12"   required />
+                <input type="number" id="birthDay"   placeholder="일" min="1"    max="31"   required />
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="height">키 (cm)</label>
+              <input type="number" id="height" name="height" placeholder="예: 165" min="100" max="250" required />
+            </div>
+
+            <div class="input-group">
+              <label for="weight">현재 체중 (kg)</label>
+              <input type="number" id="weight" name="weight" placeholder="예: 58" min="20" max="300" step="0.1" required />
+            </div>
+
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="primary-btn">다음 단계 →</button>
+          </div>
+        </form>
+
+        <div class="form-footer">
+          입력하신 정보는 안전하게 보관되며<br>건강 분석에만 사용됩니다.
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="../js/sc202.js"></script>
+</body>
+</html>

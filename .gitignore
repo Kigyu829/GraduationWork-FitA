@@ -1,0 +1,29 @@
+# 모델 가중치 (전체)
+*.pth
+
+# Python 캐시
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# 학습 데이터
+model_CNN/data/raw/
+model_CNN/data/processed/
+
+# 학습 결과
+model_CNN/results/tensorboard/
+model_CNN/weights/checkpoint_*
+
+# Node.js
+node_modules/
+package-lock.json
+
+# 환경변수
+.env
+
+# 업로드 이미지
+uploads/
+
+# OS
+.DS_Store
+Thumbs.db

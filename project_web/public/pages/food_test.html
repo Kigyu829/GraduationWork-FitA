@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>음식 인식 테스트 – HealthDash</title>
+  <link rel="stylesheet" href="../css/sc301.css" />
+  <style>
+    .ft-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 32px 36px;
+      gap: 24px;
+      overflow-y: auto;
+    }
+
+    .ft-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .ft-back-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      color: var(--text-sec);
+      border-radius: 12px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: .2s;
+    }
+
+    .ft-back-btn:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--text);
+    }
+
+    .ft-title {
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .ft-subtitle {
+      font-size: 13px;
+      color: var(--text-sec);
+      margin-top: 2px;
+    }
+
+    .ft-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    /* 업로드 영역 */
+    .upload-zone {
+      background: var(--card);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-md);
+      padding: 40px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: .3s;
+      height: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-zone:hover {
+      border-color: var(--teal);
+      background: rgba(102,208,188,0.04);
+    }
+
+    .upload-zone.has-image {
+      padding: 0;
+      border-style: solid;
+      border-color: var(--teal);
+    }
+
+    .upload-zone-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: var(--teal-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .upload-zone-text {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .upload-zone-hint {
+      font-size: 12px;
+      color: var(--text-mute);
+    }
+
+    #preview {
+      width: 100%;
+      height: 420px;
+      object-fit: contain;
+      border-radius: 20px;
+      display: none;
+      background: #0d1a22;
+    }
+
+    #fileInput { display: none; }
+
+    /* 식사 종류 */
+    .meal-chips {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .meal-chip {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: transparent;
+      color: var(--text-sec);
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      transition: .2s;
+      text-align: center;
+    }
+
+    .meal-chip.active {
+      border-color: var(--teal);
+      color: var(--teal);
+      background: var(--teal-dim);
+    }
+
+    /* 버튼 */
+    .ft-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .btn-analyze {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--teal);
+      color: #09131a;
+      transition: .2s;
+    }
+
+    .btn-analyze:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-analyze:disabled { background: var(--border); color: var(--text-mute); cursor: not-allowed; transform: none; }
+
+    .btn-reset {
+      padding: 14px 20px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: transparent;
+      color: var(--text-sec);
+      font-family: inherit;
+      font-size: 14px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .btn-reset:hover { border-color: var(--text-sec); color: var(--text); }
+
+    /* 결과 카드 */
+    .result-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 28px;
+      display: none;
+    }
+
+    .result-card.show { display: block; animation: slideUp .4s ease; }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .result-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-mute);
+    }
+
+    .result-badge {
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge-ok { background: var(--teal-dim); color: var(--teal); }
+    .badge-fail { background: var(--red-dim); color: var(--red); }
+
+    .result-food-name {
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .result-food-kr {
+      font-size: 14px;
+      color: var(--text-sec);
+      margin-top: 2px;
+      margin-bottom: 20px;
+    }
+
+    .conf-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .conf-bar {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--teal);
+      transition: width .8s ease;
+    }
+
+    .conf-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-sec);
+      margin-top: 6px;
+    }
+
+    /* Top 5 */
+    .top5 {
+      margin-top: 20px;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+
+    .top5-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-mute);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .top5-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      font-size: 13px;
+    }
+
+    .top5-rank {
+      width: 22px;
+      color: var(--text-mute);
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    .top5-name { flex: 1; }
+
+    .top5-score {
+      color: var(--teal);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    /* 로딩 */
+    .loading-overlay {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .loading-overlay.show { display: block; }
+
+    .spinner-lg {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--teal);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 14px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-size: 14px;
+      color: var(--text-sec);
+    }
+
+    .loading-sub {
+      font-size: 12px;
+      color: var(--text-mute);
+      margin-top: 4px;
+    }
+
+    /* 서버 상태 */
+    .server-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-mute);
+      margin-top: 12px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+    }
+
+    .status-dot.online { background: var(--teal); }
+
+    /* 통신 로그 */
+    .comm-log {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--text-sec);
+      max-height: 200px;
+      overflow-y: auto;
+      line-height: 1.8;
+    }
+
+    .comm-log .log-web { color: var(--blue); }
+    .comm-log .log-cnn { color: var(--teal); }
+    .comm-log .log-err { color: var(--red); }
+    .comm-log .log-time { color: var(--text-mute); }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-icon">🏃</div>
+          <span class="sidebar-logo-text">HealthDash</span>
+        </div>
+
+        <div class="sidebar-card menu-card">
+          <div class="menu-card-title">메뉴</div>
+          <div class="menu-list">
+            <button class="menu-btn" data-href="sc301.html"><span class="menu-btn-icon">🏠</span>대시보드</button>
+            <button class="menu-btn" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
+            <button class="menu-btn" data-href="sc311.html"><span class="menu-btn-icon">💪</span>운동 프로그램</button>
+            <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 기록</button>
+            <button class="menu-btn active" data-href="food_test.html"><span class="menu-btn-icon">📸</span>음식 인식 (CNN)</button>
+            <button class="menu-btn" data-href="sc601.html"><span class="menu-btn-icon">⚙️</span>설정</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="ft-main">
+      <div class="ft-header">
+        <button class="ft-back-btn" onclick="location.href='sc301.html'">←</button>
+        <div>
+          <div class="ft-title">Food Scouter – CNN 음식 인식</div>
+          <div class="ft-subtitle">음식 사진을 업로드하면 웹 서버 → CNN 서버로 전송하여 AI가 분석합니다</div>
+        </div>
+      </div>
+
+      <div class="ft-grid">
+        <!-- 왼쪽: 업로드 -->
+        <div>
+          <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-zone-icon" id="uploadIcon">📷</div>
+            <div class="upload-zone-text" id="uploadText">클릭하여 음식 사진 업로드</div>
+            <div class="upload-zone-hint" id="uploadHint">JPG, PNG, WEBP (최대 10MB)</div>
+            <img id="preview" alt="preview" />
+            <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" />
+          </div>
+
+          <div class="meal-chips">
+            <button class="meal-chip active" data-type="breakfast" onclick="selectMeal(this)">아침</button>
+            <button class="meal-chip" data-type="lunch" onclick="selectMeal(this)">점심</button>
+            <button class="meal-chip" data-type="dinner" onclick="selectMeal(this)">저녁</button>
+            <button class="meal-chip" data-type="snack" onclick="selectMeal(this)">간식</button>
+          </div>
+
+          <div class="ft-actions">
+            <button class="btn-analyze" id="analyzeBtn" disabled onclick="analyze()">분석하기</button>
+            <button class="btn-reset" onclick="resetAll()">초기화</button>
+          </div>
+
+          <div class="server-status">
+            <div class="status-dot" id="webDot"></div>
+            <span id="webStatus">웹 서버 확인 중...</span>
+            <span style="margin: 0 4px">|</span>
+            <div class="status-dot" id="cnnDot"></div>
+            <span id="cnnStatus">CNN 서버 확인 중...</span>
+          </div>
+        </div>
+
+        <!-- 오른쪽: 결과 -->
+        <div>
+          <div class="loading-overlay" id="loading">
+            <div class="spinner-lg"></div>
+            <div class="loading-text">CNN 서버에서 분석 중...</div>
+            <div class="loading-sub">웹 서버(3000) → CNN 서버(4000) 통신 중</div>
+          </div>
+
+          <div class="result-card" id="resultCard">
+            <div class="result-header">
+              <span class="result-label">분석 결과</span>
+              <span class="result-badge" id="resultBadge"></span>
+            </div>
+            <div class="result-food-name" id="foodName"></div>
+            <div class="result-food-kr" id="foodKr"></div>
+
+            <div class="conf-row">
+              <span>신뢰도</span>
+              <span id="confValue">0%</span>
+            </div>
+            <div class="conf-bar-bg">
+              <div class="conf-bar" id="confBar" style="width:0%"></div>
+            </div>
+
+            <div class="top5" id="top5"></div>
+          </div>
+
+          <!-- 서버 간 통신 로그 -->
+          <div class="comm-log" id="commLog">
+            <div><span class="log-time">[시스템]</span> 서버 간 통신 로그가 여기에 표시됩니다</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let selectedFile = null;
+    let mealType = 'breakfast';
+    const API_BASE = window.location.origin;
+
+    // 메뉴 버튼
+    document.querySelectorAll('.menu-btn[data-href]').forEach(btn => {
+      btn.addEventListener('click', () => location.href = btn.dataset.href);
+    });
+
+    // 파일 선택
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        const zone = document.getElementById('uploadZone');
+        const preview = document.getElementById('preview');
+        preview.src = ev.target.result;
+        preview.style.display = 'block';
+        zone.classList.add('has-image');
+        document.getElementById('uploadIcon').style.display = 'none';
+        document.getElementById('uploadText').style.display = 'none';
+        document.getElementById('uploadHint').style.display = 'none';
+        document.getElementById('analyzeBtn').disabled = false;
+        addLog('web', `이미지 선택: ${file.name} (${(file.size/1024).toFixed(0)}KB)`);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // 식사 종류
+    function selectMeal(el) {
+      document.querySelectorAll('.meal-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      mealType = el.dataset.type;
+    }
+
+    // 통신 로그
+    function addLog(type, msg) {
+      const log = document.getElementById('commLog');
+      const time = new Date().toLocaleTimeString();
+      const cls = type === 'web' ? 'log-web' : type === 'cnn' ? 'log-cnn' : 'log-err';
+      const label = type === 'web' ? '[웹→CNN]' : type === 'cnn' ? '[CNN→웹]' : '[오류]';
+      log.innerHTML += `<div><span class="log-time">${time}</span> <span class="${cls}">${label}</span> ${msg}</div>`;
+      log.scrollTop = log.scrollHeight;
+    }
+
+    // 분석
+    async function analyze() {
+      if (!selectedFile) return;
+
+      document.getElementById('loading').classList.add('show');
+      document.getElementById('resultCard').classList.remove('show');
+      document.getElementById('analyzeBtn').disabled = true;
+
+      addLog('web', `POST /api/verify/meal → 웹 서버(${API_BASE})로 이미지 전송`);
+      addLog('web', `웹 서버가 CNN 서버(localhost:4000)로 이미지 프록시 전달 중...`);
+
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+      formData.append('meal_type', mealType);
+
+      try {
+        const start = Date.now();
+        const response = await fetch(`${API_BASE}/api/verify/meal`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        const elapsed = Date.now() - start;
+
+        if (data.success) {
+          addLog('cnn', `CNN 추론 완료 (${elapsed}ms)`);
+          addLog('cnn', `결과: ${data.data.detected_food_kr} (신뢰도 ${(data.data.confidence*100).toFixed(1)}%)`);
+          showResult(data.data);
+        } else {
+          addLog('err', `분석 실패: ${data.message}`);
+          alert('분석 실패: ' + data.message);
+        }
+      } catch (err) {
+        addLog('err', `서버 통신 실패: ${err.message}`);
+        alert('서버 연결 실패! 웹 서버(3000)와 CNN 서버(4000)가 모두 실행 중인지 확인해주세요.');
+      } finally {
+        document.getElementById('loading').classList.remove('show');
+        document.getElementById('analyzeBtn').disabled = false;
+      }
+    }
+
+    // 결과 표시
+    function showResult(data) {
+      const card = document.getElementById('resultCard');
+      card.classList.add('show');
+
+      document.getElementById('foodName').textContent = data.detected_food_kr || data.detected_food;
+      document.getElementById('foodKr').textContent = data.detected_food || '';
+
+      const conf = Math.round((data.confidence || 0) * 100);
+      document.getElementById('confValue').textContent = conf + '%';
+
+      const bar = document.getElementById('confBar');
+      bar.style.width = '0%';
+      bar.style.background = conf >= 60 ? 'var(--teal)' : 'var(--red)';
+      setTimeout(() => bar.style.width = conf + '%', 100);
+
+      const badge = document.getElementById('resultBadge');
+      if (data.is_verified) {
+        badge.textContent = '인식 성공';
+        badge.className = 'result-badge badge-ok';
+      } else {
+        badge.textContent = '신뢰도 낮음';
+        badge.className = 'result-badge badge-fail';
+      }
+
+      const top5El = document.getElementById('top5');
+      if (data.top_5 && data.top_5.length > 0) {
+        let html = '<div class="top5-title">Top-5 후보</div>';
+        data.top_5.forEach((item, i) => {
+          const score = Math.round(item.confidence * 100);
+          html += `<div class="top5-item">
+            <span class="top5-rank">${i+1}</span>
+            <span class="top5-name">${item.class_name_kr || item.class_name}</span>
+            <span class="top5-score">${score}%</span>
+          </div>`;
+        });
+        top5El.innerHTML = html;
+      }
+    }
+
+    // 초기화
+    function resetAll() {
+      selectedFile = null;
+      const preview = document.getElementById('preview');
+      const zone = document.getElementById('uploadZone');
+      preview.style.display = 'none';
+      preview.src = '';
+      zone.classList.remove('has-image');
+      document.getElementById('uploadIcon').style.display = 'flex';
+      document.getElementById('uploadText').style.display = 'block';
+      document.getElementById('uploadHint').style.display = 'block';
+      document.getElementById('fileInput').value = '';
+      document.getElementById('analyzeBtn').disabled = true;
+      document.getElementById('resultCard').classList.remove('show');
+      document.getElementById('commLog').innerHTML = '<div><span class="log-time">[시스템]</span> 초기화 완료</div>';
+    }
+
+    // 서버 상태 확인
+    async function checkServers() {
+      try {
+        const res = await fetch(`${API_BASE}/api/cnn/health`);
+        const data = await res.json();
+
+        document.getElementById('webDot').classList.add('online');
+        document.getElementById('webStatus').textContent = '웹 서버 연결됨 (:3000)';
+
+        if (data.cnn_server !== 'offline') {
+          document.getElementById('cnnDot').classList.add('online');
+          document.getElementById('cnnStatus').textContent = 'CNN 서버 연결됨 (:4000)';
+          addLog('cnn', 'CNN 서버 연결 확인 완료');
+        } else {
+          document.getElementById('cnnStatus').textContent = 'CNN 서버 오프라인';
+          addLog('err', 'CNN 서버(4000)에 연결할 수 없습니다');
+        }
+      } catch {
+        document.getElementById('webStatus').textContent = '웹 서버 오프라인';
+        addLog('err', '웹 서버(3000)에 연결할 수 없습니다');
+      }
+    }
+
+    checkServers();
+  </script>
+</body>
+</html>

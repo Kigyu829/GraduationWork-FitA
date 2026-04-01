@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HealthDash – 운동 & 식단 관리</title>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/sc101.css" />
+</head>
+<body>
+
+  <!-- ── 네비게이션 ── -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="sc101.html" class="site-logo">
+        <div class="site-logo-icon">🏃</div>
+        <span class="site-logo-text">HealthDash</span>
+      </a>
+
+      <ul class="nav-menu">
+        <li><a href="#features">서비스 소개</a></li>
+        <li><a href="#download">앱 다운로드</a></li>
+        <li><a href="#">공지사항</a></li>
+        <li><a href="#">문의하기</a></li>
+        <li><a href="#">임시메뉴5</a></li>
+      </ul>
+
+      <a href="sc201_1.html" class="nav-login-btn">로그인</a>
+    </div>
+  </nav>
+
+  <!-- ── 히어로 ── -->
+  <section class="hero">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        AI 기반 건강 관리 플랫폼
+      </div>
+      <h1 class="hero-title">
+        당신만의<br>
+        <span class="accent">맞춤형 식단</span>과<br>
+        <span class="accent-red">운동 플랜</span>
+      </h1>
+      <p class="hero-desc">
+        AI가 분석하는 식단 인증, 맞춤형 운동 프로그램,
+        목표 달성 진행률까지. 건강한 삶을 향한 여정을
+        HealthDash와 함께 시작하세요.
+      </p>
+      <div class="hero-actions">
+        <a href="sc201_2.html" class="btn-primary">무료로 시작하기 →</a>
+        <a href="#features"   class="btn-secondary">서비스 둘러보기</a>
+      </div>
+    </div>
+
+    <!-- 미리보기 카드 -->
+    <div class="hero-right">
+      <div class="hero-preview">
+        <div class="preview-header">
+          <span class="preview-title">오늘의 대시보드</span>
+          <span class="preview-badge">LIVE</span>
+        </div>
+        <div class="preview-stat-row">
+          <div class="preview-stat">
+            <span class="preview-stat-val">68%</span>
+            <span class="preview-stat-label">목표 달성</span>
+          </div>
+          <div class="preview-stat">
+            <span class="preview-stat-val">2.1</span>
+            <span class="preview-stat-label">남은 kg</span>
+          </div>
+          <div class="preview-stat">
+            <span class="preview-stat-val red">23.4</span>
+            <span class="preview-stat-label">BMI</span>
+          </div>
+        </div>
+        <div class="preview-divider"></div>
+        <div>
+          <div class="preview-progress-bar">
+            <div class="preview-progress-fill"></div>
+          </div>
+          <div class="preview-progress-label">
+            <span>시작 72kg</span>
+            <span>68% 달성</span>
+          </div>
+        </div>
+        <div class="preview-divider"></div>
+        <ul class="preview-list">
+          <li><strong>아침</strong>그릭요거트, 바나나, 견과류</li>
+          <li><strong>운동</strong>스쿼트 15회 × 3세트</li>
+          <li><strong>저녁</strong>연어구이, 구운 채소</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 기능 섹션 ── -->
+  <section class="features-section" id="features">
+    <div class="features-inner">
+      <div class="section-label">FEATURES</div>
+      <h2 class="section-title">건강 관리의 모든 것</h2>
+      <p class="section-desc">
+        AI가 분석하고 추천하는 완전한 건강 관리 솔루션.
+        식단부터 운동까지 하나의 플랫폼에서 관리하세요.
+      </p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🥗</div>
+          <div class="feature-name">AI 식단 인증</div>
+          <p class="feature-desc">음식 사진을 찍으면 AI가 자동으로 분석하고 오늘의 권장 식단과 일치하는지 확인해드립니다.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon red-icon">💪</div>
+          <div class="feature-name">맞춤형 운동 플랜</div>
+          <p class="feature-desc">신체 정보와 목표를 바탕으로 AI가 개인화된 운동 프로그램을 생성하고 METs 기반으로 칼로리를 계산합니다.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <div class="feature-name">목표 진행률 추적</div>
+          <p class="feature-desc">체중 변화 그래프와 달력으로 일별 인증 현황을 한눈에 파악하고 목표 달성까지 동기를 유지하세요.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <div class="feature-name">AI 실시간 상담</div>
+          <p class="feature-desc">건강 관련 궁금증이나 식단 변경이 필요할 때 AI와 실시간으로 대화하며 맞춤형 가이드를 받으세요.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon red-icon">📅</div>
+          <div class="feature-name">달력 일정 관리</div>
+          <p class="feature-desc">월별 식단·운동 인증 현황을 달력 형태로 확인하고 특정 날짜의 상세 기록을 조회할 수 있습니다.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔄</div>
+          <div class="feature-name">AI 재스케줄링</div>
+          <p class="feature-desc">계획 미이행이 누적되면 AI가 자동으로 잔여 일정을 재계획하고 동기부여 메시지를 전송합니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 앱 다운로드 ── -->
+  <section class="download-section" id="download">
+    <div class="download-card">
+      <div class="download-left">
+        <div class="download-title">앱으로 더 편리하게</div>
+        <p class="download-desc">
+          모바일 앱으로 언제 어디서나 식단을 인증하고
+          운동 기록을 남기세요. Android에서 무료로 다운로드하세요.
+        </p>
+      </div>
+      <div class="download-btns">
+        <a href="#" class="download-btn">
+          <span class="download-btn-icon">▶</span>
+          <span class="download-btn-text">
+            <span class="download-btn-sub">GET IT ON</span>
+            <span class="download-btn-name">Google Play</span>
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 푸터 ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="#">이용약관</a>
+        <a href="#">개인정보처리방침</a>
+        <a href="#">공지사항</a>
+        <a href="#">문의하기</a>
+      </div>
+      <span class="footer-copy">© 2025 HealthDash. All rights reserved.</span>
+    </div>
+  </footer>
+
+  <script src="../js/common.js"></script>
+  <script src="../js/sc101.js"></script>
+</body>
+</html>
