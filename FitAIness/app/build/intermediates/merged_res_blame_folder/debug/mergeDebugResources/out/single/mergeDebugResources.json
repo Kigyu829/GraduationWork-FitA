@@ -1,0 +1,102 @@
+[
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/mipmap-xhdpi_ic_launcher.webp.flat",
+        "source": "com.capstone.fitainess.app-main-63:/mipmap-xhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/layout_fragment_profile.xml.flat",
+        "source": "com.capstone.fitainess.app-main-63:/layout/fragment_profile.xml"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/mipmap-xxhdpi_ic_launcher.webp.flat",
+        "source": "com.capstone.fitainess.app-main-63:/mipmap-xxhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/mipmap-hdpi_ic_launcher_round.webp.flat",
+        "source": "com.capstone.fitainess.app-main-63:/mipmap-hdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/mipmap-mdpi_ic_launcher_round.webp.flat",
+        "source": "com.capstone.fitainess.app-main-63:/mipmap-mdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/mipmap-mdpi_ic_launcher.webp.flat",
+        "source": "com.capstone.fitainess.app-main-63:/mipmap-mdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/menu_bottom_nav_menu.xml.flat",
+        "source": "com.capstone.fitainess.app-main-63:/menu/bottom_nav_menu.xml"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.capstone.fitainess.app-main-63:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/layout_fragment_login.xml.flat",
+        "source": "com.capstone.fitainess.app-main-63:/layout/fragment_login.xml"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/layout_activity_main.xml.flat",
+        "source": "com.capstone.fitainess.app-main-63:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/xml_backup_rules.xml.flat",
+        "source": "com.capstone.fitainess.app-main-63:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/layout_fragment_body_info.xml.flat",
+        "source": "com.capstone.fitainess.app-main-63:/layout/fragment_body_info.xml"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/xml_data_extraction_rules.xml.flat",
+        "source": "com.capstone.fitainess.app-main-63:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/mipmap-hdpi_ic_launcher.webp.flat",
+        "source": "com.capstone.fitainess.app-main-63:/mipmap-hdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.capstone.fitainess.app-main-63:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/layout_fragment_home.xml.flat",
+        "source": "com.capstone.fitainess.app-main-63:/layout/fragment_home.xml"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/drawable_splash_logo.xml.flat",
+        "source": "com.capstone.fitainess.app-main-63:/drawable/splash_logo.xml"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/mipmap-xxhdpi_ic_launcher_round.webp.flat",
+        "source": "com.capstone.fitainess.app-main-63:/mipmap-xxhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/layout_fragment_splash.xml.flat",
+        "source": "com.capstone.fitainess.app-main-63:/layout/fragment_splash.xml"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/layout_fragment_sign_up.xml.flat",
+        "source": "com.capstone.fitainess.app-main-63:/layout/fragment_sign_up.xml"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/mipmap-xxxhdpi_ic_launcher_round.webp.flat",
+        "source": "com.capstone.fitainess.app-main-63:/mipmap-xxxhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.capstone.fitainess.app-main-63:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "com.capstone.fitainess.app-main-63:/mipmap-xxxhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/mipmap-xhdpi_ic_launcher_round.webp.flat",
+        "source": "com.capstone.fitainess.app-main-63:/mipmap-xhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-61:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.capstone.fitainess.app-main-63:/drawable/ic_launcher_foreground.xml"
+    }
+]

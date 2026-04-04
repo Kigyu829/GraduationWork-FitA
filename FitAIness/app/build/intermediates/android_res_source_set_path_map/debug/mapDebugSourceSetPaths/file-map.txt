@@ -1,0 +1,8 @@
+com.capstone.fitainess.app-pngs-0 I:\capstone\FitAIness\app\build\generated\res\pngs\debug
+com.capstone.fitainess.app-res-1 I:\capstone\FitAIness\app\build\generated\res\processDebugGoogleServices
+com.capstone.fitainess.app-updated_navigation_xml-2 I:\capstone\FitAIness\app\build\generated\updated_navigation_xml\debug
+com.capstone.fitainess.app-packageDebugResources-3 I:\capstone\FitAIness\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.capstone.fitainess.app-packageDebugResources-4 I:\capstone\FitAIness\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.capstone.fitainess.app-debug-5 I:\capstone\FitAIness\app\build\intermediates\merged_res\debug\mergeDebugResources
+com.capstone.fitainess.app-debug-6 I:\capstone\FitAIness\app\src\debug\res
+com.capstone.fitainess.app-main-7 I:\capstone\FitAIness\app\src\main\res
