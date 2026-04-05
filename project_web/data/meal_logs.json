@@ -137,5 +137,86 @@
     ],
     "img_url": "uploads\\2026-03-30\\food_1774912047541-526169142.jpg",
     "source": "cnn_server"
+  },
+  {
+    "id": 1775131378306,
+    "date": "2026-04-02T12:02:58.306Z",
+    "meal_type": "breakfast",
+    "img_url": "uploads\\2026-04-02\\food_1775131366805-446320271.jpg",
+    "source": "cnn_server"
+  },
+  {
+    "id": 1775339821790,
+    "date": "2026-04-04T21:57:01.790Z",
+    "meal_type": "breakfast",
+    "detected_food": "janchi_guksu",
+    "detected_food_kr": "janchi_guksu",
+    "confidence": 0.5518,
+    "top_5": [
+      {
+        "class_name": "janchi_guksu",
+        "class_name_kr": "janchi_guksu",
+        "confidence": 0.5518
+      },
+      {
+        "class_name": "물냉면",
+        "class_name_kr": "물냉면",
+        "confidence": 0.0573
+      },
+      {
+        "class_name": "콩국수",
+        "class_name_kr": "콩국수",
+        "confidence": 0.0362
+      },
+      {
+        "class_name": "쫄면",
+        "class_name_kr": "쫄면",
+        "confidence": 0.0338
+      },
+      {
+        "class_name": "백김치",
+        "class_name_kr": "백김치",
+        "confidence": 0.0324
+      }
+    ],
+    "img_url": "uploads\\2026-04-04\\food_1775339813343-832529626.jpg",
+    "source": "cnn_server"
+  },
+  {
+    "id": 1775340055362,
+    "date": "2026-04-04T22:00:55.362Z",
+    "meal_type": "breakfast",
+    "detected_food": "janchi_guksu",
+    "detected_food_kr": "janchi_guksu",
+    "confidence": 0.8398,
+    "top_5": [
+      {
+        "class_name": "janchi_guksu",
+        "class_name_kr": "janchi_guksu",
+        "confidence": 0.8398
+      },
+      {
+        "class_name": "bibimbap",
+        "class_name_kr": "비빔밥",
+        "confidence": 0.0147
+      },
+      {
+        "class_name": "막국수",
+        "class_name_kr": "막국수",
+        "confidence": 0.0065
+      },
+      {
+        "class_name": "kalguksu",
+        "class_name_kr": "칼국수",
+        "confidence": 0.0044
+      },
+      {
+        "class_name": "도토리묵",
+        "class_name_kr": "도토리묵",
+        "confidence": 0.0034
+      }
+    ],
+    "img_url": "uploads\\2026-04-04\\food_1775340052681-362859303.jpg",
+    "source": "cnn_server"
   }
 ]

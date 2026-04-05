@@ -225,6 +225,7 @@
 
     .badge-ok { background: var(--teal-dim); color: var(--teal); }
     .badge-fail { background: var(--red-dim); color: var(--red); }
+    .badge-warn { background: rgba(245,166,35,0.15); color: #F5A623; }
 
     .result-food-name {
       font-size: 36px;
@@ -580,11 +581,14 @@
       setTimeout(() => bar.style.width = conf + '%', 100);
 
       const badge = document.getElementById('resultBadge');
-      if (data.is_verified) {
+      if (conf >= 70) {
         badge.textContent = '인식 성공';
         badge.className = 'result-badge badge-ok';
+      } else if (conf >= 40) {
+        badge.textContent = '추정 결과';
+        badge.className = 'result-badge badge-warn';
       } else {
-        badge.textContent = '신뢰도 낮음';
+        badge.textContent = '인식 실패';
         badge.className = 'result-badge badge-fail';
       }
 

@@ -56,7 +56,16 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c144110f-f733-42ab-b70a-16449ac1f8f4" name="Changes" comment="" />
+    <list default="true" id="c144110f-f733-42ab-b70a-16449ac1f8f4" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../Server/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/../Server/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../model_CNN/src/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/../model_CNN/src/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../model_CNN/src/evaluate.py" beforeDir="false" afterPath="$PROJECT_DIR$/../model_CNN/src/evaluate.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../model_CNN/src/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/../model_CNN/src/model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../model_CNN/src/predict.py" beforeDir="false" afterPath="$PROJECT_DIR$/../model_CNN/src/predict.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../model_CNN/src/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/../model_CNN/src/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../project_web/data/meal_logs.json" beforeDir="false" afterPath="$PROJECT_DIR$/../project_web/data/meal_logs.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../project_web/public/pages/food_test.html" beforeDir="false" afterPath="$PROJECT_DIR$/../project_web/public/pages/food_test.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -65,7 +74,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[LocalEmulator::path=C:\Users\Blitz\.android\avd\Medium_Phone_2.avd]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -96,7 +105,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
   <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="C:\Users\Blitz\.gradle\wrapper\dists\gradle-9.3.1-bin\23ovyewtku6u96viwx3xl3oks\gradle-9.3.1" javaHome="C:\Program Files\Android\Android Studio\jbr" gradleVersion="9.3.1" />
   <component name="ProblemsViewState">
@@ -119,11 +128,13 @@
     "RunOnceActivity.cidr.known.project.marker": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "android.gradle.sync.needed": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "com.google.services.firebase.aqiPopupShown": "true",
-    "git-widget-placeholder": "android",
+    "git-widget-placeholder": "kim",
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/김인규/Desktop/Graduation_Work/FitAiness",
     "settings.editor.selected.configurable": "com.android.studio.ml.bot.mainConfigurable"
   }
 }]]></component>

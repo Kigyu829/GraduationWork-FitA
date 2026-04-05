@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/mealFragment"
+        android:icon="@android:drawable/ic_menu_my_calendar"
+        android:title="식단" />
+
+    <item
+        android:id="@+id/workoutFragment"
+        android:icon="@android:drawable/ic_menu_compass"
+        android:title="운동" />
+
+    <item
+        android:id="@+id/chatFragment"
+        android:icon="@android:drawable/ic_menu_send"
+        android:title="AI 상담" />
+
+</menu>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="dark_bg">#FF121212</color>
+    <color name="dark_surface">#FF1E1E1E</color>
+    <color name="teal">#FF66D0BC</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">GeminiTest</string>
+    <style name="Theme.GeminiTest" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#66D0BC</item>
+        <item name="colorPrimaryVariant">#4DB8A4</item>
+        <item name="colorOnPrimary">#121212</item>
+        <item name="colorSecondary">#66D0BC</item>
+        <item name="android:windowBackground">#121212</item>
+        <item name="android:statusBarColor">#121212</item>
+        <item name="android:navigationBarColor">#1E1E1E</item>
+    </style>
+</resources>
