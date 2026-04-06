@@ -1,112 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@color/cbg"
-    >
-    <TextView
-    android:id="@+id/tvWelcomeMessage"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="대시보드"
-    android:textColor="@color/white"
-    android:textSize="22sp"
-    android:textStyle="bold"
-    android:layout_marginBottom="24dp"
-    android:layout_marginTop="16dp" />
-
-    <androidx.cardview.widget.CardView
+    android:fillViewport="true"
+    android:background="#F8F9FA">
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        android:layout_marginBottom="24dp"
-        android:backgroundTint="@color/dark_gray">
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:background="@color/background_gray">
+        <TextView
+            android:id="@+id/tvWelcomeMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="대시보드"
+            android:textColor="@color/white"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp"
+            android:layout_marginTop="16dp" />
 
-        <LinearLayout
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            android:layout_marginBottom="24dp"
+            android:backgroundTint="@color/dark_gray">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="나의 감량 목표 현황"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:layout_marginBottom="16dp"/>
+
+                <ProgressBar
+                    android:id="@+id/progressBarWeight"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="100"
+                    android:progress="0"
+                    android:scaleY="2"
+                    android:layout_marginBottom="8dp"/>
+                <TextView
+                    android:id="@+id/tvProgressText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="데이터를 불러오는 중..."
+                    android:textAlignment="center"
+                    android:textColor="@color/white"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cvGoalStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            android:backgroundTint="@color/dark_gray"
+            android:layout_marginBottom="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/tvGoalTitle"
+                    android:textColor="@color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="나의 감량 목표"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:layout_marginBottom="16dp"/>
+
+                <TextView
+                    android:id="@+id/tvGoalMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="데이터를 불러오는 중..."
+                    android:textColor="@color/white"
+                    android:textSize="16sp"/>
+                <!-- 설정 버튼 (목표 없을 때만 보임) -->
+                <Button
+                    android:id="@+id/btnSetGoal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="목표 설정하러 가기"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cvDiner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            android:backgroundTint="@color/dark_gray"
+            android:layout_marginBottom="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="나의 감량 목표 현황"
+                android:text="오늘의 식단"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/white"
-                android:textSize="18sp"
                 android:layout_marginBottom="16dp"/>
 
-            <ProgressBar
-                android:id="@+id/progressBarWeight"
-                style="?android:attr/progressBarStyleHorizontal"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:max="100"
-                android:progress="0"
-                android:scaleY="2"
-                android:layout_marginBottom="8dp"/>
-            <TextView
-                android:id="@+id/tvProgressText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="데이터를 불러오는 중입니다..."
-                android:textAlignment="center"
-                android:textColor="@color/white"/>
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvMealTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/gasoline_green"
+                    android:text="아침"
+                    android:layout_marginRight="4dp"/>
+
+                <TextView
+                    android:id="@+id/tvMealinfo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/white"
+                    android:text="식단 불러오는 중..."
+                    android:layout_marginBottom="10dp"/>
+            </LinearLayout>
+                <Button
+                    android:id="@+id/btnGoDiner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="식단 인증"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/gasoline_green"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        android:backgroundTint="@color/dark_gray">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="오늘의 할 일"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:textColor="@color/white"
-                android:layout_marginBottom="16dp"/>
 
-            <CheckBox
-                android:id="@+id/cbMeal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="AI 권장 식단 먹기 (0/3)"
-                android:textSize="16sp"
-                android:textColor="@color/white"
-                android:layout_marginBottom="8dp"/>
 
-            <CheckBox
-                android:id="@+id/cbWorkout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="오늘의 권장 운동 완료하기"
-                android:textColor="@color/white"
-                android:textSize="16sp"/>
 
-            <Button
-                android:id="@+id/btnLogout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="로그아웃"
-                android:backgroundTint="@color/candy_red"
-                android:layout_marginTop="24dp" />
-
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-</LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

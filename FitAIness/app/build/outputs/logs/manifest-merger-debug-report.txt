@@ -1,9 +1,20 @@
 -- Merging decision tree log ---
+provider#androidx.core.content.FileProvider
+INJECTED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:31:9-39:20
+	android:grantUriPermissions
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:35:13-47
+	android:authorities
+		INJECTED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:33:13-64
+	android:exported
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:34:13-37
+	android:name
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:32:13-62
 manifest
-ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:2:1-30:12
-INJECTED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:2:1-30:12
-INJECTED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:2:1-30:12
-INJECTED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:2:1-30:12
+ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:2:1-42:12
+INJECTED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:2:1-42:12
+INJECTED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:2:1-42:12
+INJECTED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:2:1-42:12
 MERGED from [androidx.navigation:navigation-common:2.7.7] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\d8f03fd64ed886d4a1bab7d987284208\workspace\transformed\navigation-common-2.7.7\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.navigation:navigation-runtime:2.7.7] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\a618f12ab2118c254163879821833e16\workspace\transformed\navigation-runtime-2.7.7\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.navigation:navigation-fragment:2.7.7] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\9c752a74d98e26577b30164f915616ee\workspace\transformed\navigation-fragment-2.7.7\AndroidManifest.xml:17:1-22:12
@@ -106,9 +117,19 @@ MERGED from [com.google.android.recaptcha:recaptcha:18.6.1] C:\Users\Blitz\.grad
 MERGED from [com.google.android.recaptcha:recaptcha:18.6.1] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\879cd4430623c7ca699968d3e34a0920\workspace\transformed\recaptcha-18.6.1\AndroidManifest.xml:7:5-67
 	android:name
 		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:5:22-64
+uses-permission#android.permission.CAMERA
+ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:6:5-65
+	android:name
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:6:22-62
+uses-feature#android.hardware.camera
+ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:7:5-85
+	android:required
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:7:58-82
+	android:name
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:7:19-57
 application
-ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:7:5-28:19
-INJECTED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:7:5-28:19
+ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:9:5-40:19
+INJECTED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:9:5-40:19
 MERGED from [com.google.android.material:material:1.13.0] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\f34512583aff8bbcbda8e9a97e25fc06\workspace\transformed\material-1.13.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.13.0] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\f34512583aff8bbcbda8e9a97e25fc06\workspace\transformed\material-1.13.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.2.1] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\69e17f2c97dc893a494148a41812fefc\workspace\transformed\constraintlayout-2.2.1\AndroidManifest.xml:7:5-20
@@ -158,41 +179,47 @@ MERGED from [com.google.android.play:core-common:2.0.3] C:\Users\Blitz\.gradle\c
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.18.0] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\e0f43eec7b4de847300d205e2e9333c1\workspace\transformed\core-1.18.0\AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:14:9-35
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:16:9-35
 	android:label
-		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:12:9-41
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:14:9-41
 	android:fullBackupContent
-		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:10:9-54
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:12:9-54
 	android:roundIcon
-		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:13:9-54
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:15:9-54
 	tools:targetApi
-		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:16:9-29
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:18:9-29
 	android:icon
-		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:11:9-43
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:13:9-43
 	android:allowBackup
-		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:8:9-35
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:10:9-35
 	android:theme
-		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:15:9-47
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:17:9-47
 	android:dataExtractionRules
-		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:9:9-65
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:11:9-65
 activity#com.capstone.fitainess.MainActivity
-ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:18:9-27:20
+ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:20:9-29:20
 	android:exported
-		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:20:13-36
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:22:13-36
 	android:theme
-		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:21:13-54
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:23:13-54
 	android:name
-		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:19:13-41
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:21:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:23:13-26:29
+ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:25:13-28:29
 action#android.intent.action.MAIN
-ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:24:17-69
+ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:26:17-69
 	android:name
-		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:24:25-66
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:26:25-66
 category#android.intent.category.LAUNCHER
-ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:25:17-77
+ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:27:17-77
 	android:name
-		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:25:27-74
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:27:27-74
+meta-data#android.support.FILE_PROVIDER_PATHS
+ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:36:13-38:54
+	android:resource
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:38:17-51
+	android:name
+		ADDED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml:37:17-67
 uses-sdk
 INJECTED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from I:\capstone\FitAIness\app\src\main\AndroidManifest.xml

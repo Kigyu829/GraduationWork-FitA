@@ -52,12 +52,23 @@ app:startDestination="@id/splashFragment" >
         android:id="@+id/action_home_to_bodyInfo"
         app:destination="@id/bodyInfoFragment" />
     <action
-        android:id="@+id/action_home_to_login"
-        app:destination="@id/loginFragment"
-        app:popUpTo="@id/nav_graph"
-        app:popUpToInclusive="true" />
+        android:id="@+id/action_home_to_profile"
+        app:destination="@id/profileFragment" />
+    <action
+        android:id="@+id/action_home_to_target"
+        app:destination="@id/targetFragment" />
+    <action
+        android:id="@+id/action_home_to_diner"
+        app:destination="@id/dinerFragment" />
 
 </fragment>
+<fragment
+    android:id="@+id/dinerFragment"
+    android:name="com.capstone.fitainess.DinerFragment" />
+<action
+    android:id="@+id/action_diner_to_home"
+    app:destination="@id/homeFragment"
+    app:popUpTo="@id/dinerFragment" />
 <fragment
     android:id="@+id/bodyInfoFragment"
     android:name="com.capstone.fitainess.BodyInfoFragment" >
@@ -79,8 +90,29 @@ app:startDestination="@id/splashFragment" >
         app:popUpTo="@id/profileFragment"
         app:popUpToInclusive="true" />
     <action
+        android:id="@+id/action_home_to_target"
+        app:destination="@id/targetFragment" />
+    <action
         android:id="@+id/action_profile_to_bodyInfo"
         app:destination="@id/bodyInfoFragment" />
+    <action
+        android:id="@+id/action_profile_to_login"
+        app:destination="@id/loginFragment"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_profile_to_target"
+        app:destination="@id/targetFragment" />
 
 </fragment>
+<fragment
+    android:id="@+id/targetFragment"
+    android:name="com.capstone.fitainess.TargetFragment" />
+<action
+    android:id="@+id/action_target_to_home"
+    app:destination="@id/homeFragment"
+    app:popUpTo="@id/targetFragment" />
+<action
+    android:id="@+id/action_target_to_profile"
+    app:destination="@id/profileFragment"
+    app:popUpTo="@id/targetFragment" />
 </navigation>

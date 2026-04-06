@@ -1,6 +1,9 @@
 package com.capstone.fitainess;
 
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -16,88 +20,102 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class ProfileFragment extends Fragment
-{
+public class ProfileFragment extends Fragment {
 
     private TextView tvProfileHeight, tvProfileWeight, tvProfileBmi;
-    private FirebaseFirestore db;
+    private CardView cvGoalStatus;
+    private TextView tvGoalTitle, tvGoalMessage;
     private String uid;
 
     public ProfileFragment() { super(R.layout.fragment_profile); }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
-    {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // 뷰 연결
         tvProfileHeight = view.findViewById(R.id.tvProfileHeight);
         tvProfileWeight = view.findViewById(R.id.tvProfileWeight);
         tvProfileBmi = view.findViewById(R.id.tvProfileBmi);
-        Button btnGoToEdit = view.findViewById(R.id.btnGoToEdit);
+        cvGoalStatus = view.findViewById(R.id.cvProfileGoalStatus);
+        tvGoalTitle = view.findViewById(R.id.tvProfileGoalTitle);
+        tvGoalMessage = view.findViewById(R.id.tvProfileGoalMessage);
 
-        db = FirebaseFirestore.getInstance();
+        Button btnGoToBodyEdit = view.findViewById(R.id.btnGoToBodyEdit);
+        Button btnGoToTargetEdit = view.findViewById(R.id.btnGoToTargetEdit);
+
         uid = FirebaseAuth.getInstance().getUid();
 
-        // 화면 진입 시 기존 정보 불러오기
-        loadUserProfile();
+        // 데이터 로드
+        loadUserProfile(); // Firestore
+        loadGoalProfile(); // SharedPreferences
 
-        // 정보 수정 버튼 클릭 이벤트
-        btnGoToEdit.setOnClickListener(v -> showEditConfirmDialog());
-    }
-
-    private void loadUserProfile()
-    {
-        if (uid == null) return;
-
-        db.collection("users").document(uid).get().addOnCompleteListener(task ->
+        // 이동 버튼 이벤트 (다이얼로그 포함)
+        btnGoToBodyEdit.setOnClickListener(v -> showConfirmDialog("신체 정보 수정", "신체 정보 수정 화면으로 이동하시겠습니까?", true));
+        btnGoToTargetEdit.setOnClickListener(v -> showConfirmDialog("목표 설정 수정", "목표 설정 화면으로 이동하시겠습니까?", false));
+        Button btnLogout = view.findViewById(R.id.btnLogout);
+        btnLogout.setOnClickListener(v ->
         {
-            if (task.isSuccessful() && task.getResult() != null) {
-                DocumentSnapshot doc = task.getResult();
-                if (doc.exists()) {
-                    Long height = doc.getLong("height");
-                    Long weight = doc.getLong("weight");
+            // 파이어베이스 인증 세션 종료
+            FirebaseAuth.getInstance().signOut();
 
-                    if (height != null && weight != null) {
-                        tvProfileHeight.setText("키: " + height + " cm");
-                        tvProfileWeight.setText("몸무게: " + weight + " kg");
-
-                        // BMI 계산 로직
-                        double heightInMeter = height / 100.0;
-                        double bmi = weight / (heightInMeter * heightInMeter);
-                        String bmiText = String.format("BMI: %.1f", bmi);
-
-                        if (bmi >= 25.0) bmiText += " (비만)";
-                        else if (bmi >= 23.0) bmiText += " (과체중)";
-                        else if (bmi >= 18.5) bmiText += " (정상)";
-                        else bmiText += " (저체중)";
-
-                        tvProfileBmi.setText(bmiText);
-                    }
-                }
-            }
+            // 로그인 화면으로 강제 이동 (백 스택 모두 제거)
+            NavHostFragment.findNavController(ProfileFragment.this)
+                    .navigate(R.id.action_profile_to_login);
         });
     }
 
-    private void showEditConfirmDialog()
+    private void loadUserProfile() {
+        if (uid == null) return;
+        FirebaseFirestore.getInstance().collection("users").document(uid).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        Long h = doc.getLong("height");
+                        Long w = doc.getLong("weight");
+                        if (h != null && w != null) {
+                            tvProfileHeight.setText("키: " + h + " cm");
+                            tvProfileWeight.setText("몸무게: " + w + " kg");
+                            double bmi = w / (Math.pow(h / 100.0, 2));
+                            tvProfileBmi.setText(String.format("BMI: %.1f", bmi));
+                        }
+                    }
+                });
+    }
+
+    private void loadGoalProfile() {
+        SharedPreferences prefs = requireActivity().getSharedPreferences("GoalPrefs", Context.MODE_PRIVATE);
+        boolean isGoalSet = prefs.getBoolean("is_goal_set", false);
+
+        if (!isGoalSet) {
+            cvGoalStatus.setCardBackgroundColor(Color.parseColor("#FFEBEE")); // 미설정 시 붉은색 배경
+            tvGoalMessage.setText("목표가 설정되지 않았습니다.");
+        } else {
+            cvGoalStatus.setCardBackgroundColor(Color.WHITE);
+            int targetWeight = prefs.getInt("target_weight", 0);
+            int duration = prefs.getInt("duration_months", 0);
+            tvGoalMessage.setText(String.format("목표 체중: %d kg\n목표 기간: %d 개월", targetWeight, duration));
+        }
+    }
+
+    private void showConfirmDialog(String title, String message, boolean isBodyInfo)
     {
         new AlertDialog.Builder(requireContext())
-                .setTitle("정보 수정")
-                .setMessage("신체 정보 수정 화면으로 이동하시겠습니까?")
+                .setTitle(title)
+                .setMessage(message)
                 .setPositiveButton("예", (dialog, which) ->
                 {
-                    if (uid == null) return;
-
-                    // is_profile_set을 false로 변경
-                    db.collection("users").document(uid).update("is_profile_set", false)
-                            .addOnSuccessListener(aVoid ->
-                            {
-                                NavHostFragment.findNavController(ProfileFragment.this)
-                                        .navigate(R.id.action_profile_to_bodyInfo);
-                            })
-                            .addOnFailureListener(e ->
-                            {
-                                Toast.makeText(getContext(), "오류가 발생했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
-                            });
+                    if (isBodyInfo)
+                    {
+                        // 신체 정보 수정 시에는 is_profile_set 플래그 변경 후 이동
+                        FirebaseFirestore.getInstance().collection("users").document(uid)
+                                .update("is_profile_set", false)
+                                .addOnSuccessListener(aVoid -> NavHostFragment.findNavController(this).navigate(R.id.action_profile_to_bodyInfo));
+                    }
+                    else
+                    {
+                        // 목표 수정 시에는 바로 이동 (SharedPreferences 기반이므로)
+                        NavHostFragment.findNavController(this).navigate(R.id.action_profile_to_target);
+                    }
                 })
                 .setNegativeButton("아니오", null)
                 .show();
