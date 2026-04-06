@@ -21,6 +21,7 @@ window.addEventListener('DOMContentLoaded', () => {
   renderSidebar();
   renderProgress();
   renderBMIGauge();
+  renderAiPlan();     /* ← AI 식단/운동 플랜 카드 렌더링 */
   renderTodayCheck();
   renderWater();
   renderStreak();
@@ -155,6 +156,15 @@ function renderBMIGauge() {
 
     setText('bmrValue',  `${bmr} kcal`);
     setText('tdeeValue', `${tdee} kcal`);
+
+    /* 식단 목표 칼로리: 항상 최신 설정값으로 직접 계산 */
+    const targetWeight2 = Number(data.targetWeight || 0);
+    const goalWeeks2    = Number(data.goalWeeks || 12);
+    const weightToLose2 = Math.max(0, weight - targetWeight2);
+    const rawDeficit2   = Math.round((weightToLose2 * 7700) / (goalWeeks2 * 7));
+    const dailyDeficit2 = Math.min(rawDeficit2, 1000);
+    const targetCal     = Math.max(1200, tdee - dailyDeficit2);
+    setText('targetCaloriesValue', `${targetCal.toLocaleString()} kcal`);
   }
 }
 
@@ -183,24 +193,17 @@ function renderTodayCheck() {
   const workoutChk = document.getElementById('checkWorkout');
   const statusEl   = document.getElementById('todayCheckStatus');
 
-  if (mealChk)    mealChk.checked    = checks.meal;
-  if (workoutChk) workoutChk.checked = checks.workout;
+  /* 체크박스는 sc311(식단 인증 3개 완료 / 운동 전체 완료)에서 자동 설정 — 수동 조작 불가 */
+  if (mealChk) {
+    mealChk.checked  = checks.meal;
+    mealChk.disabled = true;
+  }
+  if (workoutChk) {
+    workoutChk.checked  = checks.workout;
+    workoutChk.disabled = true;
+  }
 
   updateCheckStatus(checks, statusEl);
-
-  mealChk?.addEventListener('change', () => {
-    checks.meal = mealChk.checked;
-    saveTodayChecks(todayKey, checks);
-    updateCheckStatus(checks, statusEl);
-    renderProgress();
-  });
-
-  workoutChk?.addEventListener('change', () => {
-    checks.workout = workoutChk.checked;
-    saveTodayChecks(todayKey, checks);
-    updateCheckStatus(checks, statusEl);
-    renderProgress();
-  });
 }
 
 function updateCheckStatus(checks, statusEl) {
@@ -209,7 +212,7 @@ function updateCheckStatus(checks, statusEl) {
     statusEl.textContent = '🎉 오늘 목표 달성!';
     statusEl.className   = 'today-check-status done';
   } else if (checks.meal || checks.workout) {
-    statusEl.textContent = '🔥 절반 달성 중!';
+    statusEl.textContent = '🔥 목표 달성 완료!';
     statusEl.className   = 'today-check-status half';
   } else {
     statusEl.textContent = '아직 체크하지 않았어요.';
@@ -468,6 +471,74 @@ function bindLogout() {
     localStorage.removeItem('healthUserData');
     location.href = 'sc101.html';
   });
+}
+
+/* ════════════════════════════════
+   AI 식단 / 운동 플랜 카드 렌더링
+   sc302에서 localStorage에 저장한 aiMealPlan / aiWorkoutPlan을
+   대시보드 카드(#mealContent, #workoutContent)에 표시
+   ════════════════════════════════ */
+function renderAiPlan() {
+  const userData    = Storage.getUser();
+  const mealPlan    = userData.aiMealPlan;
+  const workoutPlan = userData.aiWorkoutPlan;
+
+  const mealEl    = document.getElementById('mealContent');
+  const workoutEl = document.getElementById('workoutContent');
+
+  /* ── 식단 카드 ── */
+  if (mealEl) {
+    if (mealPlan) {
+      const rows = [
+        { icon: '🌅', key: 'breakfast', label: '아침' },
+        { icon: '☀️', key: 'lunch',     label: '점심' },
+        { icon: '🌙', key: 'dinner',    label: '저녁' },
+      ].map(({ icon, key, label }) => {
+        const m = mealPlan[key];
+        if (!m) return '';
+        const menu = Array.isArray(m.menu) ? m.menu.join(', ') : m.menu;
+        return `
+          <div class="plan-row">
+            <span class="plan-row-label">${icon} ${label}</span>
+            <span class="plan-row-value">${menu}</span>
+            <span class="plan-row-kcal">${m.calories} kcal</span>
+          </div>`;
+      }).join('');
+
+      mealEl.innerHTML = `
+        <div class="plan-list">${rows}</div>
+        <div class="plan-total">하루 총 ${(mealPlan.total_calories || 0).toLocaleString()} kcal</div>
+        ${mealPlan.tip ? `<div class="plan-tip">💡 ${mealPlan.tip}</div>` : ''}
+      `;
+    } else {
+      mealEl.innerHTML = `<div class="plan-empty">sc302에서 AI 플랜을 먼저 생성해주세요.</div>`;
+    }
+  }
+
+  /* ── 운동 카드 ── */
+  if (workoutEl) {
+    if (workoutPlan) {
+      const mainItems = (workoutPlan.main || []).map(item => {
+        const detail = item.sets && item.reps
+          ? `${item.reps}회 × ${item.sets}세트`
+          : (item.duration || '');
+        return `
+          <div class="plan-row workout-row">
+            <span class="plan-row-name">💪 ${item.name}</span>
+            <span class="plan-row-detail">${detail}</span>
+            <span class="plan-row-kcal">${item.calories || 0} kcal</span>
+          </div>`;
+      }).join('');
+
+      workoutEl.innerHTML = `
+        <div class="plan-list">${mainItems}</div>
+        <div class="plan-total">${workoutPlan.total_duration || 0}분 · ${workoutPlan.total_calories || 0} kcal 소모</div>
+        ${workoutPlan.tip ? `<div class="plan-tip">💡 ${workoutPlan.tip}</div>` : ''}
+      `;
+    } else {
+      workoutEl.innerHTML = `<div class="plan-empty">sc302에서 AI 플랜을 먼저 생성해주세요.</div>`;
+    }
+  }
 }
 
 /* ════════════════════════════════

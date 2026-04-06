@@ -3,6 +3,7 @@
 # ──────────────────────────
 .env
 local.properties
+google-services.json
 
 # ──────────────────────────
 # Android 빌드 산출물

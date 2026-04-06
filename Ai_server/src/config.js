@@ -1,15 +1,53 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// 개발 중 쿼터 초과 시 새 Google 계정 API 키로 교체해서 사용
 const geminiModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-// Gemini 호출 공통 함수 (소요 시간 측정 포함)
+// Gemini 호출 공통 함수
+// - 429 쿼터 초과: retryDelay 파싱 후 1회 재시도
+// - 503 과부하:    5초 간격으로 최대 3회 재시도
 async function callGemini(prompt) {
     const start = Date.now();
-    const result = await geminiModel.generateContent(prompt);
-    const text = result.response.text();
-    console.log(`  Gemini 응답 완료 (${Date.now() - start}ms, ${text.length}자)`);
-    return text;
+
+    const attempt = async () => {
+        const result = await geminiModel.generateContent(prompt);
+        const text = result.response.text();
+        console.log(`  Gemini 응답 완료 (${Date.now() - start}ms, ${text.length}자)`);
+        return text;
+    };
+
+    // 429 처리 (1회 재시도)
+    try {
+        return await attempt();
+    } catch (err) {
+        const is429 = err.message?.includes('429') || err.status === 429;
+        const is503 = err.message?.includes('503') || err.status === 503;
+
+        if (is429) {
+            const delayMatch = err.message?.match(/retry in (\d+)/i);
+            const waitSec = delayMatch ? Math.min(parseInt(delayMatch[1]) + 2, 60) : 35;
+            console.warn(`  [쿼터 초과] ${waitSec}초 후 재시도...`);
+            await new Promise(r => setTimeout(r, waitSec * 1000));
+            return await attempt();
+        }
+
+        if (is503) {
+            // 503 과부하: 5초 간격으로 최대 3회 재시도
+            for (let i = 1; i <= 3; i++) {
+                console.warn(`  [503 과부하] ${i}/3 재시도 (5초 대기)...`);
+                await new Promise(r => setTimeout(r, 5000));
+                try {
+                    return await attempt();
+                } catch (retryErr) {
+                    const stillErr = retryErr.message?.includes('503') || retryErr.status === 503;
+                    if (!stillErr || i === 3) throw retryErr;
+                }
+            }
+        }
+
+        throw err;
+    }
 }
 
 // GeminiTest와 동일한 150종 한국 음식 라벨

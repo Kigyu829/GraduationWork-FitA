@@ -1,65 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="32dp"
-    android:gravity="center"
-    android:background="@color/black">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="내 프로필"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/white"
-        android:layout_marginBottom="48dp"/>
+    android:fillViewport="true"
+    android:background="@color/background_gray">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#F1F3F5"
-        android:padding="24dp"
-        android:layout_marginBottom="32dp"
-        android:backgroundTint="@color/dark_gray">
+        android:padding="24dp">
 
         <TextView
-            android:id="@+id/tvProfileHeight"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="키: 불러오는 중..."
-            android:textSize="18sp"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp"/>
-
-        <TextView
-            android:id="@+id/tvProfileWeight"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="몸무게: 불러오는 중..."
-            android:textSize="18sp"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp"/>
-
-        <TextView
-            android:id="@+id/tvProfileBmi"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="BMI: 불러오는 중..."
-            android:textSize="18sp"
+            android:text="내 프로필"
+            android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="@color/gasoline_green"/>
+            android:layout_marginBottom="32dp"
+            android:layout_gravity="center_horizontal"
+            android:textColor="@color/white"/>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            android:layout_marginBottom="24dp"
+            android:backgroundTint="@color/dark_gray">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="신체 정보"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:layout_marginBottom="12dp"/>
+                <TextView
+                    android:id="@+id/tvProfileHeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="키: -"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp"/>
+                <TextView
+                    android:id="@+id/tvProfileWeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="몸무게: -"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp"/>
+                <TextView
+                    android:id="@+id/tvProfileBmi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="BMI: -"
+                    android:textStyle="bold"
+                    android:textColor="#007BFF"/>
+                <Button
+                    android:id="@+id/btnGoToBodyEdit"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="신체 정보 수정하기"
+                    android:textColor="@color/white"
+                    android:layout_gravity="end"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cvProfileGoalStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            android:layout_marginBottom="24dp"
+            android:backgroundTint="@color/dark_gray">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+                <TextView
+                    android:id="@+id/tvProfileGoalTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="감량 목표"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:layout_marginBottom="12dp"/>
+                <TextView
+                    android:id="@+id/tvProfileGoalMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="목표를 설정해주세요."
+                    android:textColor="@color/white"
+                    android:textSize="15sp"/>
+                <Button
+                    android:id="@+id/btnGoToTargetEdit"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="목표 설정/수정하기"
+                    android:textColor="@color/white"
+                    android:layout_gravity="end"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/candy_red"
+            android:text="로그아웃"
+            android:textColor="@color/white">
+        </Button>
+
     </LinearLayout>
-
-    <Button
-        android:id="@+id/btnGoToEdit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="신체 정보 수정하기"
-        android:padding="12dp"
-        android:textColor="@color/white"
-        android:textSize="16sp"/>
-
-</LinearLayout>
+</androidx.core.widget.NestedScrollView>

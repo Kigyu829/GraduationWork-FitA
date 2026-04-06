@@ -69,6 +69,25 @@
       <button class="tab-btn" id="tabWorkout" data-tab="workout">💪 운동</button>
     </div>
 
+    <!-- 동기부여 메시지 카드 -->
+    <div id="motivationCard" style="
+      background: linear-gradient(135deg, var(--card) 0%, rgba(78,205,196,0.08) 100%);
+      border: 1px solid rgba(78,205,196,0.25);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      min-height: 56px;
+    ">
+      <span style="font-size:22px;line-height:1.4;">🤖</span>
+      <p id="motivationText" style="
+        margin:0; font-size:13px; line-height:1.7;
+        color:var(--text-sec,#aaa); white-space:pre-wrap;
+      ">AI가 오늘의 메시지를 준비하고 있어요...</p>
+    </div>
+
     <!-- 콘텐츠 + AI채팅 레이아웃 -->
     <div class="content-with-chat">
 
@@ -129,18 +148,6 @@
           </div>
           <div class="meal-kcal">620 kcal</div>
           <button class="verify-btn" data-meal="dinner" data-kcal="620">📷 인증</button>
-        </div>
-
-        <!-- 간식 -->
-        <div class="meal-section-title">🍎 간식</div>
-        <div class="meal-item" id="meal-snack">
-          <div class="meal-emoji"></div>
-          <div class="meal-info">
-            <div class="meal-name">사과 1개 + 아몬드 10알</div>
-            <div class="meal-detail">단백질 3g · 탄수화물 22g · 지방 6g</div>
-          </div>
-          <div class="meal-kcal">280 kcal</div>
-          <button class="verify-btn" data-meal="snack" data-kcal="280">📷 인증</button>
         </div>
 
       </div><!-- /식단 탭 -->
