@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>신체정보 입력 1</title>
+  <title>신체정보 입력 1 – HealthDash</title>
+  <link rel="stylesheet" href="../css/common.css" />
   <link rel="stylesheet" href="../css/sc202.css" />
 </head>
 <body class="health-page">
@@ -58,12 +59,14 @@
 
             <div class="input-group">
               <label for="height">키 (cm)</label>
-              <input type="number" id="height" name="height" placeholder="예: 165" min="100" max="250" required />
+              <input type="number" id="height" name="height"
+                placeholder="예: 165" min="100" max="250" required />
             </div>
 
             <div class="input-group">
               <label for="weight">현재 체중 (kg)</label>
-              <input type="number" id="weight" name="weight" placeholder="예: 58" min="20" max="300" step="0.1" required />
+              <input type="number" id="weight" name="weight"
+                placeholder="예: 58" min="20" max="300" step="0.1" required />
             </div>
 
           </div>
@@ -77,9 +80,11 @@
           입력하신 정보는 안전하게 보관되며<br>건강 분석에만 사용됩니다.
         </div>
       </section>
+
     </div>
   </div>
 
+  <script src="../js/common.js"></script>
   <script src="../js/sc202.js"></script>
 </body>
 </html>

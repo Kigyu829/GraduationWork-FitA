@@ -1,1 +1,87 @@
-<!--camera-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>식단 사진 업로드</title>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/sc101.css" />
+  <link rel="stylesheet" href="../css/sc401.css" />
+</head>
+<body>
+
+  <!-- ── 네비게이션 바 ── -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <button class="drawer-toggle-nav" id="drawerToggle">☰</button>
+      <a href="sc101.html" class="site-logo">
+        <div class="site-logo-icon">🏃</div>
+        <span class="site-logo-text">HealthDash</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- 사이드바 드로어 -->
+  <aside class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-logo">
+        <div class="drawer-logo-icon">🏃</div>
+        <span class="drawer-logo-text">HealthDash</span>
+      </div>
+      <button class="drawer-close" id="drawerClose">✕</button>
+    </div>
+    <nav class="drawer-nav">
+      <button class="drawer-menu-btn" data-href="sc301.html"><span>🏠</span>대시보드</button>
+      <button class="drawer-menu-btn" data-href="sc302.html"><span>🤖</span>AI 식단 추천</button>
+      <button class="drawer-menu-btn" data-href="sc311.html"><span>💪</span>오늘의 식단/운동</button>
+      <button class="drawer-menu-btn active" data-href="sc401.html"><span>🥗</span>식단 인증</button>
+      <button class="drawer-menu-btn" data-href="sc601.html"><span>⚙️</span>설정</button>
+    </nav>
+    <button class="drawer-logout" id="drawerLogout">로그아웃</button>
+  </aside>
+
+  <!-- 오버레이 -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+
+  <main class="upload-main">
+    <div class="upload-header">
+      <div class="upload-header-inner">
+        <button class="header-close-btn" id="backToMain" title="돌아가기">✕</button>
+        <div>
+          <div class="upload-title">식단 사진 업로드</div>
+          <div class="upload-sub">오늘 먹은 음식 사진을 업로드하면 AI가 분석해드려요</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="upload-card">
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept="image/*" style="display:none;" />
+        <div class="upload-zone-inner" id="uploadZoneInner">
+          <div class="upload-icon">📁</div>
+          <div class="upload-label">사진을 여기에 드래그하거나</div>
+          <button class="upload-btn primary-btn" id="uploadBtn">파일 선택하기</button>
+          <div class="upload-hint">JPG, PNG, WEBP · 최대 10MB</div>
+        </div>
+        <div class="upload-preview" id="uploadPreview" style="display:none;">
+          <img class="preview-img" id="previewImg" src="" alt="미리보기" />
+          <div class="preview-overlay">
+            <span class="preview-change-hint">클릭해서 사진 변경</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="upload-actions" id="uploadActions" style="display:none;">
+        <div class="selected-info" id="selectedInfo"></div>
+        <div class="action-btns">
+          <button class="secondary-btn" id="cancelBtn">다시 선택</button>
+          <button class="primary-btn analyze-btn" id="analyzeBtn">🔍 AI 분석 시작</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/common.js"></script>
+  <script src="../js/sc401.js"></script>
+</body>
+</html>

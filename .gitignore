@@ -1,29 +1,50 @@
-# 모델 가중치 (전체)
-*.pth
+# ──────────────────────────
+# 보안 / 환경변수
+# ──────────────────────────
+.env
+local.properties
 
-# Python 캐시
+# ──────────────────────────
+# Android 빌드 산출물
+# ──────────────────────────
+build/
+.gradle/
+*.iml
+.idea/
+
+# ──────────────────────────
+# Node.js
+# ──────────────────────────
+node_modules/
+package-lock.json
+
+# ──────────────────────────
+# Python
+# ──────────────────────────
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
 
-# 학습 데이터
+# ──────────────────────────
+# CNN 모델 가중치 / 데이터
+# ──────────────────────────
+*.pth
 model_CNN/data/raw/
 model_CNN/data/processed/
+model_CNN/results/tensorboard*/
 
-# 학습 결과
-model_CNN/results/tensorboard/
-model_CNN/weights/checkpoint_*
-
-# Node.js
-node_modules/
-package-lock.json
-
-# 환경변수
-.env
-
+# ──────────────────────────
 # 업로드 이미지
+# ──────────────────────────
 uploads/
 
+# ──────────────────────────
 # OS
+# ──────────────────────────
 .DS_Store
 Thumbs.db
+
+# ──────────────────────────
+# 도구
+# ──────────────────────────
+CLAUDE.md

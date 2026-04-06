@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>목표 설정</title>
+  <title>목표 설정 – HealthDash</title>
+  <link rel="stylesheet" href="../css/common.css" />
   <link rel="stylesheet" href="../css/sc203.css" />
 </head>
 <body class="health-page">
@@ -53,7 +54,6 @@
               <input type="number" id="targetLoss" name="targetLoss"
                 placeholder="예: 5" min="1" step="0.1" required />
             </div>
-
             <div class="input-group">
               <label for="goalPeriod">달성 기간</label>
               <select id="goalPeriod" name="goalPeriod" required>
@@ -62,7 +62,18 @@
                 <option value="8주">8주</option>
                 <option value="12주">12주</option>
                 <option value="16주">16주</option>
+                <option value="기타">기타 (직접 입력)</option>
               </select>
+              <!-- 기타 선택 시 표시 -->
+              <div id="customPeriodWrap" style="display:none; margin-top:6px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <input type="number" id="customPeriodWeeks"
+                    placeholder="주 수 입력" min="1" max="52"
+                    style="flex:1;" />
+                  <span style="font-size:13px; color:var(--text-sec); white-space:nowrap;">주</span>
+                </div>
+                <span class="field-hint" id="customPeriodHint"></span>
+              </div>
             </div>
           </div>
 
@@ -85,6 +96,9 @@
             <p class="info-text muted" id="goalInfo">목표 감량과 기간을 입력하면 목표가 표시됩니다.</p>
           </div>
 
+          <!-- 과도한 목표 경고 (sc203.js에서 show 클래스 토글) -->
+          <div class="goal-warning" id="goalWarning"></div>
+
           <div class="form-actions">
             <a href="sc202.html" class="secondary-btn">← 이전</a>
             <button type="submit" class="primary-btn">완료하기</button>
@@ -92,9 +106,11 @@
 
         </form>
       </section>
+
     </div>
   </div>
 
+  <script src="../js/common.js"></script>
   <script src="../js/sc203.js"></script>
 </body>
 </html>

@@ -1,36 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap');
+/* ============================================================
+   sc202.css — 신체정보 입력 1 전용 스타일
+   의존: common.css
+   ============================================================ */
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --bg:        #09131a;
-  --surface:   #132029;
-  --card:      #172530;
-  --border:    #243840;
-  --border2:   #2e4d5c;
-  --teal:      #66D0BC;
-  --teal-dim:  rgba(102,208,188,0.12);
-  --red:       #FF0B55;
-  --red-dim:   rgba(255,11,85,0.12);
-  --text:      #FFFFFF;
-  --text-sec:  #8faebb;
-  --text-mute: #4d6b7a;
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-}
-
+/* ── 페이지 레이아웃 ── */
 body.health-page {
-  margin: 0;
   min-height: 100vh;
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Nanum Gothic', sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 32px 20px;
-  -webkit-font-smoothing: antialiased;
 }
 
 .health-container {
@@ -40,176 +19,21 @@ body.health-page {
   align-items: center;
 }
 
-/* ── 진행 스텝 바 ── */
-.step-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  margin-bottom: 28px;
-}
+/* ── 폼 카드 너비 (sc202 전용) ── */
+/* form-card 기본 스타일 → common.css */
+.form-card { max-width: 560px; }
 
-.step-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
+/* ── 헤더 마진 조정 ── */
+.form-header { margin-bottom: 28px; }
 
-.step-circle {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 2px solid var(--border2);
-  background: var(--surface);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--text-mute);
-  transition: 0.2s;
-}
-
-.step-item.active .step-circle {
-  background: var(--teal);
-  border-color: var(--teal);
-  color: #09131a;
-}
-
-.step-item.done .step-circle {
-  background: rgba(102,208,188,0.15);
-  border-color: var(--teal);
-  color: var(--teal);
-}
-
-.step-label {
-  font-size: 10px;
-  color: var(--text-mute);
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.step-item.active .step-label { color: var(--teal); }
-
-.step-line {
-  width: 48px;
-  height: 1px;
-  background: var(--border);
-  margin: 0 4px;
-  margin-bottom: 18px;
-}
-
-.step-line.done { background: var(--teal); }
-
-/* ── 폼 카드 ── */
-.form-card {
-  width: 100%;
-  max-width: 560px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 36px 32px;
-}
-
-.form-header {
-  text-align: center;
-  margin-bottom: 28px;
-}
-
-.step-badge {
-  display: inline-block;
-  margin-bottom: 12px;
-  padding: 4px 14px;
-  border-radius: 99px;
-  background: var(--red-dim);
-  border: 1px solid rgba(255,11,85,0.25);
-  color: var(--red);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-}
-
-.form-header h1 {
-  margin: 0 0 8px;
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--text);
-  letter-spacing: -0.02em;
-  line-height: 1.3;
-}
-
-.form-header p {
-  margin: 0;
-  font-size: 13px;
-  color: var(--text-sec);
-  line-height: 1.6;
-}
-
-/* ── 폼 ── */
-.health-form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
+/* ── 2열 그리드 ── */
 .input-grid.two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.input-group label {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--text-sec);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  margin: 0;
-}
-
-.input-group input,
-.input-group select {
-  width: 100%;
-  padding: 11px 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--text);
-  font-size: 14px;
-  font-family: 'Nanum Gothic', sans-serif;
-  outline: none;
-  transition: border-color 0.15s;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.input-group select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238faebb' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 32px;
-}
-
-.input-group input::placeholder { color: var(--text-mute); }
-.input-group input:focus,
-.input-group select:focus {
-  border-color: var(--teal);
-  background: #1a2e3a;
-}
-
-.input-group select option {
-  background: var(--surface);
-  color: var(--text);
-}
-
-/* 생년월일 */
+/* ── 생년월일 3분할 ── */
 .birth-wrap {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
@@ -221,28 +45,7 @@ body.health-page {
   text-align: center;
 }
 
-/* 다음 버튼 */
-.form-actions { margin-top: 4px; }
-
-.primary-btn {
-  width: 100%;
-  padding: 13px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: var(--teal);
-  color: #09131a;
-  font-size: 14px;
-  font-family: 'Nanum Gothic', sans-serif;
-  font-weight: 800;
-  cursor: pointer;
-  transition: opacity 0.15s, transform 0.1s;
-  letter-spacing: 0.02em;
-}
-
-.primary-btn:hover  { opacity: 0.88; }
-.primary-btn:active { transform: scale(0.99); }
-
-/* 하단 안내 */
+/* ── 하단 안내 ── */
 .form-footer {
   margin-top: 16px;
   text-align: center;
@@ -251,9 +54,10 @@ body.health-page {
   line-height: 1.6;
 }
 
+/* ── 반응형 ── */
 @media (max-width: 540px) {
-  .form-card { padding: 28px 20px; }
-  .input-grid.two-col { grid-template-columns: 1fr; }
-  .form-header h1 { font-size: 20px; }
-  .birth-wrap { grid-template-columns: 1fr 1fr 1fr; }
+  .form-card               { padding: 28px 20px; }
+  .input-grid.two-col      { grid-template-columns: 1fr; }
+  .form-header h1          { font-size: 20px; }
+  .birth-wrap              { grid-template-columns: 1fr 1fr 1fr; }
 }

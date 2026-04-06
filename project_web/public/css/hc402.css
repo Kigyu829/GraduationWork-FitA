@@ -1,0 +1,353 @@
+/* drawer.css — 슬라이드 사이드바 공통 */
+
+/* 햄버거 버튼 — 좌상단 고정 */
+.drawer-toggle {
+  position: fixed;
+  top: 18px;
+  left: 20px;
+  z-index: 300;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+.drawer-toggle:hover {
+  background: var(--card);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+/* 드로어 본체 — 왼쪽에서 슬라이드 */
+.drawer {
+  position: fixed;
+  top: 0; left: 0;
+  width: 260px;
+  height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 16px;
+  gap: 8px;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 4px 0 32px rgba(0,0,0,0.3);
+}
+.drawer.open {
+  transform: translateX(0);
+}
+
+/* 드로어 헤더 */
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.drawer-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.drawer-logo-icon {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  background: var(--teal);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.drawer-logo-text {
+  font-size: 16px; font-weight: 800;
+  letter-spacing: -0.02em; color: var(--text);
+}
+.drawer-close {
+  background: none;
+  border: none;
+  color: var(--text-mute);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+.drawer-close:hover { background: var(--card); color: var(--text); }
+
+/* 메뉴 */
+.drawer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+.drawer-menu-btn {
+  width: 100%;
+  padding: 11px 14px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-sec);
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.15s, color 0.15s;
+}
+.drawer-menu-btn span { font-size: 15px; width: 20px; text-align: center; }
+.drawer-menu-btn:hover { background: var(--teal-dim); color: var(--teal); }
+.drawer-menu-btn.active { background: var(--teal-dim); color: var(--teal); }
+
+/* 로그아웃 */
+.drawer-logout {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid rgba(255,11,85,0.25);
+  border-radius: 10px;
+  background: var(--red-dim);
+  color: var(--red);
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  margin-top: 8px;
+}
+.drawer-logout:hover { background: rgba(255,11,85,0.2); border-color: var(--red); }
+
+/* 오버레이 */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 350;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(2px);
+}
+.drawer-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* hc402.css */
+:root {
+  --green:      #7FD37A;
+  --green-dim:  rgba(127, 211, 122, 0.15);
+  --green-glow: rgba(127, 211, 122, 0.6);
+}
+
+.scan-main {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background: var(--bg);
+}
+
+.scan-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.scan-status {
+  font-size: 22px; font-weight: 800;
+  letter-spacing: -0.03em; color: var(--text); text-align: center;
+}
+
+.scan-frame {
+  position: relative; width: 100%;
+  border-radius: var(--radius-md); overflow: hidden;
+  border: 2px solid var(--border); background: var(--surface);
+  aspect-ratio: 4 / 3;
+}
+.scan-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.scan-bar {
+  position: absolute; left: 0; right: 0; height: 3px;
+  background: var(--green); box-shadow: 0 0 12px 4px var(--green-glow);
+  top: 0; opacity: 0;
+  animation: scanMove 1.8s ease-in-out infinite;
+  z-index: 3; pointer-events: none;
+}
+@keyframes scanMove {
+  0%   { top: 0%;              opacity: 0; }
+  5%   {                        opacity: 1; }
+  50%  { top: calc(100% - 3px);            }
+  95%  {                        opacity: 1; }
+  100% { top: 0%;              opacity: 0; }
+}
+.scan-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom,
+    rgba(127,211,122,0.04) 0%, transparent 50%, rgba(127,211,122,0.04) 100%);
+  z-index: 2; pointer-events: none;
+}
+
+.scan-progress-wrap { width: 100%; display: flex; align-items: center; gap: 12px; }
+.scan-progress-bar {
+  flex: 1; height: 6px; background: var(--surface);
+  border-radius: 99px; overflow: hidden; border: 1px solid var(--border);
+}
+.scan-progress-fill {
+  height: 100%; width: 0%; background: var(--green);
+  border-radius: 99px; transition: width 0.3s ease;
+  box-shadow: 0 0 8px var(--green-glow);
+}
+.scan-progress-label {
+  font-size: 13px; font-weight: 800;
+  color: var(--green); min-width: 36px; text-align: right;
+}
+.scan-hint { font-size: 13px; color: var(--text-mute); text-align: center; }
+
+/* 파란 분석중 오버레이 */
+.analyzing-overlay {
+  position: fixed; inset: 0; background: rgba(9,19,26,0.82);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 999; opacity: 0; transition: opacity 0.4s ease;
+}
+.analyzing-overlay.show { opacity: 1; }
+.analyzing-box {
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  padding: 48px 56px; background: var(--card);
+  border: 1px solid #2a4f72; border-radius: 28px;
+  box-shadow: 0 0 0 1px rgba(59,130,246,0.15), 0 24px 64px rgba(0,0,0,0.5);
+}
+.analyzing-spinner {
+  width: 56px; height: 56px; border-radius: 50%;
+  border: 4px solid rgba(59,130,246,0.15);
+  border-top-color: #3B82F6; border-right-color: #60A5FA;
+  animation: spin-blue 0.9s linear infinite;
+}
+@keyframes spin-blue { to { transform: rotate(360deg); } }
+.analyzing-title { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+.analyzing-sub   { font-size: 13px; color: var(--text-mute); margin-top: -8px; }
+.analyzing-dots  { display: flex; gap: 8px; }
+.analyzing-dots span {
+  width: 8px; height: 8px; border-radius: 50%; background: #3B82F6;
+  animation: dot-bounce 1.2s ease-in-out infinite;
+}
+.analyzing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.analyzing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot-bounce {
+  0%,80%,100% { transform: scale(0.6); opacity: 0.4; }
+  40%         { transform: scale(1.1); opacity: 1; }
+}
+
+/* ── 페이지 전환 애니메이션 ── */
+body {
+  animation: pageFadeIn 0.4s ease both;
+}
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+body.page-exit {
+  animation: pageFadeOut 0.35s ease both;
+  pointer-events: none;
+}
+@keyframes pageFadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-10px); }
+}
+
+/* 스캔 카드 등장 */
+.scan-card {
+  animation: cardSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+@keyframes cardSlideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.drawer-toggle {
+  animation: cardSlideUp 0.4s ease 0.05s both;
+}
+/* ── navbar ── */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  width: 100%;
+  background: rgba(9, 19, 26, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  height: 56px;
+  max-width: 100%;
+  margin: 0;
+}
+.site-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+}
+.site-logo-icon {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: var(--teal);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
+}
+.site-logo-text {
+  font-size: 15px; font-weight: 800;
+  color: var(--text); letter-spacing: -0.02em;
+}
+.drawer-toggle-nav {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.drawer-toggle-nav:hover {
+  background: var(--teal-dim);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+
+.scan-main { min-height: calc(100vh - 56px); }
+
+/* sc101.css nav-inner override — 왼쪽 정렬 */
+.nav-inner {
+  justify-content: flex-start !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+}
