@@ -1,1 +1,91 @@
-<!--certification success/failure-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>식단 판독 결과</title>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/sc101.css" />
+  <link rel="stylesheet" href="../css/hc403.css" />
+</head>
+<body>
+
+  <!-- ── 네비게이션 바 ── -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <button class="drawer-toggle-nav" id="drawerToggle">☰</button>
+      <a href="sc101.html" class="site-logo">
+        <div class="site-logo-icon">🏃</div>
+        <span class="site-logo-text">HealthDash</span>
+      </a>
+    </div>
+  </nav>
+
+  <aside class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-logo">
+        <div class="drawer-logo-icon">🏃</div>
+        <span class="drawer-logo-text">HealthDash</span>
+      </div>
+      <button class="drawer-close" id="drawerClose">✕</button>
+    </div>
+    <nav class="drawer-nav">
+      <button class="drawer-menu-btn" data-href="sc301.html"><span>🏠</span>대시보드</button>
+      <button class="drawer-menu-btn" data-href="sc302.html"><span>🤖</span>AI 식단 추천</button>
+      <button class="drawer-menu-btn" data-href="sc311.html"><span>💪</span>오늘의 식단/운동</button>
+      <button class="drawer-menu-btn active" data-href="sc401.html"><span>🥗</span>식단 인증</button>
+      <button class="drawer-menu-btn" data-href="sc601.html"><span>⚙️</span>설정</button>
+    </nav>
+    <button class="drawer-logout" id="drawerLogout">로그아웃</button>
+  </aside>
+
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+
+  <main class="result-main">
+    <div class="result-container" id="resultContainer">
+
+      <div class="photo-panel" id="photoPanel">
+        <div class="photo-bg-blob blob1"></div>
+        <div class="photo-bg-blob blob2"></div>
+        <div class="photo-frame-wrap">
+          <div class="photo-scan-badge">
+            <span class="photo-scan-dot"></span>
+            <span>스캔 완료</span>
+          </div>
+          <div class="photo-frame">
+            <img class="result-photo" id="resultPhoto" src="" alt="판독 사진" />
+            <span class="corner tl"></span>
+            <span class="corner tr"></span>
+            <span class="corner bl"></span>
+            <span class="corner br"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-panel" id="resultPanel">
+        <div class="result-card">
+          <div class="result-card-header">
+            <span class="result-match-badge" id="matchBadge">분석 중...</span>
+          </div>
+          <div class="result-food-name" id="foodName">—</div>
+          <div class="result-divider"></div>
+          <div class="result-nutrients" id="resultNutrients">
+            <div class="nutrient-row skeleton"></div>
+            <div class="nutrient-row skeleton"></div>
+            <div class="nutrient-row skeleton"></div>
+          </div>
+          <div class="result-memo" id="resultMemo"></div>
+          <div class="result-actions">
+            <button class="secondary-btn" id="retakeBtn">재업로드</button>
+            <button class="primary-btn cert-btn" id="certBtn">✅ 인증하기</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="../js/common.js"></script>
+  <script src="../js/hc403.js"></script>
+</body>
+</html>

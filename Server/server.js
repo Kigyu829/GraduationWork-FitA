@@ -97,7 +97,7 @@ app.post('/api/analyze', upload.single('image'), async (req, res) => {
                 detected_food_kr: prediction.class_name_kr || prediction.class_name,
                 confidence: prediction.confidence,
                 top_5: prediction.top_5 || [],
-                is_verified: prediction.confidence >= 0.6,
+                is_verified: prediction.confidence >= 0.45,
                 analyzed_at: new Date().toISOString(),
                 server: 'cnn_server',
             }

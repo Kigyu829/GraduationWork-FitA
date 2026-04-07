@@ -1,17 +1,19 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>메인 대시보드</title>
+  <link rel="stylesheet" href="../css/common.css" />
   <link rel="stylesheet" href="../css/sc301.css" />
 </head>
 <body>
   <div class="dashboard">
     <aside class="sidebar">
       <div class="sidebar-top">
-        <div class="sidebar-logo">
+
+        <!-- 로고: id="sidebarLogo" → 클릭 시 sc101로 이동 (sc301.js) -->
+        <div class="sidebar-logo" id="sidebarLogo" style="cursor:pointer;">
           <div class="sidebar-logo-icon">🏃</div>
           <span class="sidebar-logo-text">HealthDash</span>
         </div>
@@ -38,14 +40,14 @@
           <div class="menu-list">
             <button class="menu-btn active" data-href="sc301.html"><span class="menu-btn-icon">🏠</span>대시보드</button>
             <button class="menu-btn" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
-            <button class="menu-btn" data-href="sc311.html"><span class="menu-btn-icon">💪</span>운동 프로그램</button>
-            <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 기록</button>
-            <button class="menu-btn" data-href="food_test.html"><span class="menu-btn-icon">📸</span>음식 인식 (CNN)</button>
+            <button class="menu-btn" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
+            <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
             <button class="menu-btn" data-href="sc601.html"><span class="menu-btn-icon">⚙️</span>설정</button>
           </div>
         </div>
       </div>
 
+      <!-- 로그아웃: id="logoutBtn" → 클릭 시 sc101로 이동 (sc301.js) -->
       <button class="logout-btn" id="logoutBtn">로그아웃</button>
     </aside>
 
@@ -107,26 +109,40 @@
               </div>
             </section>
 
+            <!-- 오늘의 식단 + 체크박스 -->
             <section class="card meal-card tint-pink">
               <div class="card-header">
-                <span class="card-title">오늘의 식단</span>
+                <span class="card-title" style="cursor:pointer;" onclick="location.href='sc311.html?tab=meal'">오늘의 식단 →</span>
                 <span class="card-badge ai-badge">✨ AI 추천</span>
               </div>
               <div id="mealContent" class="ai-loading">
                 <div class="spinner"></div>
                 <span>AI가 맞춤 식단을 준비 중...</span>
               </div>
+              <!-- 오늘 식단 목표 체크 -->
+              <label class="today-check-row">
+                <input type="checkbox" id="checkMeal" />
+                <span class="today-check-label">오늘 식단 목표를 지켰어요</span>
+              </label>
             </section>
 
+            <!-- 오늘의 운동 + 체크박스 + 달성 상태 -->
             <section class="card workout-card tint-green">
               <div class="card-header">
-                <span class="card-title">오늘의 운동</span>
+                <span class="card-title" style="cursor:pointer;" onclick="location.href='sc311.html?tab=workout'">오늘의 운동 →</span>
                 <span class="card-badge ai-badge">✨ AI 추천</span>
               </div>
               <div id="workoutContent" class="ai-loading">
                 <div class="spinner"></div>
                 <span>AI가 운동 플랜을 준비 중...</span>
               </div>
+              <!-- 오늘 운동 목표 체크 -->
+              <label class="today-check-row">
+                <input type="checkbox" id="checkWorkout" />
+                <span class="today-check-label">오늘 운동 목표를 지켰어요</span>
+              </label>
+              <!-- 전체 달성 상태 (식단+운동 합산) -->
+              <div class="today-check-status" id="todayCheckStatus">아직 체크하지 않았어요.</div>
             </section>
 
             <section class="card bmi-card tint-blue">
@@ -166,8 +182,15 @@
                 <div class="metric-item">
                   <span class="metric-icon">⚡</span>
                   <div>
-                    <div class="metric-label">권장 섭취 칼로리</div>
+                    <div class="metric-label">유지 칼로리</div>
                     <div class="metric-value" id="tdeeValue">-</div>
+                  </div>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-icon">🎯</span>
+                  <div>
+                    <div class="metric-label">식단 목표 칼로리</div>
+                    <div class="metric-value" id="targetCaloriesValue">-</div>
                   </div>
                 </div>
               </div>
@@ -259,7 +282,7 @@
     </main>
   </div>
 
-  <!-- ── 푸터 ── -->
+  <!-- 푸터 -->
   <footer class="dashboard-footer">
     <div class="dashboard-footer-inner">
       <div class="dashboard-footer-links">
@@ -272,7 +295,7 @@
     </div>
   </footer>
 
-  <!-- ── 모달 (이용약관 / 개인정보 / 공지사항 / 문의하기) ── -->
+  <!-- 푸터 모달 -->
   <div class="footer-modal-overlay" id="footerModalOverlay">
     <div class="footer-modal" id="footerModal">
       <div class="footer-modal-header">
@@ -283,6 +306,7 @@
     </div>
   </div>
 
+  <script src="../js/common.js"></script>
   <script src="../js/sc301.js"></script>
 </body>
 </html>

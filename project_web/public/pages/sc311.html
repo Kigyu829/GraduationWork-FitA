@@ -1,1 +1,267 @@
-<!--today Diet/Exercise-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>오늘의 식단/운동 – HealthDash</title>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/sc301.css" />
+  <link rel="stylesheet" href="../css/sc311.css" />
+</head>
+<body>
+<div class="dashboard">
+
+  <!-- ── 좌측 사이드바 (sc301과 동일) ── -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo" id="sidebarLogo" style="cursor:pointer;">
+        <div class="sidebar-logo-icon">🏃</div>
+        <span class="sidebar-logo-text">HealthDash</span>
+      </div>
+
+      <div class="sidebar-card profile-card">
+        <div class="profile-avatar">👤</div>
+        <div id="userName">내 정보</div>
+        <div id="userBasicInfo">불러오는 중...</div>
+        <div class="profile-weights">
+          <div class="weight-chip">
+            <span class="weight-chip-label">현재 체중</span>
+            <span class="weight-chip-value" id="currentWeightText">-</span>
+          </div>
+          <div class="weight-chip">
+            <span class="weight-chip-label">목표 체중</span>
+            <span class="weight-chip-value" id="targetWeightText">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-card menu-card">
+        <div class="menu-card-title">메뉴</div>
+        <div class="menu-list">
+          <button class="menu-btn" data-href="sc301.html"><span class="menu-btn-icon">🏠</span>대시보드</button>
+          <button class="menu-btn" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
+          <button class="menu-btn active" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
+          <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
+          <button class="menu-btn" data-href="sc601.html"><span class="menu-btn-icon">⚙️</span>설정</button>
+        </div>
+      </div>
+    </div>
+    <button class="logout-btn" id="logoutBtn">로그아웃</button>
+  </aside>
+
+  <!-- ── 메인 영역 ── -->
+  <main class="main">
+
+    <!-- 상단 헤더 -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="page-title">오늘의 식단 / 운동</div>
+        <div class="page-subtitle" id="pageSubtitle">오늘 날짜 로딩 중...</div>
+      </div>
+      <button class="ai-chat-toggle-btn" id="aiChatToggleBtn">
+        🤖 AI 상담
+      </button>
+    </div>
+
+    <!-- 탭 바 -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tabMeal" data-tab="meal">🥗 식단</button>
+      <button class="tab-btn" id="tabWorkout" data-tab="workout">💪 운동</button>
+    </div>
+
+    <!-- 동기부여 메시지 카드 -->
+    <div id="motivationCard" style="
+      background: linear-gradient(135deg, var(--card) 0%, rgba(78,205,196,0.08) 100%);
+      border: 1px solid rgba(78,205,196,0.25);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      min-height: 56px;
+    ">
+      <span style="font-size:22px;line-height:1.4;">🤖</span>
+      <p id="motivationText" style="
+        margin:0; font-size:13px; line-height:1.7;
+        color:var(--text-sec,#aaa); white-space:pre-wrap;
+      ">AI가 오늘의 메시지를 준비하고 있어요...</p>
+    </div>
+
+    <!-- 콘텐츠 + AI채팅 레이아웃 -->
+    <div class="content-with-chat">
+
+      <!-- ── 식단 탭 ── -->
+      <div class="tab-content active" id="tabContentMeal">
+
+        <!-- 일일 칼로리 요약 -->
+        <div class="daily-summary">
+          <div class="summary-pill">
+            <span class="summary-pill-val" id="totalKcal">1,820</span>
+            <span class="summary-pill-label">총 칼로리</span>
+          </div>
+          <div class="summary-pill">
+            <span class="summary-pill-val" id="verifiedKcal" style="color:var(--teal)">0</span>
+            <span class="summary-pill-label">인증 완료</span>
+          </div>
+          <div class="summary-pill">
+            <span class="summary-pill-val" id="remainKcal" style="color:var(--text-sec)">1,820</span>
+            <span class="summary-pill-label">남은 칼로리</span>
+          </div>
+          <div class="summary-pill">
+            <span class="summary-pill-val" id="verifiedCount" style="color:var(--pink,#C779D0)">0/4</span>
+            <span class="summary-pill-label">인증 현황</span>
+          </div>
+        </div>
+
+        <!-- 아침 -->
+        <div class="meal-section-title">🌅 아침</div>
+        <div class="meal-item" id="meal-breakfast">
+          <div class="meal-emoji"></div>
+          <div class="meal-info">
+            <div class="meal-name">그릭요거트 + 견과류 + 바나나</div>
+            <div class="meal-detail">단백질 18g · 탄수화물 42g · 지방 12g</div>
+          </div>
+          <div class="meal-kcal">340 kcal</div>
+          <button class="verify-btn" data-meal="breakfast" data-kcal="340">📷 인증</button>
+        </div>
+
+        <!-- 점심 -->
+        <div class="meal-section-title">☀️ 점심</div>
+        <div class="meal-item" id="meal-lunch">
+          <div class="meal-emoji"></div>
+          <div class="meal-info">
+            <div class="meal-name">현미밥 + 닭가슴살 샐러드 + 된장국</div>
+            <div class="meal-detail">단백질 38g · 탄수화물 58g · 지방 14g</div>
+          </div>
+          <div class="meal-kcal">580 kcal</div>
+          <button class="verify-btn" data-meal="lunch" data-kcal="580">📷 인증</button>
+        </div>
+
+        <!-- 저녁 -->
+        <div class="meal-section-title">🌙 저녁</div>
+        <div class="meal-item" id="meal-dinner">
+          <div class="meal-emoji"></div>
+          <div class="meal-info">
+            <div class="meal-name">연어구이 + 구운 채소 + 두부</div>
+            <div class="meal-detail">단백질 42g · 탄수화물 28g · 지방 22g</div>
+          </div>
+          <div class="meal-kcal">620 kcal</div>
+          <button class="verify-btn" data-meal="dinner" data-kcal="620">📷 인증</button>
+        </div>
+
+      </div><!-- /식단 탭 -->
+
+      <!-- ── 운동 탭 ── -->
+      <div class="tab-content" id="tabContentWorkout">
+
+        <!-- 운동 진행 요약 -->
+        <div class="workout-summary">
+          <div class="workout-progress-bar-wrap">
+            <div class="workout-progress-label">
+              <span>오늘 운동 달성률</span>
+              <span id="workoutPct">0%</span>
+            </div>
+            <div class="workout-progress-track">
+              <div class="workout-progress-fill" id="workoutProgressFill"></div>
+            </div>
+          </div>
+          <div style="font-size:24px; font-weight:800; color:var(--teal);" id="workoutBurnKcal">0 kcal</div>
+        </div>
+
+        <!-- 운동 목록 -->
+        <div class="meal-section-title">🏃 유산소</div>
+        <div class="workout-list">
+          <div class="workout-item" data-workout="cardio1" data-kcal="200">
+            <div class="workout-icon"></div>
+            <div class="workout-info">
+              <div class="workout-name">빠르게 걷기</div>
+              <div class="workout-detail">30분 · 중간 강도</div>
+            </div>
+            <div class="workout-kcal">200 kcal</div>
+            <div class="workout-check" data-workout="cardio1" data-kcal="200">✓</div>
+          </div>
+        </div>
+
+        <div class="meal-section-title" style="margin-top:20px;">💪 근력</div>
+        <div class="workout-list">
+          <div class="workout-item" data-workout="strength1" data-kcal="80">
+            <div class="workout-icon"></div>
+            <div class="workout-info">
+              <div class="workout-name">스쿼트</div>
+              <div class="workout-detail">15회 × 3세트</div>
+            </div>
+            <div class="workout-kcal">80 kcal</div>
+            <div class="workout-check" data-workout="strength1" data-kcal="80">✓</div>
+          </div>
+          <div class="workout-item" data-workout="strength2" data-kcal="60">
+            <div class="workout-icon"></div>
+            <div class="workout-info">
+              <div class="workout-name">푸시업</div>
+              <div class="workout-detail">10회 × 3세트</div>
+            </div>
+            <div class="workout-kcal">60 kcal</div>
+            <div class="workout-check" data-workout="strength2" data-kcal="60">✓</div>
+          </div>
+          <div class="workout-item" data-workout="strength3" data-kcal="50">
+            <div class="workout-icon"></div>
+            <div class="workout-info">
+              <div class="workout-name">플랭크</div>
+              <div class="workout-detail">30초 × 3세트</div>
+            </div>
+            <div class="workout-kcal">50 kcal</div>
+            <div class="workout-check" data-workout="strength3" data-kcal="50">✓</div>
+          </div>
+        </div>
+
+        <div class="meal-section-title" style="margin-top:20px;">🧘 스트레칭</div>
+        <div class="workout-list">
+          <div class="workout-item" data-workout="stretch1" data-kcal="30">
+            <div class="workout-icon"></div>
+            <div class="workout-info">
+              <div class="workout-name">전신 스트레칭</div>
+              <div class="workout-detail">10분</div>
+            </div>
+            <div class="workout-kcal">30 kcal</div>
+            <div class="workout-check" data-workout="stretch1" data-kcal="30">✓</div>
+          </div>
+        </div>
+
+      </div><!-- /운동 탭 -->
+
+      <!-- ── AI 채팅 사이드패널 ── -->
+      <aside class="ai-chat-panel" id="aiChatPanel">
+        <div class="chat-header">
+          <div class="chat-header-title">🤖 AI 상담</div>
+          <button class="chat-close-btn" id="chatCloseBtn">×</button>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <!-- AI 환영 메시지 -->
+          <div class="chat-msg ai">
+            <div class="chat-avatar">🤖</div>
+            <div>
+              <div class="chat-bubble">
+                안녕하세요! 오늘 식단이나 운동에 대해 궁금한 점이 있으시면 편하게 물어보세요 😊
+              </div>
+              <div class="chat-time">AI 상담사</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-wrap">
+          <textarea class="chat-input" id="chatInput"
+            placeholder="식단이나 운동에 대해 질문하세요..."
+            rows="1"></textarea>
+          <button class="chat-send-btn" id="chatSendBtn">➤</button>
+        </div>
+      </aside>
+
+    </div><!-- /content-with-chat -->
+  </main>
+</div>
+
+<script src="../js/common.js"></script>
+<script src="../js/sc311.js"></script>
+</body>
+</html>

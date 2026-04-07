@@ -1,0 +1,394 @@
+/* drawer.css — 슬라이드 사이드바 공통 */
+
+/* 햄버거 버튼 — 좌상단 고정 */
+.drawer-toggle {
+  position: fixed;
+  top: 18px;
+  left: 20px;
+  z-index: 300;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+.drawer-toggle:hover {
+  background: var(--card);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+/* 드로어 본체 — 왼쪽에서 슬라이드 */
+.drawer {
+  position: fixed;
+  top: 0; left: 0;
+  width: 260px;
+  height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 16px;
+  gap: 8px;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 4px 0 32px rgba(0,0,0,0.3);
+}
+.drawer.open {
+  transform: translateX(0);
+}
+
+/* 드로어 헤더 */
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.drawer-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.drawer-logo-icon {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  background: var(--teal);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.drawer-logo-text {
+  font-size: 16px; font-weight: 800;
+  letter-spacing: -0.02em; color: var(--text);
+}
+.drawer-close {
+  background: none;
+  border: none;
+  color: var(--text-mute);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+.drawer-close:hover { background: var(--card); color: var(--text); }
+
+/* 메뉴 */
+.drawer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+.drawer-menu-btn {
+  width: 100%;
+  padding: 11px 14px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-sec);
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.15s, color 0.15s;
+}
+.drawer-menu-btn span { font-size: 15px; width: 20px; text-align: center; }
+.drawer-menu-btn:hover { background: var(--teal-dim); color: var(--teal); }
+.drawer-menu-btn.active { background: var(--teal-dim); color: var(--teal); }
+
+/* 로그아웃 */
+.drawer-logout {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid rgba(255,11,85,0.25);
+  border-radius: 10px;
+  background: var(--red-dim);
+  color: var(--red);
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  margin-top: 8px;
+}
+.drawer-logout:hover { background: rgba(255,11,85,0.2); border-color: var(--red); }
+
+/* 오버레이 */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 350;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(2px);
+}
+.drawer-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* sc402.css */
+:root {
+  --green: #7FD37A;
+  --green-dim: rgba(127, 211, 122, 0.12);
+}
+
+.upload-main {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 40px 24px;
+  background: var(--bg);
+}
+
+.upload-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 900px;
+}
+/* back-btn 제거 — C-2안에서 header-close-btn 사용 */
+.upload-title { font-size: 24px; font-weight: 800; letter-spacing: -0.03em; }
+.upload-sub   { margin-top: 4px; color: var(--text-sec); font-size: 13px; }
+
+.upload-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 900px;
+}
+
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-md);
+  min-height: 560px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.upload-zone:hover,
+.upload-zone.dragover          { border-color: var(--teal); background: var(--teal-dim); }
+.upload-zone.has-preview:hover { border-color: var(--border); background: transparent; }
+
+.upload-zone-inner {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 14px;
+  padding: 24px; text-align: center;
+}
+.upload-icon  { font-size: 64px; line-height: 1; }
+.upload-label { font-size: 16px; font-weight: 700; color: var(--text-sec); }
+.upload-btn   { padding: 12px 28px; font-size: 14px; border-radius: var(--radius-sm); }
+.upload-hint  { font-size: 12px; color: var(--text-mute); }
+
+.upload-preview {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.preview-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.preview-overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,0);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.preview-change-hint {
+  color: #fff; font-size: 14px; font-weight: 800;
+  background: rgba(0,0,0,0.55);
+  padding: 10px 20px; border-radius: var(--radius-sm);
+  opacity: 0; transition: opacity 0.2s; pointer-events: none;
+}
+.upload-zone.has-preview:hover .preview-overlay     { background: rgba(0,0,0,0.25); }
+.upload-zone.has-preview:hover .preview-change-hint { opacity: 1; }
+
+.upload-actions { display: flex; flex-direction: column; gap: 14px; }
+.selected-info {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 16px;
+  font-size: 13px; color: var(--text-sec);
+  display: flex; align-items: center; gap: 8px;
+}
+.action-btns { display: flex; gap: 12px; }
+.action-btns .secondary-btn,
+.action-btns .primary-btn { flex: 1; padding: 14px; font-size: 14px; }
+.analyze-btn { font-size: 15px; font-weight: 800; }
+
+/* ── 페이지 전환 애니메이션 ── */
+body {
+  animation: pageFadeIn 0.4s ease both;
+}
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+body.page-exit {
+  animation: pageFadeOut 0.35s ease both;
+  pointer-events: none;
+}
+@keyframes pageFadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-10px); }
+}
+
+/* 카드 등장 */
+.upload-card {
+  animation: cardSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+.upload-header {
+  animation: cardSlideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+@keyframes cardSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 햄버거 버튼 등장 */
+.drawer-toggle {
+  animation: cardSlideUp 0.4s ease 0.1s both;
+}
+/* ── navbar 안 햄버거 버튼 ── */
+.drawer-toggle-nav {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.drawer-toggle-nav:hover {
+  background: var(--teal-dim);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+/* navbar 레이아웃: 왼쪽 정렬 + 간격 */
+.nav-inner {
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  padding-left: 20px !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+}
+
+/* 카드가 navbar에 가려지지 않도록 상단 여백 */
+.upload-main {
+  padding-top: 32px;
+}
+/* ═══════════════════════════════════════
+   돌아가기 버튼 3가지 안
+═══════════════════════════════════════ */
+
+/* A안: nav 오른쪽 ✕ */
+.nav-close-btn {
+  margin-left: auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-mute);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.nav-close-btn:hover {
+  background: var(--red-dim);
+  border-color: var(--red);
+  color: var(--red);
+}
+
+/* B안: 카드 오른쪽 상단 ✕ */
+.card-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-mute);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  z-index: 5;
+}
+.card-close-btn:hover {
+  background: var(--red-dim);
+  border-color: var(--red);
+  color: var(--red);
+}
+
+/* C안: 헤더 오른쪽 ✕ */
+.header-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-mute);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.header-close-btn:hover {
+  background: var(--red-dim);
+  border-color: var(--red);
+  color: var(--red);
+}
+
+/* C-2안: 헤더 내부 레이아웃 (✕ | 제목 순서) */
+.upload-header-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}

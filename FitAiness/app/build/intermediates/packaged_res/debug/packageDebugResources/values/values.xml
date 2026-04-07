@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="background_gray">#09131A</color>
     <color name="black">#FF000000</color>
     <color name="candy_red">#FFFF0B55</color>
+    <color name="cbg">#132029</color>
     <color name="dark_gray">#FF243840</color>
     <color name="gasoline_green">#66D0BC</color>
     <color name="white">#FFFFFFFF</color>
@@ -32,4 +34,19 @@
         <item name="postSplashScreenTheme">@style/Theme.FitAIness</item>
     </style>
     <style name="Theme.FitAIness" parent="Base.Theme.FitAIness"/>
+    <style name="customButtonFontStyle" parent="@android:style/Widget.DeviceDefault.Button.Borderless">
+        <item name="android:fontFamily">@font/nanum_gothic</item>
+    </style>
+    <style name="customCheckboxFontStyle" parent="@android:style/Widget.DeviceDefault.CompoundButton.CheckBox">
+        <item name="android:fontFamily">@font/nanum_gothic</item>
+    </style>
+    <style name="customEditTextFontStyle" parent="@android:style/Widget.DeviceDefault.EditText">
+        <item name="android:fontFamily">@font/nanum_gothic</item>
+    </style>
+    <style name="customRadioButtonFontStyle" parent="@android:style/Widget.DeviceDefault.CompoundButton.RadioButton">
+        <item name="android:fontFamily">@font/nanum_gothic</item>
+    </style>
+    <style name="customTextViewFontStyle" parent="@android:style/Widget.DeviceDefault.TextView">
+        <item name="android:fontFamily">@font/nanum_gothic</item>
+    </style>
 </resources>

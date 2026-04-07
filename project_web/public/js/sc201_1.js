@@ -25,6 +25,13 @@
       activityLevel: '보통',
     });
   }
+
+  /* ── registeredPhone 누락 보정
+     기존에 페이지를 열어서 email만 세팅됐고 phone이 없는 경우 보완 ── */
+  if (localStorage.getItem('registeredEmail') === 'test1@test.com'
+      && !localStorage.getItem('registeredPhone')) {
+    localStorage.setItem('registeredPhone', '010-1234-5678');
+  }
 })();
 
 const loginForm  = document.getElementById('loginForm');
@@ -32,14 +39,24 @@ const loginError = document.getElementById('loginError');
 const saveIdBox  = document.getElementById('saveId');
 const loginIdEl  = document.getElementById('loginId');
 
-/* ── 저장된 이메일 복원 ── */
+/* ── 저장된 아이디 복원 (이메일 또는 전화번호) ── */
 window.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('savedEmail');
+  const saved = localStorage.getItem('savedLoginId');
   if (saved && loginIdEl) {
     loginIdEl.value = saved;
     if (saveIdBox) saveIdBox.checked = true;
   }
 });
+
+/* ── 입력값이 전화번호인지 판단 ── */
+function isPhoneNumber(val) {
+  return /^[\d\-]+$/.test(val);
+}
+
+/* ── 전화번호 정규화 (하이픈 제거 후 비교) ── */
+function normalizePhone(val) {
+  return val.replace(/\D/g, '');
+}
 
 /* ── 소셜 로그인 버튼 (추후 연동) ── */
 document.querySelectorAll('.social-btn').forEach(btn => {
@@ -55,33 +72,43 @@ if (loginForm) {
   loginForm.addEventListener('submit', function (e) {
     e.preventDefault();
 
-    const email    = loginIdEl.value.trim();
+    const inputId  = loginIdEl.value.trim();
     const password = document.getElementById('loginPw').value;
 
-    if (!email || !password) {
+    if (!inputId || !password) {
       loginError.classList.add('show');
       return;
     }
 
     /* 아이디 저장 처리 */
     if (saveIdBox && saveIdBox.checked) {
-      localStorage.setItem('savedEmail', email);
+      localStorage.setItem('savedLoginId', inputId);
     } else {
-      localStorage.removeItem('savedEmail');
+      localStorage.removeItem('savedLoginId');
     }
 
-    /* 인증 확인 */
-    const reg = Storage.getRegistered();
-    if (email !== reg.email || password !== reg.password) {
+    /* ── 이메일 / 전화번호 분기 인증 ── */
+    const reg     = Storage.getRegistered();
+    const byPhone = isPhoneNumber(inputId);
+    let   idMatch = false;
+
+    if (byPhone) {
+      /* 전화번호: 하이픈 제거 후 비교 */
+      const storedPhone = localStorage.getItem('registeredPhone') || '';
+      idMatch = normalizePhone(inputId) === normalizePhone(storedPhone);
+    } else {
+      /* 이메일 */
+      idMatch = inputId === reg.email;
+    }
+
+    if (!idMatch || password !== reg.password) {
       loginError.classList.add('show');
       return;
     }
 
     loginError.classList.remove('show');
 
-    /* ── 분기 ──
-       신체정보(targetWeight) 미입력 → sc202
-       입력 완료                     → sc301  */
+    /* 신체정보 입력 여부에 따라 분기 */
     const userData = Storage.getUser();
     location.href = userData.targetWeight ? 'sc301.html' : 'sc202.html';
   });

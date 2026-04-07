@@ -1,13 +1,16 @@
 package com.capstone.fitainess;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -28,24 +31,29 @@ public class SignUpFragment extends Fragment
     private FirebaseAuth mAuth;
     private EditText etNewEmail, etNewPassword, etConfirmPassword;
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
+
+    public SignUpFragment()
     {
-        View view = inflater.inflate(R.layout.fragment_sign_up, container, false);
+        super(R.layout.fragment_sign_up);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
+    {
+        super.onViewCreated(view, savedInstanceState);
 
         mAuth = FirebaseAuth.getInstance();
         etNewEmail = view.findViewById(R.id.etNewEmail);
         etNewPassword = view.findViewById(R.id.etNewPassword);
         etConfirmPassword = view.findViewById(R.id.etConfirmPassword);
+
         Button btnSignUpSubmit = view.findViewById(R.id.btnSignUpSubmit);
         Button btnSignUpBack = view.findViewById(R.id.btnSignUpBack);
-
 
         btnSignUpSubmit.setOnClickListener(v -> performSignUp());
         btnSignUpBack.setOnClickListener(v -> NavHostFragment.findNavController(this).navigate(R.id.action_signup_to_login));
 
-        return view;
+        setupBackButtonLogic(view);
     }
 
     private void performSignUp()
@@ -66,8 +74,6 @@ public class SignUpFragment extends Fragment
             etNewPassword.requestFocus();
             return;
         }
-
-        // 2. 가입 전용 추가 검증: 비밀번호 일치 여부 확인
         if (!InputValidator.isPasswordMatch(password, confirmPassword))
         {
             etConfirmPassword.setError("비밀번호가 일치하지 않습니다.");
@@ -75,7 +81,6 @@ public class SignUpFragment extends Fragment
             return;
         }
 
-        // 3. Firebase 계정 생성 API 호출
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(requireActivity(), task ->
                 {
@@ -96,9 +101,48 @@ public class SignUpFragment extends Fragment
                     }
                     else
                     {
-                        // 가입 실패 처리 (예: 이미 존재하는 이메일 등)
                         Toast.makeText(getContext(), "가입 실패: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
+    }
+
+    //백버튼 리스너
+    private void setupBackButtonLogic(View view)
+    {
+        ImageButton btnBack = view.findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> checkAndNavigateBack());
+
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true)
+        {
+            @Override
+            public void handleOnBackPressed()
+            {
+                checkAndNavigateBack();
+            }
+        });
+    }
+
+    private void checkAndNavigateBack()
+    {
+        String email = etNewEmail.getText().toString();
+        String password = etNewPassword.getText().toString();
+        String confirm = etConfirmPassword.getText().toString();
+
+        if (!email.isEmpty() || !password.isEmpty() || !confirm.isEmpty())
+        {   //백버튼 다이얼로그
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("작성 취소")
+                    .setMessage("입력 중인 정보가 모두 사라집니다.\n이전 화면으로 돌아가시겠습니까?")
+                    .setPositiveButton("예", (dialog, which) ->
+                    {
+                        NavHostFragment.findNavController(SignUpFragment.this).popBackStack();
+                    })
+                    .setNegativeButton("아니오", null)
+                    .show();
+        }
+        else
+        {
+            NavHostFragment.findNavController(SignUpFragment.this).popBackStack();
+        }
     }
 }

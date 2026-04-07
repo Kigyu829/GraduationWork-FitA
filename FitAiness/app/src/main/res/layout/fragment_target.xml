@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_gray">
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="감량 목표 설정"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="48dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="24dp">
+            <TextView
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text="목표 체중 (kg)"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+            <NumberPicker
+                android:theme="@style/AppTheme.Picker"
+                android:id="@+id/npTargetWeight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:descendantFocusability="blocksDescendants"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="48dp">
+            <TextView
+                android:textColor="@color/white"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text="목표 기간(개월)"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+            <NumberPicker
+                android:theme="@style/AppTheme.Picker"
+                android:id="@+id/npDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:descendantFocusability="blocksDescendants"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnSaveTarget"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="목표 저장하기"
+            android:textColor="@color/white"
+            android:padding="12dp"
+            android:textSize="16sp"
+            android:backgroundTint="@color/gasoline_green"/>
+    </LinearLayout>
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="10dp"
+        android:src="@drawable/ic_back_button"
+        android:backgroundTint="@color/background_gray"/>
+</FrameLayout>

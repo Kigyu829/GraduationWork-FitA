@@ -1,1 +1,100 @@
-<!--AI Guide-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 플랜 생성 중 – HealthDash</title>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/sc301.css" />
+  <link rel="stylesheet" href="../css/sc302.css" />
+</head>
+<body>
+<div class="dashboard">
+
+  <!-- ── 사이드바 (sc301과 동일 구조) ── -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo" id="sidebarLogo" style="cursor:pointer;">
+        <div class="sidebar-logo-icon">🏃</div>
+        <span class="sidebar-logo-text">HealthDash</span>
+      </div>
+
+      <div class="sidebar-card profile-card">
+        <div class="profile-avatar">👤</div>
+        <div id="userName">내 정보</div>
+        <div id="userBasicInfo">불러오는 중...</div>
+        <div class="profile-weights">
+          <div class="weight-chip">
+            <span class="weight-chip-label">현재 체중</span>
+            <span class="weight-chip-value" id="currentWeightText">-</span>
+          </div>
+          <div class="weight-chip">
+            <span class="weight-chip-label">목표 체중</span>
+            <span class="weight-chip-value" id="targetWeightText">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-card menu-card">
+        <div class="menu-card-title">메뉴</div>
+        <div class="menu-list">
+          <button class="menu-btn" data-href="sc301.html"><span class="menu-btn-icon">🏠</span>대시보드</button>
+          <button class="menu-btn active" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
+          <button class="menu-btn" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
+          <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
+          <button class="menu-btn" data-href="sc601.html"><span class="menu-btn-icon">⚙️</span>설정</button>
+        </div>
+      </div>
+    </div>
+    <button class="logout-btn" id="logoutBtn">로그아웃</button>
+  </aside>
+
+  <!-- ── 메인: 로딩 영역 ── -->
+  <main class="main">
+    <div class="loading-card">
+
+      <!-- 캐릭터 -->
+      <div class="loading-character">🤖</div>
+
+      <!-- 제목 -->
+      <div>
+        <div class="loading-title">AI가 플랜을 만들고 있어요</div>
+        <div class="loading-subtitle">
+          신체 정보와 목표를 분석해<br>맞춤형 식단과 운동을 준비 중이에요.
+        </div>
+      </div>
+
+      <!-- 순환 메시지 -->
+      <div class="loading-msg" id="loadingMsg">식단 패턴을 분석하고 있어요...</div>
+
+      <!-- 막대 로딩바 -->
+      <div class="loading-bar-wrap">
+        <div class="loading-bar-track">
+          <div class="loading-bar-fill" id="loadingBar"></div>
+        </div>
+        <div class="loading-bar-label" id="loadingPct">잠시만 기다려 주세요</div>
+      </div>
+
+      <!-- 단계 표시 -->
+      <div class="loading-steps">
+        <div class="loading-step done" id="step1">
+          <div class="step-dot"></div>신체 분석
+        </div>
+        <div class="step-sep"></div>
+        <div class="loading-step active" id="step2">
+          <div class="step-dot"></div>플랜 생성
+        </div>
+        <div class="step-sep"></div>
+        <div class="loading-step" id="step3">
+          <div class="step-dot"></div>최종 검토
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/common.js"></script>
+<script src="../js/sc302.js"></script>
+</body>
+</html>
