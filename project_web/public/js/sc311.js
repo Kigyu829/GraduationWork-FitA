@@ -6,6 +6,7 @@
    - AI 서버(port 5000)에서 받아온 플랜을 동적 렌더링
    - 식단/운동 탭 전환
    - 식단 인증 버튼 → sc401로 이동 (끼니 정보 전달)
+   - 안먹었어요 버튼 → 팝업으로 항목 선택 후 칼로리 차감 기록
    - 운동 체크박스 → 달성 칼로리 누적
    - 우측 AI 채팅 사이드패널 (실제 /api/chat 연결)
    ============================================================ */
@@ -18,22 +19,20 @@ window.addEventListener('DOMContentLoaded', () => {
   renderSidebar();
   renderPageSubtitle();
   initTabs();
-  renderAiPlan();        /* ← AI 플랜 렌더링 (applyIcons/initMealVerify/initWorkoutCheck 포함) */
+  renderAiPlan();
   initAiChat();
   bindMenuBtns();
   bindLogout();
   bindLogoClick();
   restoreTodayState();
-  fetchMotivation();     /* ← 동기부여 메시지 */
+  fetchMotivation();
 });
 
 /* ════════════════════════════════
-   AI 플랜 렌더링 (localStorage → DOM)
-   sc302에서 저장한 aiMealPlan, aiWorkoutPlan을 읽어
-   식단/운동 섹션을 동적으로 업데이트
+   AI 플랜 렌더링
    ════════════════════════════════ */
 function renderAiPlan() {
-  const userData = Storage.getUser();
+  const userData    = Storage.getUser();
   const mealPlan    = userData.aiMealPlan;
   const workoutPlan = userData.aiWorkoutPlan;
 
@@ -42,10 +41,11 @@ function renderAiPlan() {
 
   applyIcons();
   initMealVerify();
+  initMealSkip();    /* ← 안먹었어요 버튼 */
   initWorkoutCheck();
 }
 
-/* 식단 항목 업데이트 (breakfast / lunch / dinner) */
+/* 식단 항목 업데이트 */
 function renderMealItems(mealPlan) {
   const MEAL_KEYS = ['breakfast', 'lunch', 'dinner'];
   let totalKcal = 0;
@@ -57,18 +57,28 @@ function renderMealItems(mealPlan) {
     const item = document.getElementById(`meal-${key}`);
     if (!item) return;
 
-    const menuText = Array.isArray(meal.menu) ? meal.menu.join(' + ') : meal.menu;
-    item.querySelector('.meal-name').textContent  = menuText;
-    item.querySelector('.meal-detail').textContent = meal.desc || '';
-    item.querySelector('.meal-kcal').textContent  = `${meal.calories} kcal`;
+    const menuArr  = Array.isArray(meal.menu) ? meal.menu : [meal.menu];
+    const menuText = menuArr.join(' + ');
 
+    item.querySelector('.meal-name').textContent   = menuText;
+    item.querySelector('.meal-detail').textContent = meal.desc || '';
+    item.querySelector('.meal-kcal').textContent   = `${meal.calories} kcal`;
+
+    /* 인증 버튼 */
     const btn = item.querySelector('.verify-btn');
     if (btn) {
       btn.dataset.kcal = meal.calories;
       if (meal.main_food) btn.dataset.mainFood = meal.main_food;
     }
 
-    /* main_food 힌트 표시 */
+    /* ── 안먹었어요 버튼에 메뉴 정보 주입 ── */
+    const skipBtn = item.querySelector('.skip-btn');
+    if (skipBtn) {
+      skipBtn.dataset.kcal     = meal.calories;
+      skipBtn.dataset.menuJson = JSON.stringify(menuArr);
+    }
+
+    /* main_food 힌트 */
     if (meal.main_food) {
       let hintEl = item.querySelector('.meal-main-food');
       if (!hintEl) {
@@ -83,20 +93,17 @@ function renderMealItems(mealPlan) {
     totalKcal += meal.calories || 0;
   });
 
-
-  /* 총 칼로리 표시 업데이트 */
   const totalKcalEl = document.getElementById('totalKcal');
   if (totalKcalEl) totalKcalEl.textContent = totalKcal.toLocaleString();
   TOTAL_MEAL_KCAL = totalKcal;
 
-  /* 오늘의 팁 표시 (있으면) */
   if (mealPlan.tip) {
     const tipEl = document.getElementById('mealTip');
     if (tipEl) tipEl.textContent = `💡 ${mealPlan.tip}`;
   }
 }
 
-/* 운동 목록 동적 렌더링 (warmup / main / cooldown) */
+/* 운동 목록 렌더링 */
 function renderWorkoutItems(workoutPlan) {
   const container = document.getElementById('tabContentWorkout');
   if (!container) return;
@@ -140,31 +147,23 @@ function renderWorkoutItems(workoutPlan) {
     html += `<div class="ai-tip" style="margin-top:16px;padding:12px;background:var(--card);border-radius:10px;font-size:13px;color:var(--text-sec);">💡 ${workoutPlan.tip}</div>`;
   }
 
-  /* 기존 운동 목록 교체 (summary 유지) */
   Array.from(container.children).forEach(child => {
     if (child !== summaryDiv) child.remove();
   });
   summaryDiv.insertAdjacentHTML('afterend', html);
 }
 
-/* ════════════════════════════════
-   아이콘 매핑 적용
-   HTML의 .meal-emoji, .workout-icon 안을
-   common.js의 getFoodIcon / getWorkoutIcon으로 채움
-   ════════════════════════════════ */
+/* 아이콘 매핑 */
 function applyIcons() {
-  /* 식단 아이콘: .meal-item 안의 .meal-emoji에 .meal-name 텍스트로 결정 */
   document.querySelectorAll('.meal-item').forEach(item => {
-    const name    = item.querySelector('.meal-name')?.textContent || '';
-    const iconEl  = item.querySelector('.meal-emoji');
-    if (iconEl) iconEl.textContent = getFoodIcon(name);   /* common.js */
+    const name   = item.querySelector('.meal-name')?.textContent || '';
+    const iconEl = item.querySelector('.meal-emoji');
+    if (iconEl) iconEl.textContent = getFoodIcon(name);
   });
-
-  /* 운동 아이콘: .workout-item 안의 .workout-icon에 .workout-name으로 결정 */
   document.querySelectorAll('.workout-item').forEach(item => {
     const name   = item.querySelector('.workout-name')?.textContent || '';
     const iconEl = item.querySelector('.workout-icon');
-    if (iconEl) iconEl.textContent = getWorkoutIcon(name); /* common.js */
+    if (iconEl) iconEl.textContent = getWorkoutIcon(name);
   });
 }
 
@@ -187,13 +186,13 @@ function renderSidebar() {
     if (data.height) parts.push(`키 ${data.height}cm`);
     infoEl.textContent = parts.join(' · ') || '기본 정보 없음';
   }
-  if (cwEl) cwEl.textContent = data.weight      ? `${data.weight}kg`      : '-';
-  if (twEl) twEl.textContent = data.targetWeight ? `${data.targetWeight}kg` : '-';
+  if (cwEl) cwEl.textContent = data.weight       ? `${data.weight}kg`       : '-';
+  if (twEl) twEl.textContent = data.targetWeight  ? `${data.targetWeight}kg` : '-';
 }
 
 function renderPageSubtitle() {
   const el = document.getElementById('pageSubtitle');
-  if (el) el.textContent = formatDate();  /* common.js */
+  if (el) el.textContent = formatDate();
 }
 
 function bindLogout() {
@@ -205,7 +204,6 @@ function bindLogout() {
 
 function bindLogoClick() {
   document.getElementById('sidebarLogo')?.addEventListener('click', () => {
-    /* 로그인 후 페이지이므로 로고 클릭 시 대시보드로 이동 */
     location.href = 'sc301.html';
   });
 }
@@ -214,24 +212,21 @@ function bindLogoClick() {
    탭 전환
    ════════════════════════════════ */
 function initTabs() {
-  const tabBtns    = document.querySelectorAll('.tab-btn');
+  const tabBtns     = document.querySelectorAll('.tab-btn');
   const tabContents = document.querySelectorAll('.tab-content');
 
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const target = btn.dataset.tab;
-
-      tabBtns.forEach(b => b.classList.remove('active'));
+      tabBtns.forEach(b     => b.classList.remove('active'));
       tabContents.forEach(c => c.classList.remove('active'));
-
       btn.classList.add('active');
       document.getElementById(`tabContent${capitalize(target)}`)?.classList.add('active');
     });
   });
 
-  /* sc301에서 카드 클릭 시 ?tab=meal 또는 ?tab=workout 파라미터로 탭 자동 선택 */
-  const params   = new URLSearchParams(location.search);
-  const initTab  = params.get('tab');
+  const params  = new URLSearchParams(location.search);
+  const initTab = params.get('tab');
   if (initTab) {
     const targetBtn = document.querySelector(`.tab-btn[data-tab="${initTab}"]`);
     if (targetBtn) targetBtn.click();
@@ -262,7 +257,7 @@ function saveTodayState(state) {
 /* ════════════════════════════════
    식단 인증 버튼
    ════════════════════════════════ */
-let TOTAL_MEAL_KCAL = 1820; /* renderMealItems에서 AI 플랜 총 칼로리로 업데이트됨 */
+let TOTAL_MEAL_KCAL = 1820;
 
 function initMealVerify() {
   document.querySelectorAll('.verify-btn').forEach(btn => {
@@ -271,7 +266,6 @@ function initMealVerify() {
       const kcal     = parseInt(btn.dataset.kcal, 10);
       const mainFood = btn.dataset.mainFood || '';
 
-      /* sc401로 이동 — URL 파라미터로 끼니 정보 전달 */
       const params = new URLSearchParams({ meal, kcal });
       if (mainFood) params.set('mainFood', mainFood);
       location.href = `sc401.html?${params.toString()}`;
@@ -288,11 +282,19 @@ function restoreMealState(state) {
     if (data.verified) {
       const btn  = document.querySelector(`.verify-btn[data-meal="${meal}"]`);
       const item = document.getElementById(`meal-${meal}`);
-      if (btn) {
-        btn.textContent = '✅ 완료';
-        btn.classList.add('done');
+
+      if (!data.skipped) {
+        /* 일반 인증 */
+        if (btn) { btn.textContent = '✅ 완료'; btn.classList.add('done'); }
+        if (item) item.classList.add('verified');
+      } else {
+        /* 안먹었어요 */
+        const skipBtn   = document.querySelector(`.skip-btn[data-meal="${meal}"]`);
+        if (skipBtn)  { skipBtn.textContent = '🚫 건너뜀'; skipBtn.classList.add('done'); }
+        if (btn)      { btn.disabled = true; btn.style.opacity = '0.4'; }
+        if (item)     item.classList.add('skipped');
       }
-      if (item) item.classList.add('verified');
+
       verifiedKcal  += data.kcal || 0;
       verifiedCount += 1;
     }
@@ -302,10 +304,10 @@ function restoreMealState(state) {
 }
 
 function updateMealSummary(verifiedKcal, verifiedCount) {
-  const totalKcalEl    = document.getElementById('totalKcal');
+  const totalKcalEl   = document.getElementById('totalKcal');
   const verifiedKcalEl = document.getElementById('verifiedKcal');
-  const remainKcalEl   = document.getElementById('remainKcal');
-  const verifiedCntEl  = document.getElementById('verifiedCount');
+  const remainKcalEl  = document.getElementById('remainKcal');
+  const verifiedCntEl = document.getElementById('verifiedCount');
 
   if (verifiedKcalEl) verifiedKcalEl.textContent = verifiedKcal.toLocaleString();
   if (remainKcalEl)   remainKcalEl.textContent   = (TOTAL_MEAL_KCAL - verifiedKcal).toLocaleString();
@@ -313,9 +315,185 @@ function updateMealSummary(verifiedKcal, verifiedCount) {
 }
 
 /* ════════════════════════════════
+   안먹었어요 버튼
+   ════════════════════════════════ */
+function initMealSkip() {
+  document.querySelectorAll('.skip-btn').forEach(btn => {
+    if (btn.classList.contains('done')) return;
+    btn.addEventListener('click', () => {
+      const mealKey   = btn.dataset.meal;
+      const totalKcal = parseInt(btn.dataset.kcal, 10) || 0;
+      let   menuItems = [];
+      try { menuItems = JSON.parse(btn.dataset.menuJson || '[]'); } catch { menuItems = []; }
+      showSkipModal(mealKey, totalKcal, menuItems);
+    });
+  });
+}
+
+function showSkipModal(mealKey, totalKcal, menuItems) {
+  document.getElementById('skipModal')?.remove();
+
+  const mealLabel = { breakfast: '아침', lunch: '점심', dinner: '저녁' }[mealKey] || mealKey;
+  const hasItems  = menuItems.length > 0;
+
+  const itemsHtml = hasItems
+    ? menuItems.map((name, i) => `
+        <label class="skip-check-row">
+          <input type="checkbox" class="skip-item-check" data-index="${i}" />
+          <span class="skip-check-label">${name}</span>
+        </label>
+      `).join('')
+    : `<p style="font-size:13px;color:var(--text-sec);margin:8px 0;">메뉴 정보가 없어요. 전부 안먹은 것으로 처리할게요.</p>`;
+
+  const modal = document.createElement('div');
+  modal.id        = 'skipModal';
+  modal.className = 'skip-modal-overlay';
+  modal.innerHTML = `
+    <div class="skip-modal">
+      <div class="skip-modal-header">
+        <div>
+          <div class="skip-modal-title">🚫 ${mealLabel} — 안먹은 항목</div>
+          <div class="skip-modal-sub">안먹은 항목을 선택하면 칼로리에서 제외돼요.</div>
+        </div>
+        <button class="skip-modal-close" id="skipModalClose">✕</button>
+      </div>
+
+      <div class="skip-items-list" id="skipItemsList">
+        ${hasItems ? `
+          <label class="skip-check-row skip-all-row">
+            <input type="checkbox" id="skipAllCheck" />
+            <span class="skip-check-label" style="font-weight:800;">전부 안먹었어요</span>
+          </label>
+          <div class="skip-divider"></div>
+          ${itemsHtml}
+        ` : itemsHtml}
+      </div>
+
+      <div class="skip-kcal-preview" id="skipKcalPreview">
+        <span>제외 칼로리</span>
+        <strong id="skipKcalValue">0 kcal</strong>
+      </div>
+      <div class="skip-kcal-preview" style="border-color:var(--teal,#66D0BC); background:rgba(102,208,188,0.06);">
+        <span>실제 섭취 칼로리</span>
+        <strong id="skipKcalRemain" style="color:var(--teal,#66D0BC);">${totalKcal} kcal</strong>
+      </div>
+
+      <div class="skip-modal-actions">
+        <button class="secondary-btn skip-cancel-btn" id="skipCancelBtn">취소</button>
+        <button class="primary-btn skip-confirm-btn" id="skipConfirmBtn">이대로 기록</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  requestAnimationFrame(() => requestAnimationFrame(() => modal.classList.add('show')));
+
+  const allCheck   = modal.querySelector('#skipAllCheck');
+  const itemChecks = modal.querySelectorAll('.skip-item-check');
+
+  function calcSkipKcal() {
+    if (!hasItems) return totalKcal;
+    const checkedCount = modal.querySelectorAll('.skip-item-check:checked').length;
+    if (checkedCount === 0) return 0;
+    return Math.round((checkedCount / menuItems.length) * totalKcal);
+  }
+
+  function updatePreview() {
+    const skipKcal   = calcSkipKcal();
+    const remainKcal = totalKcal - skipKcal;
+    const skipEl     = modal.querySelector('#skipKcalValue');
+    const remainEl   = modal.querySelector('#skipKcalRemain');
+    if (skipEl)   skipEl.textContent   = `${skipKcal} kcal`;
+    if (remainEl) remainEl.textContent = `${Math.max(0, remainKcal)} kcal`;
+  }
+
+  allCheck?.addEventListener('change', () => {
+    itemChecks.forEach(c => { c.checked = allCheck.checked; });
+    updatePreview();
+  });
+  itemChecks.forEach(c => {
+    c.addEventListener('change', () => {
+      if (allCheck) allCheck.checked = [...itemChecks].every(ic => ic.checked);
+      updatePreview();
+    });
+  });
+
+  const closeModal = () => {
+    modal.classList.remove('show');
+    setTimeout(() => modal.remove(), 280);
+  };
+  modal.querySelector('#skipModalClose')?.addEventListener('click', closeModal);
+  modal.querySelector('#skipCancelBtn')?.addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+  modal.querySelector('#skipConfirmBtn')?.addEventListener('click', () => {
+    const skipKcal   = calcSkipKcal();
+    const remainKcal = Math.max(0, totalKcal - skipKcal);
+
+    let skippedItems = [];
+    if (hasItems) {
+      skippedItems = menuItems.filter((_, i) =>
+        modal.querySelector(`.skip-item-check[data-index="${i}"]`)?.checked
+      );
+    } else {
+      skippedItems = ['전체'];
+    }
+
+    doSkipVerify(mealKey, remainKcal, skippedItems);
+    closeModal();
+
+    /* UI 업데이트 */
+    const skipBtn   = document.querySelector(`.skip-btn[data-meal="${mealKey}"]`);
+    const verifyBtn = document.querySelector(`.verify-btn[data-meal="${mealKey}"]`);
+    const mealItem  = document.getElementById(`meal-${mealKey}`);
+
+    if (skipBtn)  { skipBtn.textContent = '🚫 건너뜀'; skipBtn.classList.add('done'); }
+    if (verifyBtn){ verifyBtn.disabled = true; verifyBtn.style.opacity = '0.4'; }
+    if (mealItem) mealItem.classList.add('skipped');
+
+    /* 요약 갱신 */
+    const stateNow = loadTodayState();
+    let vKcal = 0, vCount = 0;
+    Object.values(stateNow.meals || {}).forEach(d => {
+      if (d.verified) { vKcal += d.kcal || 0; vCount++; }
+    });
+    updateMealSummary(vKcal, vCount);
+  });
+}
+
+function doSkipVerify(mealKey, remainKcal, skippedItems) {
+  const today   = new Date();
+  const dateStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const sc311Key = `sc311_${dateStr}`;
+
+  let sc311State;
+  try { sc311State = JSON.parse(localStorage.getItem(sc311Key)) || { meals: {}, workouts: {} }; }
+  catch { sc311State = { meals: {}, workouts: {} }; }
+
+  sc311State.meals[mealKey] = {
+    verified:     true,
+    skipped:      true,
+    kcal:         remainKcal,
+    skippedItems: skippedItems,
+    food:         skippedItems.length > 0 ? `(건너뜀: ${skippedItems.join(', ')})` : '(건너뜀)',
+  };
+  localStorage.setItem(sc311Key, JSON.stringify(sc311State));
+
+  const checkKey    = `check_${dateStr}`;
+  const allVerified = ['breakfast', 'lunch', 'dinner'].every(k => sc311State.meals[k]?.verified);
+  try {
+    const chk = JSON.parse(localStorage.getItem(checkKey)) || { meal: false, workout: false };
+    chk.meal  = allVerified;
+    localStorage.setItem(checkKey, JSON.stringify(chk));
+  } catch {
+    localStorage.setItem(checkKey, JSON.stringify({ meal: allVerified, workout: false }));
+  }
+}
+
+/* ════════════════════════════════
    운동 체크박스
    ════════════════════════════════ */
-let workoutState = {}; /* { workoutId: { done, kcal } } */
+let workoutState = {};
 
 function initWorkoutCheck() {
   document.querySelectorAll('.workout-check').forEach(btn => {
@@ -326,7 +504,6 @@ function initWorkoutCheck() {
       const isDone = btn.classList.toggle('done');
       workoutState[id] = { done: isDone, kcal };
 
-      /* 상태 저장 */
       const state = loadTodayState();
       state.workouts[id] = { done: isDone, kcal };
       saveTodayState(state);
@@ -348,9 +525,9 @@ function restoreWorkoutState(state) {
 }
 
 function updateWorkoutSummary() {
-  const totalItems  = document.querySelectorAll('.workout-check').length;
-  const doneItems   = document.querySelectorAll('.workout-check.done').length;
-  const burnKcal    = Object.values(workoutState)
+  const totalItems = document.querySelectorAll('.workout-check').length;
+  const doneItems  = document.querySelectorAll('.workout-check.done').length;
+  const burnKcal   = Object.values(workoutState)
     .filter(d => d.done).reduce((s, d) => s + (d.kcal || 0), 0);
 
   const pct = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
@@ -363,14 +540,13 @@ function updateWorkoutSummary() {
   if (fillEl) fillEl.style.width = `${pct}%`;
   if (kcalEl) kcalEl.textContent = `${burnKcal} kcal`;
 
-  /* 전체 운동 완료 시 sc301 대시보드 체크 자동 설정 */
   const allDone  = totalItems > 0 && doneItems === totalItems;
   const today    = new Date();
   const dateStr  = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
   const checkKey = `check_${dateStr}`;
   try {
-    const state    = JSON.parse(localStorage.getItem(checkKey)) || { meal: false, workout: false };
-    state.workout  = allDone;
+    const state   = JSON.parse(localStorage.getItem(checkKey)) || { meal: false, workout: false };
+    state.workout = allDone;
     localStorage.setItem(checkKey, JSON.stringify(state));
   } catch(e) {
     localStorage.setItem(checkKey, JSON.stringify({ meal: false, workout: allDone }));
@@ -378,7 +554,7 @@ function updateWorkoutSummary() {
 }
 
 /* ════════════════════════════════
-   오늘 상태 복원 (페이지 로드 시)
+   오늘 상태 복원
    ════════════════════════════════ */
 function restoreTodayState() {
   const state = loadTodayState();
@@ -387,19 +563,19 @@ function restoreTodayState() {
 }
 
 /* ════════════════════════════════
-   AI 채팅 사이드패널 (AI 서버 /api/chat 연결)
+   AI 채팅 사이드패널
    ════════════════════════════════ */
-const chatHistory = []; /* { role: 'user'|'ai', text: string } */
+const chatHistory = [];
 
 async function callAiChat(message) {
   const userData = Storage.getUser();
 
   const userInfoStr = [
-    userData.gender      ? `성별 ${userData.gender}`          : '',
-    userData.height      ? `키 ${userData.height}cm`          : '',
-    userData.weight      ? `체중 ${userData.weight}kg`        : '',
-    userData.targetWeight? `목표 ${userData.targetWeight}kg`  : '',
-    userData.goalWeeks   ? `기간 ${userData.goalWeeks}주`     : '',
+    userData.gender       ? `성별 ${userData.gender}`         : '',
+    userData.height       ? `키 ${userData.height}cm`         : '',
+    userData.weight       ? `체중 ${userData.weight}kg`       : '',
+    userData.targetWeight ? `목표 ${userData.targetWeight}kg` : '',
+    userData.goalWeeks    ? `기간 ${userData.goalWeeks}주`    : '',
   ].filter(Boolean).join(', ');
 
   const recentHistory = chatHistory.slice(-6)
@@ -407,7 +583,7 @@ async function callAiChat(message) {
     .join('\n');
 
   const res = await fetch(`${AI_SERVER}/api/chat`, {
-    method: 'POST',
+    method:  'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       message,
@@ -431,13 +607,11 @@ function initAiChat() {
   const sendBtn   = document.getElementById('chatSendBtn');
   const input     = document.getElementById('chatInput');
 
-  /* 토글 */
   toggleBtn?.addEventListener('click', () => {
     const isOpen = panel.classList.toggle('open');
     toggleBtn.classList.toggle('active', isOpen);
   });
 
-  /* sc302에서 "AI 상담으로 수정하기" 클릭 시 채팅 패널 자동 오픈 */
   if (new URLSearchParams(location.search).get('openChat') === '1') {
     panel?.classList.add('open');
     toggleBtn?.classList.add('active');
@@ -448,7 +622,6 @@ function initAiChat() {
     toggleBtn.classList.remove('active');
   });
 
-  /* 전송 */
   function sendMessage() {
     const text = input.value.trim();
     if (!text) return;
@@ -467,7 +640,6 @@ function initAiChat() {
         appendMessage('ai', reply);
         chatHistory.push({ role: 'ai', text: reply });
 
-        /* action 감지 → 식단/운동 자동 재조정 */
         if (result.action === 'meal_adjust' && result.reason) {
           handleMealAdjust(result.reason);
         } else if (result.action === 'exercise_adjust' && result.reason) {
@@ -481,14 +653,9 @@ function initAiChat() {
   }
 
   sendBtn?.addEventListener('click', sendMessage);
-
   input?.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   });
-
   input?.addEventListener('input', () => autoResizeTextarea(input));
 }
 
@@ -496,7 +663,7 @@ function appendMessage(role, text) {
   const messages = document.getElementById('chatMessages');
   if (!messages) return;
 
-  const now = new Date();
+  const now  = new Date();
   const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 
   const div = document.createElement('div');
@@ -536,9 +703,7 @@ function autoResizeTextarea(el) {
 
 /* ════════════════════════════════
    AI 채팅 → 플랜 자동 재조정
-   action: "meal_adjust" | "exercise_adjust"
    ════════════════════════════════ */
-/* 대시보드/sc302와 동일한 Mifflin-St Jeor 기반 목표 칼로리 계산 */
 function calcTargetCalories(userData) {
   const weight       = Number(userData.weight);
   const height       = Number(userData.height);
@@ -569,7 +734,7 @@ async function handleMealAdjust(reason) {
   const typingEl = appendTyping();
   try {
     const res = await fetch(`${AI_SERVER}/api/meal/adjust`, {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ currentPlan, reasons: [reason], targetCalories }),
     });
@@ -577,12 +742,10 @@ async function handleMealAdjust(reason) {
     const json = await res.json();
     if (!json.success) throw new Error(json.message);
 
-    /* localStorage 업데이트 */
     Storage.mergeUser({ aiMealPlan: json.data });
-
-    /* 식단 탭 다시 렌더 */
     renderMealItems(json.data);
     applyIcons();
+    initMealSkip();
     restoreMealState(loadTodayState());
 
     typingEl.remove();
@@ -593,24 +756,51 @@ async function handleMealAdjust(reason) {
   }
 }
 
+async function handleExerciseAdjust(reason) {
+  const userData    = Storage.getUser();
+  const currentPlan = userData.aiWorkoutPlan;
+  const targetWeeks = userData.goalWeeks;
+  if (!currentPlan) return;
+
+  const typingEl = appendTyping();
+  try {
+    const res = await fetch(`${AI_SERVER}/api/exercise/adjust`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentPlan, reasons: [reason], targetWeeks }),
+    });
+    if (!res.ok) throw new Error(`서버 오류 (${res.status})`);
+    const json = await res.json();
+    if (!json.success) throw new Error(json.message);
+
+    Storage.mergeUser({ aiWorkoutPlan: json.data });
+    renderWorkoutItems(json.data);
+    applyIcons();
+    initWorkoutCheck();
+    restoreWorkoutState(loadTodayState());
+
+    typingEl.remove();
+    appendMessage('ai', '✅ 운동 플랜을 수정했어요! 운동 탭에서 확인해보세요.');
+  } catch (err) {
+    typingEl.remove();
+    appendMessage('ai', `운동 수정 중 오류가 발생했어요: ${err.message}`);
+  }
+}
+
 /* ════════════════════════════════
-   동기부여 메시지 (오늘 하루 1회 캐시)
-   최근 7일 미이행 횟수를 계산해서 /api/motivation에 전달
+   동기부여 메시지
    ════════════════════════════════ */
 async function fetchMotivation() {
   const textEl = document.getElementById('motivationText');
   if (!textEl) return;
 
-  /* 오늘 날짜 키 */
   const today   = new Date();
   const dateStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
   const cacheKey = `motivationMsg_${dateStr}`;
 
-  /* 오늘 이미 받은 메시지 있으면 캐시 사용 */
   const cached = localStorage.getItem(cacheKey);
   if (cached) { textEl.textContent = cached; return; }
 
-  /* 최근 7일 미이행 횟수 계산 */
   let missedCount = 0;
   const missedTypes = { meal: 0, workout: 0 };
   for (let i = 1; i <= 7; i++) {
@@ -630,8 +820,7 @@ async function fetchMotivation() {
   if (missedTypes.workout > 0) reasons.push(`운동 미이행 ${missedTypes.workout}일`);
   const missedReasons = reasons.join(', ') || '없음';
 
-  /* 사용자 정보 문자열 */
-  const userData = Storage.getUser();
+  const userData    = Storage.getUser();
   const userInfoStr = [
     userData.gender       ? `성별 ${userData.gender}`         : '',
     userData.weight       ? `체중 ${userData.weight}kg`       : '',
@@ -641,7 +830,7 @@ async function fetchMotivation() {
 
   try {
     const res = await fetch(`${AI_SERVER}/api/motivation`, {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userInfo: userInfoStr, missedCount, missedReasons }),
     });
@@ -651,43 +840,9 @@ async function fetchMotivation() {
 
     const msg = json.message.trim();
     textEl.textContent = msg;
-    localStorage.setItem(cacheKey, msg);   /* 오늘 하루 캐시 */
+    localStorage.setItem(cacheKey, msg);
   } catch (err) {
     textEl.textContent = '오늘도 건강한 하루 보내세요! 💪';
     console.warn('동기부여 메시지 로드 실패:', err.message);
-  }
-}
-
-async function handleExerciseAdjust(reason) {
-  const userData    = Storage.getUser();
-  const currentPlan = userData.aiWorkoutPlan;
-  const targetWeeks = userData.goalWeeks;
-  if (!currentPlan) return;
-
-  const typingEl = appendTyping();
-  try {
-    const res = await fetch(`${AI_SERVER}/api/exercise/adjust`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ currentPlan, reasons: [reason], targetWeeks }),
-    });
-    if (!res.ok) throw new Error(`서버 오류 (${res.status})`);
-    const json = await res.json();
-    if (!json.success) throw new Error(json.message);
-
-    /* localStorage 업데이트 */
-    Storage.mergeUser({ aiWorkoutPlan: json.data });
-
-    /* 운동 탭 다시 렌더 (요소 재생성 → 리스너 재등록 필요) */
-    renderWorkoutItems(json.data);
-    applyIcons();
-    initWorkoutCheck();
-    restoreWorkoutState(loadTodayState());
-
-    typingEl.remove();
-    appendMessage('ai', '✅ 운동 플랜을 수정했어요! 운동 탭에서 확인해보세요.');
-  } catch (err) {
-    typingEl.remove();
-    appendMessage('ai', `운동 수정 중 오류가 발생했어요: ${err.message}`);
   }
 }

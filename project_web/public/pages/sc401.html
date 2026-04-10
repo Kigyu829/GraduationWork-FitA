@@ -35,15 +35,15 @@
       <button class="drawer-menu-btn" data-href="sc302.html"><span>🤖</span>AI 식단 추천</button>
       <button class="drawer-menu-btn" data-href="sc311.html"><span>💪</span>오늘의 식단/운동</button>
       <button class="drawer-menu-btn active" data-href="sc401.html"><span>🥗</span>식단 인증</button>
-      <button class="drawer-menu-btn" data-href="sc701.html"><span>⚙️</span>마이페이지</button>
+      <button class="drawer-menu-btn" data-href="sc701.html"><span>👤</span>마이페이지</button>
     </nav>
     <button class="drawer-logout" id="drawerLogout">로그아웃</button>
   </aside>
 
-  <!-- 오버레이 -->
   <div class="drawer-overlay" id="drawerOverlay"></div>
 
   <main class="upload-main">
+
     <div class="upload-header">
       <div class="upload-header-inner">
         <button class="header-close-btn" id="backToMain" title="돌아가기">✕</button>
@@ -54,6 +54,31 @@
       </div>
     </div>
 
+    <!-- ══════════════════════════════
+         끼니 선택 (직접 진입 시만 표시)
+         sc401.js에서 display 제어
+         ══════════════════════════════ -->
+    <div class="meal-selector" id="mealSelector" style="display:none;">
+      <div class="meal-selector-inner">
+        <div class="selector-label">🍽️ 어느 끼니를 인증할까요?</div>
+        <div class="meal-select-btns">
+          <button class="meal-select-btn" data-meal="breakfast">
+            <span class="msb-icon">🌅</span>
+            <span class="msb-label">아침</span>
+          </button>
+          <button class="meal-select-btn" data-meal="lunch">
+            <span class="msb-icon">☀️</span>
+            <span class="msb-label">점심</span>
+          </button>
+          <button class="meal-select-btn" data-meal="dinner">
+            <span class="msb-icon">🌙</span>
+            <span class="msb-label">저녁</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 업로드 카드 -->
     <div class="upload-card">
       <div class="upload-zone" id="uploadZone">
         <input type="file" id="fileInput" accept="image/*" style="display:none;" />
@@ -79,6 +104,7 @@
         </div>
       </div>
     </div>
+
   </main>
 
   <script src="../js/common.js"></script>
