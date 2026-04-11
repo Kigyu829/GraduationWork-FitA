@@ -262,6 +262,7 @@ html, body { height: 100%; }
   background: var(--surface, #132029);
   border-left: 0px solid var(--border, #243840);
   display: flex; flex-direction: column; overflow: hidden;
+  height: 100%; max-height: 100%;   /* 채팅 쌓여도 패널 높이 고정 */
   transition: width 0.28s cubic-bezier(0.22, 1, 0.36, 1), border-left-width 0.28s ease;
 }
 .ai-chat-panel.open  { width: 340px; border-left-width: 1px; }

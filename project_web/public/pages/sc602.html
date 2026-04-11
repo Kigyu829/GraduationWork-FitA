@@ -1,1 +1,145 @@
-<!--view history details-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>기록 상세 – HealthDash</title>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/sc301.css" />
+  <link rel="stylesheet" href="../css/sc602.css" />
+</head>
+<body>
+<div class="dashboard">
+
+  <!-- 좌측 사이드바 -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo" id="sidebarLogo" style="cursor:pointer;">
+        <div class="sidebar-logo-icon">🏃</div>
+        <span class="sidebar-logo-text">HealthDash</span>
+      </div>
+      <div class="sidebar-card profile-card">
+        <div class="profile-avatar">👤</div>
+        <div id="userName">내 정보</div>
+        <div id="userBasicInfo">불러오는 중...</div>
+        <div class="profile-weights">
+          <div class="weight-chip">
+            <span class="weight-chip-label">현재 체중</span>
+            <span class="weight-chip-value" id="currentWeightText">-</span>
+          </div>
+          <div class="weight-chip">
+            <span class="weight-chip-label">목표 체중</span>
+            <span class="weight-chip-value" id="targetWeightText">-</span>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-card menu-card">
+        <div class="menu-card-title">메뉴</div>
+        <div class="menu-list">
+          <button class="menu-btn" data-href="sc301.html"><span class="menu-btn-icon">🏠</span>대시보드</button>
+          <button class="menu-btn" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
+          <button class="menu-btn" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
+          <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
+          <button class="menu-btn active"><span class="menu-btn-icon">📅</span>히스토리</button>
+          
+            <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">⚙️</span>마이페이지</button>
+        </div>
+      </div>
+    </div>
+    <button class="logout-btn" id="logoutBtn">로그아웃</button>
+  </aside>
+
+  <!-- 메인 -->
+  <main class="main">
+    <div class="detail-wrap">
+
+      <!-- 헤더 -->
+      <div class="detail-header">
+        <button class="detail-back-btn" id="backBtn">← 돌아가기</button>
+        <div class="detail-date" id="detailDate" style="cursor:pointer;" title="클릭해서 날짜 선택">날짜 불러오는 중...</div>
+        <!-- 날짜 이동 -->
+        <div class="detail-date-nav">
+          <button class="detail-nav-btn" id="prevDayBtn">‹</button>
+          <button class="detail-nav-btn" id="sc602CalOpen" title="달력에서 날짜 선택" style="font-size:11px;width:auto;padding:0 10px;">날짜 변경</button>
+          <button class="detail-nav-btn" id="nextDayBtn">›</button>
+        </div>
+      </div>
+
+      <!-- 달성 뱃지 -->
+      <div class="detail-badge-row" id="detailBadgeRow"></div>
+
+      <!-- 탭 -->
+      <div class="detail-tab-bar">
+        <button class="detail-tab active" data-tab="meal">🥗 식단</button>
+        <button class="detail-tab" data-tab="workout">💪 운동</button>
+      </div>
+
+      <!-- 식단 탭 -->
+      <div class="detail-content active" id="detailContentMeal">
+        <!-- 왼쪽: 식단 목록 -->
+        <div class="detail-col-left">
+          <div class="detail-section-title">식단 기록</div>
+          <div class="detail-meal-list" id="detailMealList">
+            <div class="detail-empty-msg">기록된 식단이 없어요</div>
+          </div>
+        </div>
+        <!-- 오른쪽: 인증 사진 -->
+        <div class="detail-col-right">
+          <div class="detail-section-title">인증 사진</div>
+          <div class="detail-photo-grid" id="detailPhotoGrid">
+            <div class="detail-photo-empty">인증된 사진이 없어요</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 운동 탭 -->
+      <div class="detail-content" id="detailContentWorkout">
+        <div class="detail-section-title">운동 기록</div>
+        <div class="detail-workout-list" id="detailWorkoutList">
+          <div class="detail-empty-msg">기록된 운동이 없어요</div>
+        </div>
+        <div class="detail-workout-summary" id="detailWorkoutSummary"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+  <!-- sc602 날짜 선택 달력 모달 -->
+  <div class="hist-modal-overlay" id="sc602HistOverlay">
+    <div class="hist-modal" id="sc602HistModal">
+      <div class="hist-modal-header">
+        <div class="hist-modal-title">📅 날짜 선택</div>
+        <button class="hist-modal-close" id="sc602HistClose">×</button>
+      </div>
+      <div class="hist-modal-body">
+        <div class="hist-cal-nav">
+          <button class="hist-cal-arrow" id="sc602PrevMonth">&#8249;</button>
+          <span class="hist-cal-title" id="sc602CalTitle">-</span>
+          <button class="hist-cal-arrow" id="sc602NextMonth">&#8250;</button>
+        </div>
+        <div class="hist-legend">
+          <span class="hist-legend-item"><span class="hist-dot dot-both"></span>식단+운동</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-meal"></span>식단만</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-workout"></span>운동만</span>
+        </div>
+        <div class="hist-weekdays">
+          <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+        </div>
+        <div class="hist-days" id="sc602CalDays"></div>
+      </div>
+    </div>
+  </div>
+      </div>
+      <div class="ai-overlay-input-wrap">
+        <textarea class="ai-overlay-input" id="aiOverlayInput" placeholder="질문을 입력하세요..." rows="1"></textarea>
+        <button class="ai-overlay-send" id="aiOverlaySend">➤</button>
+      </div>
+    </div>
+  </div>
+  </div>
+
+<script src="../js/common.js"></script>
+<script src="../js/sc602.js"></script>
+</body>
+</html>

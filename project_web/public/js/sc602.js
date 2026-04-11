@@ -1,0 +1,349 @@
+/* ============================================================
+   sc602.js — 기록 상세 페이지
+   의존: common.js
+
+   URL 파라미터: ?date=YYYY-MM-DD
+   ============================================================ */
+'use strict';
+
+const MEAL_LABELS = {
+  breakfast: '🌅 아침',
+  lunch:     '☀️ 점심',
+  dinner:    '🌙 저녁',
+  snack:     '🍎 간식',
+};
+
+const MEAL_DATA = {
+  breakfast: { name: '그릭요거트 + 견과류 + 바나나', kcal: 340 },
+  lunch:     { name: '현미밥 + 닭가슴살 샐러드 + 된장국', kcal: 580 },
+  dinner:    { name: '연어구이 + 구운 채소 + 두부', kcal: 620 },
+  snack:     { name: '사과 1개 + 아몬드 10알', kcal: 280 },
+};
+
+const WORKOUT_DATA = [
+  { id: 'cardio1',   name: '빠르게 걷기',   detail: '30분 · 중간 강도', kcal: 200 },
+  { id: 'strength1', name: '스쿼트',         detail: '15회 × 3세트',     kcal: 80  },
+  { id: 'strength2', name: '푸시업',         detail: '10회 × 3세트',     kcal: 60  },
+  { id: 'strength3', name: '플랭크',         detail: '30초 × 3세트',     kcal: 50  },
+  { id: 'stretch1',  name: '전신 스트레칭',  detail: '10분',             kcal: 30  },
+];
+
+let currentDate;
+
+window.addEventListener('DOMContentLoaded', () => {
+  renderSidebar();
+  initDate();
+  initTabs();
+  initCommonOverlays();  /* common.js — AI상담/히스토리 오버레이 */
+  bindMenuBtns();
+  bindLogout();
+  bindLogoClick();
+});
+
+/* ── 사이드바 ── */
+function renderSidebar() {
+  const data = Storage.getUser();
+  const reg  = Storage.getRegistered();
+  const nameEl = document.getElementById('userName');
+  const infoEl = document.getElementById('userBasicInfo');
+  const cwEl   = document.getElementById('currentWeightText');
+  const twEl   = document.getElementById('targetWeightText');
+  if (nameEl) nameEl.textContent = reg.nickname ? `${reg.nickname}님` : '사용자';
+  if (infoEl) {
+    const parts = [];
+    if (data.gender) parts.push(data.gender);
+    if (data.height) parts.push(`키 ${data.height}cm`);
+    infoEl.textContent = parts.join(' · ') || '기본 정보 없음';
+  }
+  if (cwEl) cwEl.textContent = data.weight       ? `${data.weight}kg`       : '-';
+  if (twEl) twEl.textContent = data.targetWeight  ? `${data.targetWeight}kg` : '-';
+}
+
+function bindLogout() {
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    localStorage.removeItem('healthUserData');
+    location.href = 'sc101.html';
+  });
+}
+
+function bindLogoClick() {
+  document.getElementById('sidebarLogo')?.addEventListener('click', () => {
+    location.href = 'sc301.html';
+  });
+}
+
+/* ── 날짜 초기화 ── */
+function initDate() {
+  const params = new URLSearchParams(location.search);
+  const dateStr = params.get('date') || todayStr();
+  currentDate = dateStr;
+  renderPage(currentDate);
+
+  document.getElementById('backBtn')?.addEventListener('click', () => {
+    history.back();
+  });
+
+  document.getElementById('prevDayBtn')?.addEventListener('click', () => {
+    currentDate = offsetDate(currentDate, -1);
+    updateURL(currentDate);
+    renderPage(currentDate);
+  });
+
+  document.getElementById('nextDayBtn')?.addEventListener('click', () => {
+    currentDate = offsetDate(currentDate, 1);
+    updateURL(currentDate);
+    renderPage(currentDate);
+  });
+
+  /* 날짜 텍스트 or 달력 버튼 클릭 → 달력 모달 오픈 */
+  document.getElementById('detailDate')?.addEventListener('click', openSc602Cal);
+  document.getElementById('sc602CalOpen')?.addEventListener('click', openSc602Cal);
+
+  initSc602Cal();
+}
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function offsetDate(dateStr, days) {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + days);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function updateURL(dateStr) {
+  const url = new URL(location.href);
+  url.searchParams.set('date', dateStr);
+  history.replaceState({}, '', url);
+}
+
+/* ── 페이지 렌더 ── */
+function renderPage(dateStr) {
+  renderDateHeader(dateStr);
+  renderBadge(dateStr);
+  renderMealTab(dateStr);
+  renderWorkoutTab(dateStr);
+}
+
+function renderDateHeader(dateStr) {
+  const el = document.getElementById('detailDate');
+  if (!el) return;
+  const d    = new Date(dateStr);
+  const days = ['일','월','화','수','목','금','토'];
+  el.textContent = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${days[d.getDay()]})`;
+}
+
+function renderBadge(dateStr) {
+  const el       = document.getElementById('detailBadgeRow');
+  if (!el) return;
+  const checkKey = `check_${dateStr}`;
+  let   checks   = {};
+  try { checks = JSON.parse(localStorage.getItem(checkKey)) || {}; } catch {}
+
+  const hasMeal    = checks.meal    === true;
+  const hasWorkout = checks.workout === true;
+
+  if (hasMeal && hasWorkout) {
+    el.innerHTML = '<span class="detail-badge badge-both">🌟 식단 + 운동 달성!</span>';
+  } else if (hasMeal) {
+    el.innerHTML = '<span class="detail-badge badge-meal">🥗 식단 달성</span>';
+  } else if (hasWorkout) {
+    el.innerHTML = '<span class="detail-badge badge-workout">💪 운동 달성</span>';
+  } else {
+    el.innerHTML = '<span class="detail-badge badge-none">기록 없음</span>';
+  }
+}
+
+/* ── 식단 탭 ── */
+function renderMealTab(dateStr) {
+  const sc311Key = `sc311_${dateStr}`;
+  let   state    = {};
+  try { state = JSON.parse(localStorage.getItem(sc311Key)) || {}; } catch {}
+  const meals = state.meals || {};
+
+  /* 인증 사진 */
+  const photoGrid = document.getElementById('detailPhotoGrid');
+  if (photoGrid) {
+    const photos = Object.entries(meals)
+      .filter(([, d]) => d.verified && d.photo)
+      .map(([type, d]) => ({ type, photo: d.photo, kcal: d.kcal }));
+
+    if (photos.length > 0) {
+      photoGrid.innerHTML = photos.map(({ type, photo, kcal }) => `
+        <div class="detail-photo-card">
+          <img class="detail-photo-img" src="${photo}" alt="${MEAL_LABELS[type] || type}" />
+          <div class="detail-photo-label">${MEAL_LABELS[type] || type} · ${kcal} kcal</div>
+        </div>
+      `).join('');
+    } else {
+      photoGrid.innerHTML = '<div class="detail-photo-empty">인증된 사진이 없어요</div>';
+    }
+  }
+
+  /* 식단 목록 */
+  const mealList = document.getElementById('detailMealList');
+  if (mealList) {
+    const items = Object.entries(MEAL_DATA).map(([type, info]) => {
+      const verified = meals[type]?.verified || false;
+      const icon     = getFoodIcon(info.name); /* common.js */
+      return `
+        <div class="detail-meal-item${verified ? ' verified' : ''}">
+          <div class="detail-meal-emoji">${icon}</div>
+          <div class="detail-meal-info">
+            <div class="detail-meal-name">${info.name}</div>
+            <div class="detail-meal-tag">${MEAL_LABELS[type]}</div>
+          </div>
+          <div class="detail-meal-kcal">${info.kcal} kcal</div>
+          <div class="detail-meal-check">${verified ? '✅' : '○'}</div>
+        </div>`;
+    }).join('');
+    mealList.innerHTML = items;
+  }
+}
+
+/* ── 운동 탭 ── */
+function renderWorkoutTab(dateStr) {
+  const sc311Key = `sc311_${dateStr}`;
+  let   state    = {};
+  try { state = JSON.parse(localStorage.getItem(sc311Key)) || {}; } catch {}
+  const workouts = state.workouts || {};
+
+  const list = document.getElementById('detailWorkoutList');
+  if (list) {
+    const items = WORKOUT_DATA.map(w => {
+      const done = workouts[w.id]?.done || false;
+      const icon = getWorkoutIcon(w.name); /* common.js */
+      return `
+        <div class="detail-workout-item${done ? ' done' : ''}">
+          <div class="detail-workout-icon">${icon}</div>
+          <div class="detail-workout-info">
+            <div class="detail-workout-name">${w.name}</div>
+            <div class="detail-workout-detail">${w.detail}</div>
+          </div>
+          <div class="detail-workout-kcal">${w.kcal} kcal</div>
+          <div class="detail-workout-status">${done ? '✅' : '○'}</div>
+        </div>`;
+    }).join('');
+    list.innerHTML = items;
+  }
+
+  /* 요약 */
+  const summary = document.getElementById('detailWorkoutSummary');
+  if (summary) {
+    const doneList  = WORKOUT_DATA.filter(w => workouts[w.id]?.done);
+    const burnKcal  = doneList.reduce((s, w) => s + w.kcal, 0);
+    if (doneList.length > 0) {
+      summary.innerHTML = `
+        <div>완료한 운동 <strong>${doneList.length}</strong> / ${WORKOUT_DATA.length}개</div>
+        <div>소모 칼로리 <strong>${burnKcal} kcal</strong></div>`;
+    } else {
+      summary.innerHTML = '';
+    }
+  }
+}
+
+/* ── 탭 전환 ── */
+function initTabs() {
+  document.querySelectorAll('.detail-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.detail-tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.detail-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      const target = btn.dataset.tab;
+      document.getElementById(`detailContent${target.charAt(0).toUpperCase() + target.slice(1)}`)?.classList.add('active');
+    });
+  });
+}
+
+
+/* ════════════════════════════════
+   sc602 날짜 선택 달력
+   ════════════════════════════════ */
+let sc602CalYear, sc602CalMonth;
+
+function initSc602Cal() {
+  const d = new Date(currentDate);
+  sc602CalYear  = d.getFullYear();
+  sc602CalMonth = d.getMonth();
+
+  document.getElementById('sc602HistClose')?.addEventListener('click', () => {
+    document.getElementById('sc602HistOverlay')?.classList.remove('show');
+  });
+  document.getElementById('sc602HistOverlay')?.addEventListener('click', e => {
+    if (e.target === document.getElementById('sc602HistOverlay')) {
+      document.getElementById('sc602HistOverlay').classList.remove('show');
+    }
+  });
+  document.getElementById('sc602PrevMonth')?.addEventListener('click', () => {
+    sc602CalMonth--;
+    if (sc602CalMonth < 0) { sc602CalMonth = 11; sc602CalYear--; }
+    buildSc602Cal();
+  });
+  document.getElementById('sc602NextMonth')?.addEventListener('click', () => {
+    sc602CalMonth++;
+    if (sc602CalMonth > 11) { sc602CalMonth = 0; sc602CalYear++; }
+    buildSc602Cal();
+  });
+}
+
+function openSc602Cal() {
+  const d = new Date(currentDate);
+  sc602CalYear  = d.getFullYear();
+  sc602CalMonth = d.getMonth();
+  document.getElementById('sc602HistOverlay')?.classList.add('show');
+  buildSc602Cal();
+}
+
+function buildSc602Cal() {
+  const titleEl = document.getElementById('sc602CalTitle');
+  const daysEl  = document.getElementById('sc602CalDays');
+  if (!titleEl || !daysEl) return;
+
+  titleEl.textContent = `${sc602CalYear}년 ${sc602CalMonth + 1}월`;
+  daysEl.innerHTML = '';
+
+  const firstDay    = new Date(sc602CalYear, sc602CalMonth, 1).getDay();
+  const daysInMonth = new Date(sc602CalYear, sc602CalMonth + 1, 0).getDate();
+  const offset      = firstDay === 0 ? 6 : firstDay - 1;
+  const today       = new Date();
+
+  for (let i = 0; i < offset; i++) {
+    const el = document.createElement('div');
+    el.className = 'hist-day empty';
+    daysEl.appendChild(el);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr  = `${sc602CalYear}-${String(sc602CalMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const checkKey = `check_${dateStr}`;
+    let   checks   = {};
+    try { checks = JSON.parse(localStorage.getItem(checkKey)) || {}; } catch {}
+
+    const hasMeal    = checks.meal    === true;
+    const hasWorkout = checks.workout === true;
+
+    const btn = document.createElement('button');
+    btn.className = 'hist-day';
+
+    /* 현재 선택된 날짜 강조 */
+    if (dateStr === currentDate) btn.classList.add('today');
+
+    if (hasMeal && hasWorkout) btn.classList.add('done-both');
+    else if (hasMeal)          btn.classList.add('done-meal');
+    else if (hasWorkout)       btn.classList.add('done-workout');
+
+    const icon = hasMeal && hasWorkout ? '🌟' : hasMeal ? '🥗' : hasWorkout ? '💪' : '';
+    btn.innerHTML = `<span class="hist-day-num">${d}</span>${icon ? `<span class="hist-day-icon">${icon}</span>` : ''}`;
+
+    btn.addEventListener('click', () => {
+      currentDate = dateStr;
+      updateURL(dateStr);
+      renderPage(dateStr);
+      document.getElementById('sc602HistOverlay')?.classList.remove('show');
+    });
+
+    daysEl.appendChild(btn);
+  }
+}

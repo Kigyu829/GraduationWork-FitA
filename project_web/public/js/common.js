@@ -209,3 +209,208 @@ function getWorkoutIcon(name) {
   }
   return '🏃';
 }
+
+/* ════════════════════════════════
+   공통 AI상담 오버레이 + 히스토리 달력
+   sc301, sc302, sc311, sc602 공통 사용
+   DOMContentLoaded에서 initCommonOverlays() 호출
+   ════════════════════════════════ */
+function initCommonOverlays() {
+  if (document.getElementById('menuAiChat')) initAiOverlay();
+  /* 히스토리 메뉴: 모달 여부와 무관하게 항상 sc602 오늘날짜로 이동 */
+  const histBtn = document.getElementById('menuHistory');
+  if (histBtn) {
+    histBtn.addEventListener('click', () => {
+      const d = new Date();
+      const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      location.href = `sc602.html?date=${dateStr}`;
+    });
+  }
+  /* sc301 전용: 히스토리 달력 모달 (달력 위에서 날짜 선택) */
+  if (document.getElementById('histModalOverlay')) initHistModal();
+}
+
+/* ════════════════════════════════
+   sc501 — AI 상담 오버레이 (sc301 내)
+   ════════════════════════════════ */
+function initAiOverlay() {
+  const menuBtn   = document.getElementById('menuAiChat');
+  const overlay   = document.getElementById('aiOverlay');
+  const closeBtn  = document.getElementById('aiOverlayClose');
+  const sendBtn   = document.getElementById('aiOverlaySend');
+  const input     = document.getElementById('aiOverlayInput');
+  const messages  = document.getElementById('aiOverlayMessages');
+
+  const AI_RESPONSES = [
+    '좋은 질문이에요! 현재 식단 구성은 균형 잡혀 있어요 💪',
+    '운동 강도가 걱정되신다면, 처음엔 세트 수를 줄이고 점진적으로 늘려가세요.',
+    '식사 간격을 3~4시간으로 유지하면 혈당 조절에 도움이 돼요.',
+    '충분한 수분 섭취도 잊지 마세요. 하루 2L 이상을 목표로 해보세요.',
+    '단백질 섭취량을 체중 1kg당 1.2~1.6g 수준으로 맞추는 게 좋아요.',
+  ];
+  let aiIdx = 0;
+
+  menuBtn?.addEventListener('click', () => {
+    overlay?.classList.add('show');
+  });
+
+  closeBtn?.addEventListener('click', () => {
+    overlay?.classList.remove('show');
+  });
+
+  overlay?.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.classList.remove('show');
+  });
+
+  function sendMessage() {
+    const text = input?.value.trim();
+    if (!text) return;
+    appendAiMsg('user', text);
+    input.value = '';
+    input.style.height = 'auto';
+
+    const typing = appendTypingIndicator();
+    setTimeout(() => {
+      typing.remove();
+      appendAiMsg('ai', AI_RESPONSES[aiIdx % AI_RESPONSES.length]);
+      aiIdx++;
+    }, 1000 + Math.random() * 600);
+  }
+
+  sendBtn?.addEventListener('click', sendMessage);
+  input?.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+  input?.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+  });
+
+  function appendAiMsg(role, text) {
+    if (!messages) return;
+    const now  = new Date();
+    const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const div  = document.createElement('div');
+    div.className = `chat-msg ${role}`;
+    div.innerHTML = `
+      <div class="chat-avatar">${role === 'ai' ? '🤖' : '👤'}</div>
+      <div>
+        <div class="chat-bubble">${text}</div>
+        <div class="chat-time">${role === 'ai' ? 'AI 상담사' : '나'} · ${time}</div>
+      </div>`;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function appendTypingIndicator() {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ai';
+    div.innerHTML = `
+      <div class="chat-avatar">🤖</div>
+      <div class="typing-indicator">
+        <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+      </div>`;
+    messages?.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    return div;
+  }
+}
+
+/* ════════════════════════════════
+   sc601 — 히스토리 달력 모달 (sc301 내)
+   ════════════════════════════════ */
+let histYear, histMonth;
+
+function initHistModal() {
+  const menuBtn  = document.getElementById('menuHistory');
+  const overlay  = document.getElementById('histModalOverlay');
+  const closeBtn = document.getElementById('histModalClose');
+  const prevBtn  = document.getElementById('histPrevMonth');
+  const nextBtn  = document.getElementById('histNextMonth');
+
+  const today = new Date();
+  histYear  = today.getFullYear();
+  histMonth = today.getMonth();
+
+  /* menuHistory 클릭은 initCommonOverlays에서 처리 */
+
+  /* sc301 달력의 달력 카드 타이틀 클릭 시도 sc601 모달 */
+  document.querySelector('.calendar-card .card-title')?.addEventListener('click', openHistModal);
+
+  closeBtn?.addEventListener('click', () => overlay?.classList.remove('show'));
+  overlay?.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('show'); });
+
+  prevBtn?.addEventListener('click', () => {
+    histMonth--;
+    if (histMonth < 0) { histMonth = 11; histYear--; }
+    buildHistCal();
+  });
+  nextBtn?.addEventListener('click', () => {
+    histMonth++;
+    if (histMonth > 11) { histMonth = 0; histYear++; }
+    buildHistCal();
+  });
+}
+
+function openHistModal() {
+  const overlay = document.getElementById('histModalOverlay');
+  overlay?.classList.add('show');
+  buildHistCal();
+}
+
+function buildHistCal() {
+  const titleEl = document.getElementById('histCalTitle');
+  const daysEl  = document.getElementById('histDays');
+  if (!titleEl || !daysEl) return;
+
+  titleEl.textContent = `${histYear}년 ${histMonth + 1}월`;
+  daysEl.innerHTML = '';
+
+  const firstDay    = new Date(histYear, histMonth, 1).getDay();
+  const daysInMonth = new Date(histYear, histMonth + 1, 0).getDate();
+  const offset      = firstDay === 0 ? 6 : firstDay - 1;
+
+  for (let i = 0; i < offset; i++) {
+    const el = document.createElement('div');
+    el.className = 'hist-day empty';
+    daysEl.appendChild(el);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr  = `${histYear}-${String(histMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const checkKey = `check_${dateStr}`;
+    let   checks   = {};
+    try { checks = JSON.parse(localStorage.getItem(checkKey)) || {}; } catch {}
+
+    const hasMeal    = checks.meal    === true;
+    const hasWorkout = checks.workout === true;
+
+    const btn = document.createElement('button');
+    btn.className = 'hist-day';
+    btn.dataset.date = dateStr;
+
+    /* 오늘 표시 */
+    const today = new Date();
+    if (histYear === today.getFullYear() && histMonth === today.getMonth() && d === today.getDate()) {
+      btn.classList.add('today');
+    }
+
+    /* 달성 상태 색상 */
+    let statusClass = '';
+    let icon = '';
+    if (hasMeal && hasWorkout) { statusClass = 'done-both';    icon = '🌟'; }
+    else if (hasMeal)          { statusClass = 'done-meal';    icon = '🥗'; }
+    else if (hasWorkout)       { statusClass = 'done-workout'; icon = '💪'; }
+
+    if (statusClass) btn.classList.add(statusClass);
+
+    btn.innerHTML = `<span class="hist-day-num">${d}</span>${icon ? `<span class="hist-day-icon">${icon}</span>` : ''}`;
+
+    btn.addEventListener('click', () => {
+      document.getElementById('histModalOverlay')?.classList.remove('show');
+      location.href = `sc602.html?date=${dateStr}`;
+    });
+
+    daysEl.appendChild(btn);
+  }
+}

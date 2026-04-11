@@ -1,0 +1,222 @@
+/* ============================================================
+   sc602.css — 기록 상세 페이지
+   의존: common.css, sc301.css (사이드바)
+   ============================================================ */
+
+html, body { height: 100%; }
+
+.dashboard {
+  display: grid;
+  grid-template-columns: var(--sidebar-w, 230px) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+/* 사이드바 */
+.sidebar {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  background: var(--surface); padding: 20px 16px;
+  display: flex; flex-direction: column;
+  justify-content: space-between; gap: 18px;
+  border-right: none; width: auto;
+}
+.sidebar-top { gap: 18px; }
+.sidebar-logo { gap: 10px; padding: 4px 6px 14px; border-bottom: none; margin-bottom: 0; }
+.sidebar-logo-icon { width:40px; height:40px; border-radius:14px; background:linear-gradient(135deg,var(--pink,#C779D0),var(--gold,#F5A623)); font-size:18px; }
+.sidebar-logo-text { font-size:20px; font-weight:800; letter-spacing:-0.03em; }
+.sidebar-card { background:var(--surface-soft,#172530); border:1px solid rgba(255,255,255,0.08); border-radius:24px; padding:16px; }
+.profile-card { display:flex; flex-direction:column; align-items:center; gap:8px; }
+.profile-avatar { width:62px; height:62px; border-radius:50%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); display:grid; place-items:center; font-size:26px; }
+#userName { font-size:18px; font-weight:800; }
+#userBasicInfo { color:rgba(255,255,255,0.7); font-size:12px; text-align:center; }
+.profile-weights { width:100%; display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
+.weight-chip { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:10px; text-align:center; }
+.weight-chip-label { display:block; font-size:10px; color:rgba(255,255,255,0.58); margin-bottom:4px; }
+.weight-chip-value { font-weight:800; font-size:15px; }
+.menu-card-title { font-size:12px; color:rgba(255,255,255,0.55); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.08em; }
+.menu-list { display:flex; flex-direction:column; gap:8px; }
+.menu-btn { border-radius:16px; background:transparent; color:rgba(255,255,255,0.8); padding:12px 14px; gap:10px; height:auto; border:0; width:100%; display:flex; align-items:center; cursor:pointer; font-size:14px; font-family:'Nanum Gothic',sans-serif; transition:background 0.18s,color 0.18s; text-align:left; }
+.menu-btn:hover, .menu-btn.active { background:rgba(255,255,255,0.08); color:var(--text); }
+.menu-btn-icon { width:22px; text-align:center; }
+.logout-btn { width:100%; background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.8); border:none; border-radius:16px; padding:12px 14px; cursor:pointer; font-size:14px; font-family:'Nanum Gothic',sans-serif; transition:background 0.18s; }
+.logout-btn:hover { background:rgba(255,255,255,0.08); }
+
+/* ── 메인 ── */
+.main { padding: 28px 32px; overflow-y: auto; }
+
+.detail-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 헤더 */
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.detail-back-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-sec);
+  font-size: 13px;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.detail-back-btn:hover { background: var(--card); color: var(--text); }
+
+.detail-date {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  flex: 1;
+}
+
+.detail-date-nav { display: flex; gap: 6px; }
+
+.detail-nav-btn {
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-sec);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 10px;
+  transition: background 0.15s, color 0.15s;
+}
+.detail-nav-btn:hover { background: var(--teal-dim); color: var(--teal); }
+
+/* 달성 뱃지 */
+.detail-badge-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.detail-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 99px;
+  font-size: 12px; font-weight: 800;
+}
+.badge-both    { background:rgba(74,222,128,0.15);  border:1px solid rgba(74,222,128,0.30);  color:#4ade80; }
+.badge-meal    { background:rgba(199,121,208,0.15); border:1px solid rgba(199,121,208,0.30); color:var(--pink,#C779D0); }
+.badge-workout { background:rgba(91,164,230,0.15);  border:1px solid rgba(91,164,230,0.30);  color:var(--blue,#5BA4E6); }
+.badge-none    { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:var(--text-mute); }
+
+/* 탭 */
+.detail-tab-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.detail-tab {
+  padding: 10px 24px;
+  border: none; border-bottom: 3px solid transparent;
+  background: transparent; color: var(--text-mute);
+  font-size: 15px; font-family: 'Nanum Gothic', sans-serif;
+  font-weight: 800; cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+}
+.detail-tab:hover { color: var(--text-sec); }
+.detail-tab.active { color: var(--text); border-bottom-color: var(--teal); }
+
+/* 탭 콘텐츠 */
+.detail-content { display: none; padding-top: 20px; }
+.detail-content.active { display: block; }
+
+/* 식단탭: 2열 그리드 */
+#detailContentMeal.active {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.detail-section-title {
+  font-size: 12px; font-weight: 800;
+  color: var(--text-sec); text-transform: uppercase;
+  letter-spacing: 0.08em; margin-bottom: 12px;
+  grid-column: 1 / -1;  /* 2열일 때 전체 너비 */
+}
+
+/* 식단탭 내부 열 */
+.detail-col-left, .detail-col-right {
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+/* 인증 사진 */
+.detail-photo-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.detail-photo-card {
+  border-radius: 14px; overflow: hidden;
+  border: 1px solid var(--border); background: var(--surface);
+}
+.detail-photo-img {
+  width: 100%; aspect-ratio: 1; object-fit: cover; display: block;
+}
+.detail-photo-label {
+  padding: 8px 12px; font-size: 12px; font-weight: 800;
+  color: var(--text-sec); text-align: center;
+}
+.detail-photo-empty, .detail-empty-msg {
+  color: var(--text-mute); font-size: 13px;
+  padding: 20px 0; text-align: center;
+}
+
+/* 식단 목록 */
+.detail-meal-list { display: flex; flex-direction: column; gap: 10px; }
+.detail-meal-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; transition: border-color 0.15s;
+}
+.detail-meal-item.verified { border-color: rgba(102,208,188,0.35); background: rgba(102,208,188,0.05); }
+.detail-meal-emoji { width:40px; height:40px; border-radius:12px; background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.detail-meal-info { flex:1; min-width:0; }
+.detail-meal-name { font-size:13px; font-weight:800; color:var(--text); }
+.detail-meal-tag  { font-size:11px; color:var(--text-mute); margin-top:2px; }
+.detail-meal-kcal { font-size:12px; font-weight:800; color:var(--teal); flex-shrink:0; }
+.detail-meal-check { font-size:14px; flex-shrink:0; }
+
+/* 운동 목록 */
+.detail-workout-list { display: flex; flex-direction: column; gap: 10px; }
+.detail-workout-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; transition: border-color 0.15s;
+}
+.detail-workout-item.done { border-color: rgba(102,208,188,0.35); background: rgba(102,208,188,0.05); }
+.detail-workout-icon { width:40px; height:40px; border-radius:12px; background:rgba(127,211,122,0.12); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.detail-workout-info { flex:1; min-width:0; }
+.detail-workout-name   { font-size:13px; font-weight:800; color:var(--text); }
+.detail-workout-detail { font-size:11px; color:var(--text-sec); margin-top:2px; }
+.detail-workout-kcal   { font-size:12px; font-weight:800; color:var(--green,#7FD37A); flex-shrink:0; }
+.detail-workout-status { font-size:14px; flex-shrink:0; }
+
+/* 운동 요약 */
+.detail-workout-summary {
+  margin-top: 16px; padding: 14px 18px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; display: flex; gap: 24px;
+  font-size: 13px; color: var(--text-sec);
+}
+.detail-workout-summary strong { color: var(--teal); font-size: 16px; font-weight: 800; }
+
+/* 반응형 */
+@media (max-width: 900px) {
+  #detailContentMeal.active { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .dashboard { grid-template-columns: 1fr; }
+  .sidebar { height: auto; position: static; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .main { padding: 20px 16px; }
+}

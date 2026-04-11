@@ -42,7 +42,9 @@
           <button class="menu-btn" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
           <button class="menu-btn active" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
           <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
-          <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">👤</span>마이페이지</button>
+          
+            <button class="menu-btn" id="menuHistory"><span class="menu-btn-icon">📅</span>히스토리</button>
+            <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">👤</span>마이페이지</button>
         </div>
       </div>
     </div>
@@ -264,6 +266,56 @@
     </div><!-- /content-with-chat -->
   </main>
 </div>
+
+
+  <!-- sc501: AI 상담 오버레이 -->
+  <div class="ai-overlay" id="aiOverlay">
+    <div class="ai-overlay-panel" id="aiOverlayPanel">
+      <div class="ai-overlay-header">
+        <div class="ai-overlay-title">🤖 AI 상담</div>
+        <button class="ai-overlay-close" id="aiOverlayClose">×</button>
+      </div>
+      <div class="ai-overlay-messages" id="aiOverlayMessages">
+        <div class="chat-msg ai">
+          <div class="chat-avatar">🤖</div>
+          <div>
+            <div class="chat-bubble">안녕하세요! 식단이나 운동, 건강에 대해 궁금한 점을 편하게 물어보세요 😊</div>
+            <div class="chat-time">AI 상담사</div>
+          </div>
+        </div>
+      </div>
+      <div class="ai-overlay-input-wrap">
+        <textarea class="ai-overlay-input" id="aiOverlayInput" placeholder="질문을 입력하세요..." rows="1"></textarea>
+        <button class="ai-overlay-send" id="aiOverlaySend">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- sc601: 히스토리 달력 모달 -->
+  <div class="hist-modal-overlay" id="histModalOverlay">
+    <div class="hist-modal" id="histModal">
+      <div class="hist-modal-header">
+        <div class="hist-modal-title">📅 히스토리</div>
+        <button class="hist-modal-close" id="histModalClose">×</button>
+      </div>
+      <div class="hist-modal-body">
+        <div class="hist-cal-nav">
+          <button class="hist-cal-arrow" id="histPrevMonth">&#8249;</button>
+          <span class="hist-cal-title" id="histCalTitle">-</span>
+          <button class="hist-cal-arrow" id="histNextMonth">&#8250;</button>
+        </div>
+        <div class="hist-legend">
+          <span class="hist-legend-item"><span class="hist-dot dot-both"></span>식단+운동</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-meal"></span>식단만</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-workout"></span>운동만</span>
+        </div>
+        <div class="hist-weekdays">
+          <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+        </div>
+        <div class="hist-days" id="histDays"></div>
+      </div>
+    </div>
+  </div>
 
 <script src="../js/common.js"></script>
 <script src="../js/sc311.js"></script>
