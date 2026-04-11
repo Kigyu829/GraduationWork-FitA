@@ -392,3 +392,75 @@ body.page-exit {
   gap: 16px;
   width: 100%;
 }
+/* ════════════════════════════════
+   sc401 — 끼니 선택 UI (직접 진입 시)
+   ════════════════════════════════ */
+.meal-selector {
+  width: 100%;
+  max-width: 900px;
+  animation: cardSlideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+
+.meal-selector-inner {
+  background: var(--card, #172530);
+  border: 1px solid var(--border, #243840);
+  border-radius: var(--radius-lg, 20px);
+  padding: 24px 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.selector-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-sec, #8faebb);
+  white-space: nowrap;
+}
+
+.meal-select-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.meal-select-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 24px;
+  border: 1px solid var(--border, #243840);
+  border-radius: 14px;
+  background: var(--surface, #132029);
+  color: var(--text-sec, #8faebb);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s, color 0.15s, transform 0.1s;
+  min-width: 80px;
+}
+.meal-select-btn:hover {
+  border-color: var(--teal, #66D0BC);
+  background: rgba(102,208,188,0.08);
+  color: var(--text, #fff);
+  transform: translateY(-2px);
+}
+.meal-select-btn.active {
+  border-color: var(--teal, #66D0BC);
+  background: rgba(102,208,188,0.12);
+  color: var(--teal, #66D0BC);
+  transform: translateY(-2px);
+}
+
+.msb-icon  { font-size: 24px; line-height: 1; }
+.msb-label { font-size: 13px; font-weight: 800; }
+
+/* 흔들기 애니메이션 (끼니 미선택 시) */
+.selector-shake { animation: selectorShake 0.5s ease; }
+@keyframes selectorShake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}

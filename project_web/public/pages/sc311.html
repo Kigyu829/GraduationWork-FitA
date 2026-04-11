@@ -11,7 +11,7 @@
 <body>
 <div class="dashboard">
 
-  <!-- ── 좌측 사이드바 (sc301과 동일) ── -->
+  <!-- ── 좌측 사이드바 ── -->
   <aside class="sidebar">
     <div class="sidebar-top">
       <div class="sidebar-logo" id="sidebarLogo" style="cursor:pointer;">
@@ -42,7 +42,7 @@
           <button class="menu-btn" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
           <button class="menu-btn active" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
           <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
-          <button class="menu-btn" data-href="sc601.html"><span class="menu-btn-icon">⚙️</span>설정</button>
+          <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">👤</span>마이페이지</button>
         </div>
       </div>
     </div>
@@ -109,7 +109,7 @@
             <span class="summary-pill-label">남은 칼로리</span>
           </div>
           <div class="summary-pill">
-            <span class="summary-pill-val" id="verifiedCount" style="color:var(--pink,#C779D0)">0/4</span>
+            <span class="summary-pill-val" id="verifiedCount" style="color:var(--pink,#C779D0)">0/3</span>
             <span class="summary-pill-label">인증 현황</span>
           </div>
         </div>
@@ -124,6 +124,7 @@
           </div>
           <div class="meal-kcal">340 kcal</div>
           <button class="verify-btn" data-meal="breakfast" data-kcal="340">📷 인증</button>
+          <button class="skip-btn"   data-meal="breakfast" data-kcal="340" data-menu-json='["그릭요거트","견과류","바나나"]'>🚫 안먹었어요</button>
         </div>
 
         <!-- 점심 -->
@@ -136,6 +137,7 @@
           </div>
           <div class="meal-kcal">580 kcal</div>
           <button class="verify-btn" data-meal="lunch" data-kcal="580">📷 인증</button>
+          <button class="skip-btn"   data-meal="lunch" data-kcal="580" data-menu-json='["현미밥","닭가슴살 샐러드","된장국"]'>🚫 안먹었어요</button>
         </div>
 
         <!-- 저녁 -->
@@ -148,7 +150,10 @@
           </div>
           <div class="meal-kcal">620 kcal</div>
           <button class="verify-btn" data-meal="dinner" data-kcal="620">📷 인증</button>
+          <button class="skip-btn"   data-meal="dinner" data-kcal="620" data-menu-json='["연어구이","구운 채소","두부"]'>🚫 안먹었어요</button>
         </div>
+
+        <div id="mealTip" style="margin-top:8px;font-size:12px;color:var(--text-mute);"></div>
 
       </div><!-- /식단 탭 -->
 
@@ -237,7 +242,6 @@
         </div>
 
         <div class="chat-messages" id="chatMessages">
-          <!-- AI 환영 메시지 -->
           <div class="chat-msg ai">
             <div class="chat-avatar">🤖</div>
             <div>
