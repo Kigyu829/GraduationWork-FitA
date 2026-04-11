@@ -24,3 +24,22 @@ if (loginBtn) {
     location.href = 'sc201_1.html';
   });
 }
+
+/* ── 로고 클릭: 항상 sc101 유지 (맨 위로 스크롤) ── */
+const siteLogo = document.getElementById('siteLogo');
+if (siteLogo) {
+  siteLogo.addEventListener('click', function(e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+/* ── 이미 로그인된 사용자 → sc301로 자동 이동 ── */
+(function checkLogin() {
+  const reg  = Storage.getRegistered ? Storage.getRegistered() : {};
+  const user = Storage.getUser ? Storage.getUser() : {};
+  if (reg.email && user.targetWeight) {
+    /* 로그인 + 초기설정 완료 → 대시보드로 */
+    location.replace('sc301.html');
+  }
+})();

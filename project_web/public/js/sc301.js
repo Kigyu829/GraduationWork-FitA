@@ -26,8 +26,7 @@ window.addEventListener('DOMContentLoaded', () => {
   bindMenuBtns();     /* common.js */
   bindLogout();
   bindLogoClick();
-  initAiOverlay();
-  initHistModal();
+  initCommonOverlays();  /* common.js — AI상담 오버레이 + 히스토리 sc602 이동 */
 });
 
 /* ════════════════════════════════
@@ -183,24 +182,23 @@ function renderTodayCheck() {
   const workoutChk = document.getElementById('checkWorkout');
   const statusEl   = document.getElementById('todayCheckStatus');
 
-  if (mealChk)    mealChk.checked    = checks.meal;
-  if (workoutChk) workoutChk.checked = checks.workout;
+  /* sc311에서 저장한 check_ 키 기반으로 자동 반영 (읽기전용) */
+  if (mealChk) {
+    mealChk.checked  = checks.meal;
+    mealChk.disabled = true;   /* 사용자가 직접 체크 불가 */
+    mealChk.style.opacity = '0.7';
+    mealChk.style.cursor  = 'default';
+    mealChk.title = '식단 인증 시 자동으로 체크됩니다';
+  }
+  if (workoutChk) {
+    workoutChk.checked  = checks.workout;
+    workoutChk.disabled = true;
+    workoutChk.style.opacity = '0.7';
+    workoutChk.style.cursor  = 'default';
+    workoutChk.title = '운동 완료 시 자동으로 체크됩니다';
+  }
 
   updateCheckStatus(checks, statusEl);
-
-  mealChk?.addEventListener('change', () => {
-    checks.meal = mealChk.checked;
-    saveTodayChecks(todayKey, checks);
-    updateCheckStatus(checks, statusEl);
-    renderProgress();
-  });
-
-  workoutChk?.addEventListener('change', () => {
-    checks.workout = workoutChk.checked;
-    saveTodayChecks(todayKey, checks);
-    updateCheckStatus(checks, statusEl);
-    renderProgress();
-  });
 }
 
 function updateCheckStatus(checks, statusEl) {
@@ -330,12 +328,24 @@ function buildCalendar() {
   const today       = new Date();
   const offset      = firstDay === 0 ? 6 : firstDay - 1;
 
+  /* ── 각 날짜의 달성 상태 미리 계산 ── */
+  const statusArr = [null]; // index 1부터 사용
+  for (let d = 1; d <= daysInMonth; d++) {
+    const chk = getTodayChecks(`check_${dateKey(calYear, calMonth, d)}`);
+    if (chk.meal && chk.workout) statusArr.push('both');
+    else if (chk.meal)           statusArr.push('meal');
+    else if (chk.workout)        statusArr.push('workout');
+    else                         statusArr.push(null);
+  }
+
+  /* ── 빈 셀 ── */
   for (let i = 0; i < offset; i++) {
     const e = document.createElement('button');
     e.className = 'calendar-day empty';
     daysEl.appendChild(e);
   }
 
+  /* ── 날짜 셀 ── */
   for (let d = 1; d <= daysInMonth; d++) {
     const key     = dateKey(calYear, calMonth, d);
     const isToday = today.getFullYear() === calYear &&
@@ -347,13 +357,23 @@ function buildCalendar() {
     btn.textContent = d;
     btn.dataset.key = key;
 
-    /* 3색 달성 표시 */
-    const chk = getTodayChecks(`check_${key}`);
-    if (chk.meal && chk.workout) btn.classList.add('cal-done-both');
-    else if (chk.meal)           btn.classList.add('cal-done-meal');
-    else if (chk.workout)        btn.classList.add('cal-done-workout');
+    const status = statusArr[d];
+    if (status) {
+      btn.classList.add(`cal-done-${status}`);
 
-    /* 날짜 클릭 → sc602로 이동 */
+      /* 연속 이어지기: 그리드 7열 기준 줄바꿈 체크 */
+      const col = (offset + d - 1) % 7;  // 0~6 (월~일)
+      const prev = statusArr[d - 1];
+      const next = statusArr[d + 1];
+      const samePrev = prev === status && col !== 0;   // 같은 줄의 전날
+      const sameNext = next === status && col !== 6;   // 같은 줄의 다음날
+
+      if (samePrev && sameNext)      btn.classList.add('streak-mid');
+      else if (samePrev)             btn.classList.add('streak-end');
+      else if (sameNext)             btn.classList.add('streak-start');
+      // else: 단독 → 기본 둥근 사각형
+    }
+
     btn.addEventListener('click', () => {
       location.href = `sc602.html?date=${key}`;
     });

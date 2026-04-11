@@ -42,6 +42,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   bindAccountSave();
   bindDangerZone();
   bindCancelBtns();
+  initCommonOverlays();  /* AI상담 오버레이 + 히스토리 sc602 이동 */
   bindMenuBtns();   /* common.js */
   bindLogout();
   bindLogoClick();

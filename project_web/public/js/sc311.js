@@ -608,6 +608,16 @@ function initAiChat() {
   const sendBtn   = document.getElementById('chatSendBtn');
   const input     = document.getElementById('chatInput');
 
+  /* 사이드메뉴 AI상담 버튼도 우측 패널 열기 (오버레이 대신) */
+  const sideMenuAiBtn = document.getElementById('menuAiChat');
+  if (sideMenuAiBtn) {
+    sideMenuAiBtn.addEventListener('click', (e) => {
+      e.stopImmediatePropagation(); /* common.js 오버레이 핸들러 차단 */
+      const isOpen = panel?.classList.toggle('open');
+      toggleBtn?.classList.toggle('active', isOpen);
+    });
+  }
+
   toggleBtn?.addEventListener('click', () => {
     const isOpen = panel.classList.toggle('open');
     toggleBtn.classList.toggle('active', isOpen);

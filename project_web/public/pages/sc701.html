@@ -42,7 +42,9 @@
           <button class="menu-btn" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
           <button class="menu-btn" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
           <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
-          <button class="menu-btn active" data-href="sc701.html"><span class="menu-btn-icon">👤</span>마이페이지</button>
+          <button class="menu-btn" id="menuAiChat"><span class="menu-btn-icon">💬</span>AI 상담</button>
+          <button class="menu-btn" id="menuHistory"><span class="menu-btn-icon">📅</span>히스토리</button>
+          <button class="menu-btn active" data-href="sc701.html"><span class="menu-btn-icon">⚙️</span>마이페이지</button>
         </div>
       </div>
     </div>
@@ -416,6 +418,29 @@
 
 <!-- 토스트 알림 -->
 <div class="toast" id="toast"></div>
+
+  <!-- sc501: AI 상담 오버레이 -->
+  <div class="ai-overlay" id="aiOverlay">
+    <div class="ai-overlay-panel" id="aiOverlayPanel">
+      <div class="ai-overlay-header">
+        <div class="ai-overlay-title">🤖 AI 상담</div>
+        <button class="ai-overlay-close" id="aiOverlayClose">×</button>
+      </div>
+      <div class="ai-overlay-messages" id="aiOverlayMessages">
+        <div class="chat-msg ai">
+          <div class="chat-avatar">🤖</div>
+          <div>
+            <div class="chat-bubble">안녕하세요! 궁금한 점을 편하게 물어보세요 😊</div>
+            <div class="chat-time">AI 상담사</div>
+          </div>
+        </div>
+      </div>
+      <div class="ai-overlay-input-wrap">
+        <textarea class="ai-overlay-input" id="aiOverlayInput" placeholder="질문을 입력하세요..." rows="1"></textarea>
+        <button class="ai-overlay-send" id="aiOverlaySend">➤</button>
+      </div>
+    </div>
+  </div>
 
 <script src="../js/common.js"></script>
 <script src="../js/sc701.js"></script>

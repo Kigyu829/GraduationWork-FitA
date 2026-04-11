@@ -376,14 +376,20 @@ function buildHistCal() {
     daysEl.appendChild(el);
   }
 
+  /* 달성 상태 미리 계산 */
+  const statusArr = [null];
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr  = `${histYear}-${String(histMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const checkKey = `check_${dateStr}`;
-    let   checks   = {};
-    try { checks = JSON.parse(localStorage.getItem(checkKey)) || {}; } catch {}
+    let checks = {};
+    try { checks = JSON.parse(localStorage.getItem(`check_${dateStr}`)) || {}; } catch {}
+    if (checks.meal && checks.workout) statusArr.push('both');
+    else if (checks.meal)              statusArr.push('meal');
+    else if (checks.workout)           statusArr.push('workout');
+    else                               statusArr.push(null);
+  }
 
-    const hasMeal    = checks.meal    === true;
-    const hasWorkout = checks.workout === true;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr  = `${histYear}-${String(histMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 
     const btn = document.createElement('button');
     btn.className = 'hist-day';
@@ -395,15 +401,23 @@ function buildHistCal() {
       btn.classList.add('today');
     }
 
-    /* 달성 상태 색상 */
-    let statusClass = '';
-    let icon = '';
-    if (hasMeal && hasWorkout) { statusClass = 'done-both';    icon = '🌟'; }
-    else if (hasMeal)          { statusClass = 'done-meal';    icon = '🥗'; }
-    else if (hasWorkout)       { statusClass = 'done-workout'; icon = '💪'; }
+    const status = statusArr[d];
+    if (status) {
+      btn.classList.add(`done-${status}`);
 
-    if (statusClass) btn.classList.add(statusClass);
+      /* 연속 streak */
+      const col = (offset + d - 1) % 7;
+      const prev = statusArr[d - 1];
+      const next = statusArr[d + 1];
+      const samePrev = prev === status && col !== 0;
+      const sameNext = next === status && col !== 6;
 
+      if (samePrev && sameNext)  btn.classList.add('streak-mid');
+      else if (samePrev)         btn.classList.add('streak-end');
+      else if (sameNext)         btn.classList.add('streak-start');
+    }
+
+    const icon = status === 'both' ? '🌟' : status === 'meal' ? '🥗' : status === 'workout' ? '💪' : '';
     btn.innerHTML = `<span class="hist-day-num">${d}</span>${icon ? `<span class="hist-day-icon">${icon}</span>` : ''}`;
 
     btn.addEventListener('click', () => {

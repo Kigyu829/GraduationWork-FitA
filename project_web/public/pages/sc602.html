@@ -40,9 +40,9 @@
           <button class="menu-btn" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
           <button class="menu-btn" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
           <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
+          <button class="menu-btn" id="menuAiChat"><span class="menu-btn-icon">💬</span>AI 상담</button>
           <button class="menu-btn active"><span class="menu-btn-icon">📅</span>히스토리</button>
-          
-            <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">⚙️</span>마이페이지</button>
+          <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">⚙️</span>마이페이지</button>
         </div>
       </div>
     </div>
@@ -55,12 +55,13 @@
 
       <!-- 헤더 -->
       <div class="detail-header">
-        <button class="detail-back-btn" id="backBtn">← 돌아가기</button>
-        <div class="detail-date" id="detailDate" style="cursor:pointer;" title="클릭해서 날짜 선택">날짜 불러오는 중...</div>
-        <!-- 날짜 이동 -->
-        <div class="detail-date-nav">
+        <!-- 왼쪽: 달력 열기 (돌아가기 대신) -->
+        <button class="detail-cal-btn" id="sc602CalOpen" title="달력에서 날짜 선택">📅 날짜 선택</button>
+
+        <!-- 가운데: ‹ 날짜 › -->
+        <div class="detail-date-center">
           <button class="detail-nav-btn" id="prevDayBtn">‹</button>
-          <button class="detail-nav-btn" id="sc602CalOpen" title="달력에서 날짜 선택" style="font-size:11px;width:auto;padding:0 10px;">날짜 변경</button>
+          <div class="detail-date" id="detailDate" title="클릭해서 날짜 선택">날짜 불러오는 중...</div>
           <button class="detail-nav-btn" id="nextDayBtn">›</button>
         </div>
       </div>
@@ -120,8 +121,8 @@
         </div>
         <div class="hist-legend">
           <span class="hist-legend-item"><span class="hist-dot dot-both"></span>식단+운동</span>
-          <span class="hist-legend-item"><span class="hist-dot dot-meal"></span>식단만</span>
-          <span class="hist-legend-item"><span class="hist-dot dot-workout"></span>운동만</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-meal"></span>식단</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-workout"></span>운동</span>
         </div>
         <div class="hist-weekdays">
           <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
@@ -130,13 +131,28 @@
       </div>
     </div>
   </div>
+
+  <!-- sc501: AI 상담 오버레이 -->
+  <div class="ai-overlay" id="aiOverlay">
+    <div class="ai-overlay-panel" id="aiOverlayPanel">
+      <div class="ai-overlay-header">
+        <div class="ai-overlay-title">🤖 AI 상담</div>
+        <button class="ai-overlay-close" id="aiOverlayClose">×</button>
+      </div>
+      <div class="ai-overlay-messages" id="aiOverlayMessages">
+        <div class="chat-msg ai">
+          <div class="chat-avatar">🤖</div>
+          <div>
+            <div class="chat-bubble">안녕하세요! 식단이나 운동, 건강에 대해 궁금한 점을 편하게 물어보세요 😊</div>
+            <div class="chat-time">AI 상담사</div>
+          </div>
+        </div>
       </div>
       <div class="ai-overlay-input-wrap">
         <textarea class="ai-overlay-input" id="aiOverlayInput" placeholder="질문을 입력하세요..." rows="1"></textarea>
         <button class="ai-overlay-send" id="aiOverlaySend">➤</button>
       </div>
     </div>
-  </div>
   </div>
 
 <script src="../js/common.js"></script>

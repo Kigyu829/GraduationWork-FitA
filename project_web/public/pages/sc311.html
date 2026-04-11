@@ -43,8 +43,9 @@
           <button class="menu-btn active" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
           <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
           
+            <button class="menu-btn" id="menuAiChat"><span class="menu-btn-icon">💬</span>AI 상담</button>
             <button class="menu-btn" id="menuHistory"><span class="menu-btn-icon">📅</span>히스토리</button>
-            <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">👤</span>마이페이지</button>
+            <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">⚙️</span>마이페이지</button>
         </div>
       </div>
     </div>
@@ -71,25 +72,6 @@
       <button class="tab-btn" id="tabWorkout" data-tab="workout">💪 운동</button>
     </div>
 
-    <!-- 동기부여 메시지 카드 -->
-    <div id="motivationCard" style="
-      background: linear-gradient(135deg, var(--card) 0%, rgba(78,205,196,0.08) 100%);
-      border: 1px solid rgba(78,205,196,0.25);
-      border-radius: 14px;
-      padding: 14px 18px;
-      margin-bottom: 16px;
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      min-height: 56px;
-    ">
-      <span style="font-size:22px;line-height:1.4;">🤖</span>
-      <p id="motivationText" style="
-        margin:0; font-size:13px; line-height:1.7;
-        color:var(--text-sec,#aaa); white-space:pre-wrap;
-      ">AI가 오늘의 메시지를 준비하고 있어요...</p>
-    </div>
-
     <!-- 콘텐츠 + AI채팅 레이아웃 -->
     <div class="content-with-chat">
 
@@ -114,6 +96,12 @@
             <span class="summary-pill-val" id="verifiedCount" style="color:var(--pink,#C779D0)">0/3</span>
             <span class="summary-pill-label">인증 현황</span>
           </div>
+        </div>
+
+        <!-- 동기부여 메시지 -->
+        <div class="motivation-card" id="motivationCard">
+          <span class="motivation-icon">🤖</span>
+          <p id="motivationText">AI가 오늘의 메시지를 준비하고 있어요...</p>
         </div>
 
         <!-- 아침 -->

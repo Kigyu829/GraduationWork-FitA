@@ -79,10 +79,6 @@ function initDate() {
   currentDate = dateStr;
   renderPage(currentDate);
 
-  document.getElementById('backBtn')?.addEventListener('click', () => {
-    history.back();
-  });
-
   document.getElementById('prevDayBtn')?.addEventListener('click', () => {
     currentDate = offsetDate(currentDate, -1);
     updateURL(currentDate);
@@ -345,5 +341,14 @@ function buildSc602Cal() {
     });
 
     daysEl.appendChild(btn);
+  }
+
+  /* 6행 고정: 남은 칸 빈 셀로 채우기 */
+  const totalCells = offset + daysInMonth;
+  const remainder  = 42 - totalCells; /* 42 = 6행 × 7열 */
+  for (let i = 0; i < remainder; i++) {
+    const el = document.createElement('div');
+    el.className = 'hist-day empty';
+    daysEl.appendChild(el);
   }
 }
