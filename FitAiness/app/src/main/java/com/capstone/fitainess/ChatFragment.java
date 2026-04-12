@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -45,6 +47,8 @@ public class ChatFragment extends Fragment
     private EditText etMessage;
     private TextView tvChatLog;
     private Button btnSend;
+
+    private ImageButton btnBack;
     private ProgressBar progressBar;
     private ScrollView scrollChat;
 
@@ -66,9 +70,11 @@ public class ChatFragment extends Fragment
         btnSend     = view.findViewById(R.id.btnSend);
         progressBar = view.findViewById(R.id.progressBar);
         scrollChat  = view.findViewById(R.id.scrollChat);
+        btnBack = view.findViewById(R.id.btnBack);
 
         geminiHelper = new GeminiHelper();
         chatSp = requireContext().getSharedPreferences(CHAT_PREFS, Context.MODE_PRIVATE);
+        btnBack.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
 
         // 저장된 채팅 기록 복원
         String savedLog = chatSp.getString(KEY_CHAT_LOG, null);

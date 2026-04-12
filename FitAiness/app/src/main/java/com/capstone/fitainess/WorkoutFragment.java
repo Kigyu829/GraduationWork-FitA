@@ -34,7 +34,8 @@ import org.json.JSONObject;
  * - 플랜 재조정은 AI 상담(ChatFragment)을 통해서만 가능
  * - 운동 이름 클릭 시 YouTube에서 운동 방법 검색
  */
-public class WorkoutFragment extends Fragment {
+public class WorkoutFragment extends Fragment
+{
 
     // SharedPreferences 키 (ChatFragment와 동일한 이름 사용)
     private static final String PREFS_NAME        = "workout_sp";

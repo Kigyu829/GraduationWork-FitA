@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -26,34 +27,45 @@ import java.util.Calendar;
 
 public class HomeFragment extends Fragment
 {
+    private CardView cvChallenge;
     private CardView cvGoalStatus;
-    private TextView tvGoalTitle, tvGoalMessage;
+
     private Button btnSetGoal;
+    private Button btnGoDiner, btnGoMeal, btnGoWorkout, btnGoChat;
 
-    private Button btnGoDiner;
-    private Button btnGoMeal, btnGoWorkout, btnGoChat;
+    private TextView tvGoalTitle, tvGoalMessage;
+    private TextView tvMealTimeTitle;
+    private TextView tvTodayMealContent;
+    private TextView tvStreakCount;
 
-    // 오늘의 식단 카드 뷰
-    private LinearLayout mealContainer;
-    private TextView tvMealNoPlan, tvMealTotal;
+    private CheckBox cbWorkout;
 
     public HomeFragment() { super(R.layout.fragment_home); }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
+        super.onViewCreated(view, savedInstanceState);
+
+        cvChallenge = view.findViewById(R.id.cvChallenge);
+        tvStreakCount = view.findViewById(R.id.tvStreakCount);
+
         cvGoalStatus  = view.findViewById(R.id.cvGoalStatus);
         tvGoalTitle   = view.findViewById(R.id.tvGoalTitle);
         tvGoalMessage = view.findViewById(R.id.tvGoalMessage);
         btnSetGoal    = view.findViewById(R.id.btnSetGoal);
+
         btnGoDiner    = view.findViewById(R.id.btnGoDiner);
         btnGoMeal     = view.findViewById(R.id.btnGoMeal);
         btnGoWorkout  = view.findViewById(R.id.btnGoWorkout);
         btnGoChat     = view.findViewById(R.id.btnGoChat);
-        mealContainer = view.findViewById(R.id.mealContainer);
-        tvMealNoPlan  = view.findViewById(R.id.tvMealNoPlan);
-        tvMealTotal   = view.findViewById(R.id.tvMealTotal);
 
+        tvMealTimeTitle    = view.findViewById(R.id.tvMealTimeTitle);
+        tvTodayMealContent = view.findViewById(R.id.tvTodayMealContent);
+        cbWorkout          = view.findViewById(R.id.cbWorkout);
+
+        cvChallenge.setOnClickListener(v ->
+                NavHostFragment.findNavController(this).navigate(R.id.action_home_to_calendar));
         btnSetGoal.setOnClickListener(v ->
                 NavHostFragment.findNavController(this).navigate(R.id.action_home_to_target));
         btnGoDiner.setOnClickListener(v ->
@@ -65,12 +77,12 @@ public class HomeFragment extends Fragment
         btnGoChat.setOnClickListener(v ->
                 NavHostFragment.findNavController(this).navigate(R.id.action_home_to_chat));
 
-        super.onViewCreated(view, savedInstanceState);
+        updateChallengeUI();
         checkUserProfile();
-        loadMealPlanToCard(); // 식단 카드 초기 로딩
+        loadMealPlanToCard();
+        // 구현 필요 loadWorkoutPlanToCard();
     }
 
-    /** MealFragment에서 돌아왔을 때 식단 카드 갱신 */
     @Override
     public void onResume() {
         super.onResume();
@@ -78,99 +90,85 @@ public class HomeFragment extends Fragment
     }
 
     // ──────────────────────────────────────
-    // 오늘의 식단 카드
+    // 오늘의 목표: 시간대별 식단 카드 로직 (수정됨)
     // ──────────────────────────────────────
-
-    /** meal_sp에 저장된 AI 식단 플랜을 읽어 카드에 표시 */
-    private void loadMealPlanToCard() {
+    private void loadMealPlanToCard()
+    {
         SharedPreferences mealSp = requireContext()
                 .getSharedPreferences("meal_sp", Context.MODE_PRIVATE);
         String planJson = mealSp.getString("meal_plan_json", null);
 
-        mealContainer.removeAllViews();
+        // 1. 현재 시간 확인
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
 
-        if (planJson == null) {
-            // 플랜 없음
-            tvMealNoPlan.setVisibility(View.VISIBLE);
-            tvMealTotal.setVisibility(View.GONE);
+        String mealKey;
+        String mealTitle;
+        int mealIconResId; //아이콘 리소스 담을 변수
+
+
+        // 2. 시간대에 맞는 식단 키(Key)와 타이틀 설정
+        if (hour >= 5 && hour < 11) {
+            mealTitle = "아침 식단";
+            mealKey = "breakfast";
+            mealIconResId = R.drawable.ic_meal_breakfast;
+        } else if (hour >= 11 && hour < 17) {
+            mealTitle = "점심 식단";
+            mealKey = "lunch";
+            mealIconResId = R.drawable.ic_meal_lunch;
+        } else {
+            mealTitle = "저녁 식단";
+            mealKey = "dinner";
+            mealIconResId = R.drawable.ic_meal_dinner;
+        }
+
+        // 타이틀 반영
+        tvMealTimeTitle.setText(mealTitle);
+        tvMealTimeTitle.setCompoundDrawablesWithIntrinsicBounds(mealIconResId, 0, 0, 0);
+
+        if (planJson == null)
+        {
+            tvTodayMealContent.setText("아직 AI 식단 플랜이 생성되지 않았어요.");
             return;
         }
 
+        // 3. JSON에서 현재 시간에 맞는 식단만 추출
         try {
             JSONObject plan = new JSONObject(planJson);
-            tvMealNoPlan.setVisibility(View.GONE);
+            JSONObject targetMeal = plan.getJSONObject(mealKey);
+            JSONArray menu = targetMeal.getJSONArray("menu");
 
-            addMealRow("🌅 아침", plan.getJSONObject("breakfast"));
-            addMealRow("🌞 점심", plan.getJSONObject("lunch"));
-            addMealRow("🌙 저녁", plan.getJSONObject("dinner"));
-
-            int total = plan.optInt("total_calories", 0);
-            if (total > 0) {
-                tvMealTotal.setText("합계 " + total + " kcal");
-                tvMealTotal.setVisibility(View.VISIBLE);
+            StringBuilder menuText = new StringBuilder();
+            for (int i = 0; i < menu.length(); i++)
+            {
+                if (i > 0) menuText.append(", ");
+                menuText.append(menu.getString(i));
             }
-        } catch (Exception e) {
-            tvMealNoPlan.setText("식단 데이터를 불러오지 못했어요.");
-            tvMealNoPlan.setVisibility(View.VISIBLE);
-            tvMealTotal.setVisibility(View.GONE);
+
+            int calories = targetMeal.getInt("calories");
+
+            // "닭가슴살 샐러드, 현미밥 (450kcal)" 형태로 출력
+            tvTodayMealContent.setText(menuText.toString() + " (" + calories + "kcal)");
+
+        }
+        catch (Exception e)
+        {
+            tvTodayMealContent.setText("식단 데이터를 불러오지 못했어요.");
         }
     }
 
-    /** 식사 1행 (이모지 타이틀 | 메뉴 첫 항목... | 칼로리) */
-    private void addMealRow(String label, JSONObject meal) throws Exception {
-        LinearLayout row = new LinearLayout(requireContext());
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        rowParams.setMargins(0, 0, 0, 8);
-        row.setLayoutParams(rowParams);
+    private void loadWorkoutPlanToCard()
+    {
+        SharedPreferences mealSp = requireContext()
+                .getSharedPreferences("workout_sp", Context.MODE_PRIVATE);
+        String planJson = mealSp.getString("wrokout_plan_json", null);
 
-        // 라벨 (아침/점심/저녁)
-        TextView tvLabel = new TextView(requireContext());
-        tvLabel.setText(label);
-        tvLabel.setTextColor(Color.parseColor("#66D0BC"));
-        tvLabel.setTextSize(13f);
-        LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        labelParams.setMarginEnd(8);
-        tvLabel.setLayoutParams(labelParams);
-
-        // 메뉴 (첫 2개 항목만 표시, 나머지는 "...")
-        JSONArray menu = meal.getJSONArray("menu");
-        StringBuilder menuText = new StringBuilder();
-        int showCount = Math.min(menu.length(), 2);
-        for (int i = 0; i < showCount; i++) {
-            if (i > 0) menuText.append(", ");
-            menuText.append(menu.getString(i));
-        }
-        if (menu.length() > 2) menuText.append("...");
-
-        TextView tvMenu = new TextView(requireContext());
-        tvMenu.setText(menuText.toString());
-        tvMenu.setTextColor(Color.WHITE);
-        tvMenu.setTextSize(13f);
-        LinearLayout.LayoutParams menuParams = new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-        tvMenu.setLayoutParams(menuParams);
-
-        // 칼로리
-        TextView tvKcal = new TextView(requireContext());
-        tvKcal.setText(meal.getInt("calories") + "kcal");
-        tvKcal.setTextColor(Color.parseColor("#AAAAAA"));
-        tvKcal.setTextSize(12f);
-
-        row.addView(tvLabel);
-        row.addView(tvMenu);
-        row.addView(tvKcal);
-        mealContainer.addView(row);
+        //TODO 루틴 출력
     }
 
     // ──────────────────────────────────────
     // Firebase 프로필 / 목표 UI
     // ──────────────────────────────────────
-
     private void checkUserProfile()
     {
         String uid = FirebaseAuth.getInstance().getUid();
@@ -201,6 +199,14 @@ public class HomeFragment extends Fragment
                 .setPositiveButton("설정하러 가기", (dialog, which) ->
                         NavHostFragment.findNavController(this).navigate(R.id.action_home_to_bodyInfo))
                 .show();
+    }
+
+    // cvChallenge UI 갱신 로직
+    private void updateChallengeUI()
+    {
+        SharedPreferences sp = requireContext().getSharedPreferences("ChallengePrefs", Context.MODE_PRIVATE);
+        int streak = sp.getInt("current_streak", 0);
+        tvStreakCount.setText(streak + "일째 연속 성공 중!");
     }
 
     private void updateGoalUI(int currentWeight)
