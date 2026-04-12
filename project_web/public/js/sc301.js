@@ -54,7 +54,6 @@ function renderSidebar() {
   if (infoEl) {
     const parts = [];
     if (data.gender) parts.push(data.gender);
-    if (data.birth)  parts.push(data.birth.slice(0, 4) + '년생');
     if (data.height) parts.push(`키 ${data.height}cm`);
     infoEl.textContent = parts.join(' · ') || '기본 정보 없음';
   }

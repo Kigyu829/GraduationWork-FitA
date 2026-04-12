@@ -102,7 +102,6 @@ function renderSidebar(data) {
   if (infoEl) {
     const parts = [];
     if (data.gender) parts.push(data.gender);
-    if (data.birth)  parts.push(data.birth.slice(0, 4) + '년생');
     if (data.height) parts.push(`키 ${data.height}cm`);
     infoEl.textContent = parts.join(' · ') || '기본 정보 없음';
   }
@@ -534,23 +533,6 @@ function bindDangerZone() {
     Storage.clearAll();
     localStorage.removeItem('userId');
     location.href = 'sc101.html';
-  });
-}
-
-/* ════════════════════════════════
-   로그아웃 / 로고
-   ════════════════════════════════ */
-function bindLogout() {
-  document.getElementById('logoutBtn')?.addEventListener('click', () => {
-    localStorage.removeItem('healthUserData');
-    localStorage.removeItem('userId');
-    location.href = 'sc101.html';
-  });
-}
-
-function bindLogoClick() {
-  document.getElementById('sidebarLogo')?.addEventListener('click', () => {
-    location.href = 'sc301.html';
   });
 }
 

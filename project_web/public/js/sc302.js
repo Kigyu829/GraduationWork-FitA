@@ -19,39 +19,7 @@ window.addEventListener('DOMContentLoaded', () => {
   startLoadingSequence();
 });
 
-function renderSidebar() {
-  const data = Storage.getUser();
-  const reg  = Storage.getRegistered();
 
-  const nameEl = document.getElementById('userName');
-  const infoEl = document.getElementById('userBasicInfo');
-  const cwEl   = document.getElementById('currentWeightText');
-  const twEl   = document.getElementById('targetWeightText');
-
-  if (nameEl) nameEl.textContent = reg.nickname ? `${reg.nickname}님` : '사용자';
-  if (infoEl) {
-    const parts = [];
-    if (data.gender) parts.push(data.gender);
-    if (data.height) parts.push(`키 ${data.height}cm`);
-    infoEl.textContent = parts.join(' · ') || '기본 정보 없음';
-  }
-  if (cwEl) cwEl.textContent = data.weight      ? `${data.weight}kg`      : '-';
-  if (twEl) twEl.textContent = data.targetWeight ? `${data.targetWeight}kg` : '-';
-}
-
-function bindLogout() {
-  document.getElementById('logoutBtn')?.addEventListener('click', () => {
-    localStorage.removeItem('healthUserData');
-    location.href = 'sc101.html';
-  });
-}
-
-function bindLogoClick() {
-  document.getElementById('sidebarLogo')?.addEventListener('click', () => {
-    /* 로그인 후 페이지이므로 로고 클릭 시 대시보드로 이동 */
-    location.href = 'sc301.html';
-  });
-}
 
 /* ── 로딩 시퀀스 ── */
 const MESSAGES = [

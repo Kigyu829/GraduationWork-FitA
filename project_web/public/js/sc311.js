@@ -168,45 +168,11 @@ function applyIcons() {
   });
 }
 
-/* ════════════════════════════════
-   사이드바
-   ════════════════════════════════ */
-function renderSidebar() {
-  const data = Storage.getUser();
-  const reg  = Storage.getRegistered();
 
-  const nameEl = document.getElementById('userName');
-  const infoEl = document.getElementById('userBasicInfo');
-  const cwEl   = document.getElementById('currentWeightText');
-  const twEl   = document.getElementById('targetWeightText');
-
-  if (nameEl) nameEl.textContent = reg.nickname ? `${reg.nickname}님` : '사용자';
-  if (infoEl) {
-    const parts = [];
-    if (data.gender) parts.push(data.gender);
-    if (data.height) parts.push(`키 ${data.height}cm`);
-    infoEl.textContent = parts.join(' · ') || '기본 정보 없음';
-  }
-  if (cwEl) cwEl.textContent = data.weight       ? `${data.weight}kg`       : '-';
-  if (twEl) twEl.textContent = data.targetWeight  ? `${data.targetWeight}kg` : '-';
-}
 
 function renderPageSubtitle() {
   const el = document.getElementById('pageSubtitle');
   if (el) el.textContent = formatDate();
-}
-
-function bindLogout() {
-  document.getElementById('logoutBtn')?.addEventListener('click', () => {
-    localStorage.removeItem('healthUserData');
-    location.href = 'sc101.html';
-  });
-}
-
-function bindLogoClick() {
-  document.getElementById('sidebarLogo')?.addEventListener('click', () => {
-    location.href = 'sc301.html';
-  });
 }
 
 /* ════════════════════════════════

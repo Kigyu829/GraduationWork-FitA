@@ -3,14 +3,6 @@
    의존: common.css, sc301.css (사이드바)
    ============================================================ */
 
-html, body { height: 100%; }
-
-.dashboard {
-  display: grid;
-  grid-template-columns: var(--sidebar-w, 230px) minmax(0, 1fr);
-  min-height: 100vh;
-}
-
 /* 사이드바 */
 /* ── 메인 ── */
 .main { padding: 28px 32px; overflow-y: auto; }
@@ -210,7 +202,6 @@ html, body { height: 100%; }
   #detailContentMeal.active { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
-  .dashboard { grid-template-columns: 1fr; }
   .sidebar { height: auto; position: static; border-bottom: 1px solid rgba(255,255,255,0.08); }
   .main { padding: 20px 16px; }
 }

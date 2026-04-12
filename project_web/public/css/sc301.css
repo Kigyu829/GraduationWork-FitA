@@ -39,12 +39,6 @@ html, body { min-height: 100%; }
 button, input { font: inherit; }
 
 /* ── 3. 레이아웃 ── */
-.dashboard {
-  display: grid;
-  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
-  min-height: 100vh;
-}
-
 /* ── 4. 사이드바 override (common과 구조는 같지만 스타일이 다름) ── */
 .sidebar {
   background: var(--surface);
@@ -613,7 +607,6 @@ button, input { font: inherit; }
 }
 
 @media (max-width: 980px) {
-  .dashboard      { grid-template-columns: 1fr; }
   .sidebar        { border-bottom: 1px solid rgba(255,255,255,0.08); }
   .summary-grid,
   .insight-grid,

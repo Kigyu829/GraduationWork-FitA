@@ -210,6 +210,27 @@ function getWorkoutIcon(name) {
   return '🏃';
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ── 페이지 전환 헬퍼 (sc401, hc402, hc403 공통) ── */
+function navigateTo(url) {
+  document.body.classList.add('page-exit');
+  setTimeout(() => { location.href = url; }, 320);
+}
+
+
 /* ════════════════════════════════
    공통 AI상담 오버레이 + 히스토리 달력
    sc301, sc302, sc311, sc602 공통 사용
@@ -427,4 +448,47 @@ function buildHistCal() {
 
     daysEl.appendChild(btn);
   }
+}
+
+/* ════════════════════════════════
+   사이드바 공통 함수
+   sc301, sc302, sc311, sc602, sc701에서 공통 사용
+   ════════════════════════════════ */
+
+/* 사이드바 프로필/체중 정보 렌더 */
+function renderSidebar() {
+  const data = Storage.getUser();
+  const reg  = Storage.getRegistered();
+
+  const nameEl = document.getElementById('userName');
+  const infoEl = document.getElementById('userBasicInfo');
+  const cwEl   = document.getElementById('currentWeightText');
+  const twEl   = document.getElementById('targetWeightText');
+
+  if (nameEl) nameEl.textContent = reg.nickname ? `${reg.nickname}님` : '사용자';
+  if (infoEl) {
+    const parts = [];
+    if (data.gender) parts.push(data.gender);
+    if (data.height) parts.push(`키 ${data.height}cm`);
+    infoEl.textContent = parts.join(' · ') || '기본 정보 없음';
+  }
+  if (cwEl) cwEl.textContent = data.weight      ? `${data.weight}kg`      : '-';
+  if (twEl) twEl.textContent = data.targetWeight ? `${data.targetWeight}kg` : '-';
+}
+
+/* 로그아웃 버튼 바인딩 */
+function bindLogout() {
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    localStorage.removeItem('healthUserData');
+    location.href = 'sc101.html';
+  });
+}
+
+/* 로고 클릭 바인딩
+   - sc101: 맨 위로 스크롤 (sc101.js에서 별도 처리)
+   - 로그인 후 페이지: sc301로 이동 */
+function bindLogoClick() {
+  document.getElementById('sidebarLogo')?.addEventListener('click', () => {
+    location.href = 'sc301.html';
+  });
 }

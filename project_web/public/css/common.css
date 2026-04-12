@@ -495,3 +495,18 @@ label.field-label {
   width: 16px;
   text-align: center;
 }
+
+/* ── 사이드바 레이아웃 공통 ── */
+/* sc302, sc311, sc602, sc701이 공통으로 사용 */
+:root {
+  --sidebar-w: 230px;
+}
+
+html, body { height: 100%; }
+
+.dashboard {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  min-height: 100vh;
+}
+

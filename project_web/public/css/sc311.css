@@ -4,14 +4,6 @@
    ============================================================ */
 
 /* ── 레이아웃 ── */
-html, body { height: 100%; }
-
-.dashboard {
-  display: grid;
-  grid-template-columns: var(--sidebar-w, 230px) minmax(0, 1fr);
-  min-height: 100vh;
-}
-
 /* ── 사이드바 ── */
 
 
@@ -356,7 +348,6 @@ html, body { height: 100%; }
   .ai-chat-panel > *  { min-width: 280px; }
 }
 @media (max-width: 768px) {
-  .dashboard { grid-template-columns: 1fr; }
   .ai-chat-panel.open { width: 320px !important; }
   .ai-chat-panel > *  { min-width: 320px; }
   .skip-modal         { max-width: 100%; }

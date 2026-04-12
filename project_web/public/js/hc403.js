@@ -115,6 +115,9 @@ window.addEventListener('DOMContentLoaded', () => {
     if (nutrientsEl) nutrientsEl.innerHTML = `<div class="nutrient-row" style="color:var(--red);font-size:12px;">${msg}</div>`;
     if (memoEl)      memoEl.textContent = 'CNN 서버가 실행 중인지 확인하거나 다시 시도해주세요.';
 
+    /* 판독 오류 시 reason-panel 절대 표시 안 함 */
+    document.getElementById('reasonPanel')?.classList.remove('show');
+
     bindButtons('');
   }
 
@@ -440,8 +443,3 @@ document.querySelectorAll('.site-logo').forEach(logo => {
     navigateTo(reg.email ? 'sc301.html' : 'sc101.html');
   });
 });
-/* ── 페이지 전환 헬퍼 ── */
-function navigateTo(url) {
-  document.body.classList.add('page-exit');
-  setTimeout(() => { location.href = url; }, 340);
-}

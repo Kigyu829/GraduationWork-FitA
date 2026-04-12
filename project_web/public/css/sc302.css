@@ -4,14 +4,6 @@
    ============================================================ */
 
 /* ── 대시보드 레이아웃 (sc301과 동일 구조) ── */
-html, body { height: 100%; }
-
-.dashboard {
-  display: grid;
-  grid-template-columns: var(--sidebar-w, 230px) minmax(0, 1fr);
-  min-height: 100vh;
-}
-
 /* ── 사이드바 override (sc301.css와 동일) ── */
 
 
@@ -194,8 +186,7 @@ html, body { height: 100%; }
 
 /* ── 반응형 ── */
 @media (max-width: 768px) {
-  .dashboard { grid-template-columns: 1fr; }
-}
+  }
 
 /* ── 로그아웃 버튼 빨간색 ── */
 .logout-btn {

@@ -3,14 +3,6 @@
    의존: common.css, sc301.css (사이드바 스타일 재사용)
    ============================================================ */
 
-html, body { height: 100%; }
-
-.dashboard {
-  display: grid;
-  grid-template-columns: var(--sidebar-w, 230px) minmax(0, 1fr);
-  min-height: 100vh;
-}
-
 /* ── 앱 사이드바 (sc301과 동일) ── */
 /* ═══════════════════════════════
    메인 영역

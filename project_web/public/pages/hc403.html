@@ -6,6 +6,7 @@
   <title>식단 판독 결과</title>
   <link rel="stylesheet" href="../css/common.css" />
   <link rel="stylesheet" href="../css/sc101.css" />
+  <link rel="stylesheet" href="../css/drawer.css" />
   <link rel="stylesheet" href="../css/hc403.css" />
 </head>
 <body>
@@ -14,7 +15,7 @@
   <nav class="navbar">
     <div class="nav-inner">
       <button class="drawer-toggle-nav" id="drawerToggle">☰</button>
-      <a href="sc101.html" class="site-logo">
+      <a href="sc301.html" class="site-logo" id="navLogo">
         <div class="site-logo-icon">🏃</div>
         <span class="site-logo-text">HealthDash</span>
       </a>
@@ -23,7 +24,7 @@
 
   <aside class="drawer" id="drawer">
     <div class="drawer-header">
-      <div class="drawer-logo">
+      <div class="drawer-logo" id="drawerLogo" style="cursor:pointer;">
         <div class="drawer-logo-icon">🏃</div>
         <span class="drawer-logo-text">HealthDash</span>
       </div>
@@ -34,7 +35,8 @@
       <button class="drawer-menu-btn" data-href="sc302.html"><span>🤖</span>AI 식단 추천</button>
       <button class="drawer-menu-btn" data-href="sc311.html"><span>💪</span>오늘의 식단/운동</button>
       <button class="drawer-menu-btn active" data-href="sc401.html"><span>🥗</span>식단 인증</button>
-      <button class="drawer-menu-btn" data-href="sc701.html"><span>👤</span>마이페이지</button>
+      <button class="drawer-menu-btn" data-href="sc602.html"><span>📅</span>히스토리</button>
+      <button class="drawer-menu-btn" data-href="sc701.html"><span>⚙️</span>마이페이지</button>
     </nav>
     <button class="drawer-logout" id="drawerLogout">로그아웃</button>
   </aside>
@@ -141,6 +143,7 @@
   </main>
 
   <script src="../js/common.js"></script>
+  <script src="../js/drawer.js"></script>
   <script src="../js/hc403.js"></script>
 </body>
 </html>
