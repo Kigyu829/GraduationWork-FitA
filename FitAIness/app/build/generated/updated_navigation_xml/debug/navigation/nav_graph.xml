@@ -60,6 +60,19 @@ app:startDestination="@id/splashFragment" >
     <action
         android:id="@+id/action_home_to_diner"
         app:destination="@id/dinerFragment" />
+    <!-- AI 기능 화면으로 이동 -->
+    <action
+        android:id="@+id/action_home_to_meal"
+        app:destination="@id/mealFragment" />
+    <action
+        android:id="@+id/action_home_to_workout"
+        app:destination="@id/workoutFragment" />
+    <action
+        android:id="@+id/action_home_to_chat"
+        app:destination="@id/chatFragment" />
+    <action
+        android:id="@+id/action_home_to_calendar"
+        app:destination="@id/calendarFragment" />
 
 </fragment>
 <fragment
@@ -102,6 +115,9 @@ app:startDestination="@id/splashFragment" >
     <action
         android:id="@+id/action_profile_to_target"
         app:destination="@id/targetFragment" />
+    <action
+        android:id="@+id/profile_to_chat"
+        app:destination="@id/chatFragment" />
 
 </fragment>
 <fragment
@@ -115,4 +131,24 @@ app:startDestination="@id/splashFragment" >
     android:id="@+id/action_target_to_profile"
     app:destination="@id/profileFragment"
     app:popUpTo="@id/targetFragment" />
+<fragment
+    android:id="@+id/calendarFragment"
+    android:name="com.capstone.fitainess.CalendarFragment" />
+
+<!-- AI 기능 Fragment들 (뒤로가기로 홈으로 돌아옴) -->
+<fragment
+    android:id="@+id/mealFragment"
+    android:name="com.capstone.fitainess.MealFragment" />
+<fragment
+    android:id="@+id/workoutFragment"
+    android:name="com.capstone.fitainess.WorkoutFragment" />
+<fragment
+    android:id="@+id/chatFragment"
+    android:name="com.capstone.fitainess.ChatFragment" />
+<action
+    android:id="@+id/action_chat_to_home"
+    app:destination="@id/homeFragment" />
+<action
+    android:id="@+id/action_chat_to_profile"
+    app:destination="@id/profileFragment" />
 </navigation>
