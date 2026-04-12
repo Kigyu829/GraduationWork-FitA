@@ -1,0 +1,129 @@
+/* ============================================================
+   sc203.css — 목표 설정 전용 스타일
+   의존: common.css
+   ============================================================ */
+
+/* ── 페이지 레이아웃 ── */
+body.health-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 20px;
+}
+
+.health-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* ── 폼 카드 너비 (sc203 전용) ── */
+/* form-card 기본 스타일 → common.css */
+.form-card { max-width: 520px; }
+
+/* ── 2열 그리드 ── */
+.input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── BMI 카드 ── */
+.bmi-preview { margin: 0; }
+
+.bmi-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bmi-left {
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.bmi-label {
+  display: block;
+  font-size: 9px;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+#bmiValue {
+  display: block;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--teal);
+  line-height: 1;
+  margin-bottom: 0;
+}
+
+.bmi-divider {
+  width: 1px;
+  height: 36px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.bmi-right { flex: 1; }
+
+#bmiStatus {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-sec);
+  line-height: 1.5;
+}
+
+/* ── 목표 프리뷰 ── */
+.goal-preview {
+  background: var(--teal-dim);
+  border: 1px solid rgba(102, 208, 188, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.info-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--teal);
+  line-height: 1.6;
+  font-weight: 700;
+}
+
+.info-text.muted {
+  color: var(--text-mute);
+  font-weight: 400;
+}
+
+/* ── 반응형 ── */
+@media (max-width: 480px) {
+  .form-card    { padding: 28px 18px; }
+  .input-grid   { grid-template-columns: 1fr; }
+  .form-header h1 { font-size: 20px; }
+  .form-actions { flex-direction: column; }
+  .bmi-box      { flex-direction: column; text-align: center; }
+  .bmi-divider  { width: 100%; height: 1px; }
+}
+
+/* ── 과도한 목표 경고 ── */
+.goal-warning {
+  display: none;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--red-dim);
+  border: 1px solid rgba(255, 11, 85, 0.3);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--red);
+  line-height: 1.6;
+}
+
+.goal-warning.show { display: block; }

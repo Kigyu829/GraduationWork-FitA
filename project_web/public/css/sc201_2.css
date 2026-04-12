@@ -1,0 +1,186 @@
+/* ============================================================
+   sc201_2.css — 회원가입 페이지 전용 스타일
+   의존: common.css
+   ============================================================ */
+
+/* ── 페이지 레이아웃 ── */
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+}
+
+.signup-wrap {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+/* ── 헤더 ── */
+/* form-card, form-header, input-group, primary-btn → common.css */
+
+.signup-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.signup-header h1 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+.signup-header p {
+  font-size: 13px;
+  color: var(--text-sec);
+  line-height: 1.6;
+}
+
+/* ── 인증번호 행 ── */
+.verify-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.verify-row .input-group { flex: 1; }
+
+.verify-send-btn {
+  flex-shrink: 0;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-sec);
+  font-size: 12px;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.verify-send-btn:hover {
+  background: var(--teal-dim);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+.verify-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── 완료 팝업 (PPT4) ── */
+.success-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 19, 26, 0.88);
+  backdrop-filter: blur(6px);
+  z-index: 200;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.success-overlay.show { display: flex; }
+
+.success-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.success-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--teal-dim);
+  border: 2px solid var(--teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+
+.success-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.success-sub {
+  font-size: 14px;
+  color: var(--text-sec);
+  line-height: 1.7;
+}
+
+.success-sub strong {
+  color: var(--teal);
+  font-weight: 800;
+}
+
+.success-btn {
+  margin-top: 8px;
+  padding: 12px 32px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--teal);
+  color: #09131a;
+  font-size: 14px;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-weight: 800;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.success-btn:hover { opacity: 0.88; }
+
+/* ── 하단 링크 ── */
+.page-footer-link {
+  font-size: 12px;
+  color: var(--text-mute);
+  text-align: center;
+}
+
+.page-footer-link a {
+  color: var(--teal);
+  text-decoration: none;
+  font-weight: 800;
+  transition: opacity 0.15s;
+}
+
+.page-footer-link a:hover { opacity: 0.75; }
+
+/* ── 반응형 ── */
+@media (max-width: 480px) {
+  .form-card       { padding: 28px 18px; }
+  .signup-header h1 { font-size: 20px; }
+  .verify-row      { flex-direction: column; }
+  .verify-send-btn { width: 100%; }
+}

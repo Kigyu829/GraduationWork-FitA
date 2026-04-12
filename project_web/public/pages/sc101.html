@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HealthDash – 운동 & 식단 관리</title>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/sc101.css" />
+</head>
+<body>
+
+  <!-- ── 네비게이션 ── -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="sc101.html" class="site-logo">
+        <div class="site-logo-icon">🏃</div>
+        <span class="site-logo-text">HealthDash</span>
+      </a>
+
+      <ul class="nav-menu">
+        <li><a href="#features">서비스 소개</a></li>
+        <li><a href="#download">앱 다운로드</a></li>
+        <li><a href="#">공지사항</a></li>
+        <li><a href="#">문의하기</a></li>
+        <li><a href="#">임시메뉴5</a></li>
+      </ul>
+
+      <a href="sc201_1.html" class="nav-login-btn">로그인</a>
+    </div>
+  </nav>
+
+  <!-- ── 히어로 ── -->
+  <section class="hero">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        AI 기반 건강 관리 플랫폼
+      </div>
+      <h1 class="hero-title">
+        당신만의<br>
+        <span class="accent">맞춤형 식단</span>과<br>
+        <span class="accent-red">운동 플랜</span>
+      </h1>
+      <p class="hero-desc">
+        AI가 분석하는 식단 인증, 맞춤형 운동 프로그램,
+        목표 달성 진행률까지. 건강한 삶을 향한 여정을
+        HealthDash와 함께 시작하세요.
+      </p>
+      <div class="hero-actions">
+        <a href="sc201_2.html" class="btn-primary">무료로 시작하기 →</a>
+        <a href="#features"   class="btn-secondary">서비스 둘러보기</a>
+      </div>
+    </div>
+
+    <!-- 미리보기 카드 -->
+    <div class="hero-right">
+      <div class="hero-preview">
+        <div class="preview-header">
+          <span class="preview-title">오늘의 대시보드</span>
+          <span class="preview-badge">LIVE</span>
+        </div>
+        <div class="preview-stat-row">
+          <div class="preview-stat">
+            <span class="preview-stat-val">68%</span>
+            <span class="preview-stat-label">목표 달성</span>
+          </div>
+          <div class="preview-stat">
+            <span class="preview-stat-val">2.1</span>
+            <span class="preview-stat-label">남은 kg</span>
+          </div>
+          <div class="preview-stat">
+            <span class="preview-stat-val red">23.4</span>
+            <span class="preview-stat-label">BMI</span>
+          </div>
+        </div>
+        <div class="preview-divider"></div>
+        <div>
+          <div class="preview-progress-bar">
+            <div class="preview-progress-fill"></div>
+          </div>
+          <div class="preview-progress-label">
+            <span>시작 72kg</span>
+            <span>68% 달성</span>
+          </div>
+        </div>
+        <div class="preview-divider"></div>
+        <ul class="preview-list">
+          <li><strong>아침</strong>그릭요거트, 바나나, 견과류</li>
+          <li><strong>운동</strong>스쿼트 15회 × 3세트</li>
+          <li><strong>저녁</strong>연어구이, 구운 채소</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 기능 섹션 ── -->
+  <section class="features-section" id="features">
+    <div class="features-inner">
+      <div class="section-label">FEATURES</div>
+      <h2 class="section-title">건강 관리의 모든 것</h2>
+      <p class="section-desc">
+        AI가 분석하고 추천하는 완전한 건강 관리 솔루션.
+        식단부터 운동까지 하나의 플랫폼에서 관리하세요.
+      </p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <div class="feature-name">AI 맞춤 플랜 생성</div>
+          <p class="feature-desc">신체 정보(키, 체중, BMI)와 목표 감량, 활동량을 바탕으로 AI가 개인화된 식단과 운동 계획을 자동으로 생성해드립니다.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon red-icon">🥗</div>
+          <div class="feature-name">오늘의 식단 & 인증</div>
+          <p class="feature-desc">아침·점심·저녁·간식별 AI 추천 식단을 확인하고, 사진을 업로드해 각 끼니를 바로 인증할 수 있어요. 칼로리 달성률도 실시간으로 확인하세요.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💪</div>
+          <div class="feature-name">오늘의 운동 관리</div>
+          <p class="feature-desc">유산소·근력·스트레칭 등 맞춤 운동 목록을 확인하고 완료 체크로 달성률을 관리하세요. 소모 칼로리도 자동 계산됩니다.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <div class="feature-name">목표 진행률 & 건강 지표</div>
+          <p class="feature-desc">체중 변화 그래프, BMI 게이지, 기초 대사량(BMR), 권장 칼로리(TDEE)까지 한 화면에서 확인해 목표 달성 흐름을 파악하세요.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon red-icon">💬</div>
+          <div class="feature-name">AI 실시간 상담</div>
+          <p class="feature-desc">식단이나 운동에 궁금한 점이 생기면 언제든지 AI 상담 채팅으로 질문하세요. 페이지를 벗어나지 않고 사이드패널에서 바로 대화할 수 있어요.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔥</div>
+          <div class="feature-name">연속 기록 & 습관 형성</div>
+          <p class="feature-desc">매일 식단과 운동을 체크하면 연속 달성 스트릭이 쌓여요. 물 섭취 트래커와 함께 건강한 생활 습관을 꾸준히 이어가세요.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 앱 다운로드 ── -->
+  <section class="download-section" id="download">
+    <div class="download-card">
+      <div class="download-left">
+        <div class="download-title">앱으로 더 편리하게</div>
+        <p class="download-desc">
+          모바일 앱으로 언제 어디서나 식단을 인증하고
+          운동 기록을 남기세요. Android에서 무료로 다운로드하세요.
+        </p>
+      </div>
+      <div class="download-btns">
+        <a href="#" class="download-btn">
+          <span class="download-btn-icon">▶</span>
+          <span class="download-btn-text">
+            <span class="download-btn-sub">GET IT ON</span>
+            <span class="download-btn-name">Google Play</span>
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 푸터 ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="#">이용약관</a>
+        <a href="#">개인정보처리방침</a>
+        <a href="#">공지사항</a>
+        <a href="#">문의하기</a>
+      </div>
+      <span class="footer-copy">© 2025 HealthDash. All rights reserved.</span>
+    </div>
+  </footer>
+
+  <script src="../js/common.js"></script>
+  <script src="../js/sc101.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>로그인 – HealthDash</title>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/sc201_1.css" />
+</head>
+<body>
+  <div class="login-wrap">
+
+    <!-- 로고 -->
+    <a href="sc101.html" class="site-logo">
+      <div class="site-logo-icon">🏃</div>
+      <span class="site-logo-text">HealthDash</span>
+    </a>
+
+    <section class="form-card">
+      <div class="login-header">
+        <h1>로그인</h1>
+        <p>계속하려면 계정에 로그인하세요.</p>
+      </div>
+
+      <form id="loginForm" class="login-form">
+
+        <!-- 에러 메시지 -->
+        <div class="error-msg" id="loginError">아이디 또는 비밀번호를 확인해주세요.</div>
+
+        <div class="input-group">
+          <label for="loginId">이메일 또는 전화번호</label>
+          <input type="text" id="loginId" name="loginId"
+            placeholder="example@email.com 또는 010-0000-0000"
+            autocomplete="username" required />
+        </div>
+
+        <div class="input-group">
+          <label for="loginPw">비밀번호</label>
+          <input type="password" id="loginPw" name="password"
+            placeholder="비밀번호 입력" autocomplete="current-password" required />
+        </div>
+
+        <!-- 아이디 저장 / 회원가입 -->
+        <div class="login-meta">
+          <label class="checkbox-label">
+            <input type="checkbox" id="saveId" />
+            아이디 저장
+          </label>
+          <a href="sc201_2.html" class="signup-link">회원가입</a>
+        </div>
+
+        <!-- 소셜 로그인 -->
+        <div class="social-divider">
+          <span class="social-divider-line"></span>
+          <span class="social-divider-text">소셜 계정으로 로그인</span>
+          <span class="social-divider-line"></span>
+        </div>
+
+        <div class="social-btns">
+          <!-- 실제 서비스 시 img 태그로 교체 예정 -->
+          <button type="button" class="social-btn naver"  title="네이버 로그인">N</button>
+          <button type="button" class="social-btn kakao"  title="카카오 로그인">K</button>
+          <button type="button" class="social-btn google" title="구글 로그인">G</button>
+        </div>
+
+        <!-- 로그인 버튼 -->
+        <button type="submit" class="primary-btn" style="width:100%;">로그인</button>
+
+      </form>
+    </section>
+
+    <div class="page-footer-link">
+      <a href="sc101.html">← 홈으로 돌아가기</a>
+    </div>
+  </div>
+
+  <script src="../js/common.js"></script>
+  <script src="../js/sc201_1.js"></script>
+</body>
+</html>

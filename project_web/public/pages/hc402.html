@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>식단 분석 중</title>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/sc101.css" />
+  <link rel="stylesheet" href="../css/hc402.css" />
+</head>
+<body>
+
+  <!-- ── 네비게이션 바 ── -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <button class="drawer-toggle-nav" id="drawerToggle">☰</button>
+      <a href="sc101.html" class="site-logo">
+        <div class="site-logo-icon">🏃</div>
+        <span class="site-logo-text">HealthDash</span>
+      </a>
+    </div>
+  </nav>
+
+  <aside class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-logo">
+        <div class="drawer-logo-icon">🏃</div>
+        <span class="drawer-logo-text">HealthDash</span>
+      </div>
+      <button class="drawer-close" id="drawerClose">✕</button>
+    </div>
+    <nav class="drawer-nav">
+      <button class="drawer-menu-btn" data-href="sc301.html"><span>🏠</span>대시보드</button>
+      <button class="drawer-menu-btn" data-href="sc302.html"><span>🤖</span>AI 식단 추천</button>
+      <button class="drawer-menu-btn" data-href="sc311.html"><span>💪</span>오늘의 식단/운동</button>
+      <button class="drawer-menu-btn active" data-href="sc401.html"><span>🥗</span>식단 인증</button>
+      <button class="drawer-menu-btn" data-href="sc601.html"><span>⚙️</span>설정</button>
+    </nav>
+    <button class="drawer-logout" id="drawerLogout">로그아웃</button>
+  </aside>
+
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+
+  <main class="scan-main">
+    <div class="scan-card">
+      <div class="scan-status" id="scanStatus">사진을 스캔하는 중...</div>
+      <div class="scan-frame">
+        <img class="scan-photo" id="scanPhoto" src="" alt="업로드된 사진" />
+        <div class="scan-bar"></div>
+        <div class="scan-overlay"></div>
+      </div>
+      <div class="scan-progress-wrap">
+        <div class="scan-progress-bar">
+          <div class="scan-progress-fill" id="progressFill"></div>
+        </div>
+        <div class="scan-progress-label" id="progressLabel">0%</div>
+      </div>
+      <div class="scan-hint" id="scanHint">AI가 음식의 종류와 양을 파악하고 있어요</div>
+    </div>
+  </main>
+
+  <script src="../js/common.js"></script>
+  <script src="../js/hc402.js"></script>
+</body>
+</html>

@@ -1,0 +1,515 @@
+/* ============================================================
+   sc101.css — 랜딩 페이지 전용 스타일
+   의존: common.css
+   ============================================================ */
+
+/* ── 네비게이션 ── */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: rgba(9, 19, 26, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  flex: 1;
+  justify-content: center;
+}
+
+.nav-menu a {
+  display: block;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-sec);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s, color 0.15s;
+}
+
+.nav-menu a:hover {
+  background: var(--teal-dim);
+  color: var(--teal);
+}
+
+.nav-login-btn {
+  flex-shrink: 0;
+  padding: 7px 18px;
+  border: 1px solid var(--teal);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--teal);
+  font-size: 13px;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+}
+
+.nav-login-btn:hover {
+  background: var(--teal);
+  color: #09131a;
+}
+
+/* ── 히어로 ── */
+.hero {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 32px 64px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 99px;
+  background: var(--red-dim);
+  border: 1px solid rgba(255, 11, 85, 0.25);
+  color: var(--red);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 20px;
+}
+
+.hero-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+
+.hero-title {
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.hero-title .accent     { color: var(--teal); }
+.hero-title .accent-red { color: var(--red); }
+
+.hero-desc {
+  font-size: 15px;
+  color: var(--text-sec);
+  line-height: 1.8;
+  margin-bottom: 32px;
+  max-width: 440px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* btn-primary, btn-secondary는 common.css에서 정의됨 */
+/* hero 버튼은 패딩 재정의 */
+.hero-actions .btn-primary  { padding: 12px 28px; gap: 6px; }
+.hero-actions .btn-secondary { padding: 12px 24px; gap: 6px; }
+
+/* ── 히어로 미리보기 카드 ── */
+.hero-right {
+  display: flex;
+  justify-content: center;
+}
+
+.hero-preview {
+  width: 100%;
+  max-width: 360px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.preview-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.preview-badge {
+  font-size: 10px;
+  color: var(--teal);
+  background: var(--teal-dim);
+  border: 1px solid rgba(102, 208, 188, 0.2);
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-weight: 800;
+}
+
+.preview-stat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.preview-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.preview-stat-val {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--teal);
+  display: block;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.preview-stat-val.red { color: var(--red); }
+
+.preview-stat-label {
+  font-size: 9px;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 800;
+}
+
+.preview-divider {
+  height: 1px;
+  background: var(--border);
+}
+
+.preview-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.preview-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-sec);
+}
+
+.preview-list li strong {
+  font-size: 10px;
+  color: var(--teal);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 36px;
+}
+
+.preview-progress-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.preview-progress-fill {
+  height: 100%;
+  width: 68%;
+  background: var(--teal);
+  border-radius: 99px;
+}
+
+.preview-progress-label {
+  font-size: 11px;
+  color: var(--text-mute);
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.preview-progress-label span:last-child {
+  color: var(--teal);
+  font-weight: 800;
+}
+
+/* ── 기능 섹션 ── */
+.features-section {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 64px 32px;
+}
+
+.features-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--teal);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.section-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+  text-align: center;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.section-desc {
+  font-size: 14px;
+  color: var(--text-sec);
+  text-align: center;
+  line-height: 1.8;
+  margin-bottom: 40px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.feature-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.feature-card:hover {
+  border-color: var(--border2);
+  transform: translateY(-2px);
+}
+
+.feature-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: var(--teal-dim);
+  border: 1px solid rgba(102, 208, 188, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 14px;
+}
+
+.feature-icon.red-icon {
+  background: var(--red-dim);
+  border-color: rgba(255, 11, 85, 0.2);
+}
+
+.feature-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+.feature-desc {
+  font-size: 13px;
+  color: var(--text-sec);
+  line-height: 1.7;
+}
+
+/* ── 앱 다운로드 ── */
+.download-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 64px 32px;
+}
+
+.download-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.download-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.download-desc {
+  font-size: 14px;
+  color: var(--text-sec);
+  line-height: 1.7;
+  max-width: 420px;
+}
+
+.download-btns {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.download-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  text-decoration: none;
+  font-family: 'Nanum Gothic', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.download-btn:hover {
+  background: var(--teal-dim);
+  border-color: var(--teal);
+}
+
+.download-btn-icon { font-size: 20px; }
+
+.download-btn-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.download-btn-sub {
+  font-size: 9px;
+  color: var(--text-mute);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.download-btn-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+/* ── 푸터 ── */
+.footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 24px 32px;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  padding: 5px 12px;
+  color: var(--text-mute);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s, color 0.15s;
+}
+
+.footer-links a:hover {
+  background: var(--teal-dim);
+  color: var(--teal);
+}
+
+.footer-copy {
+  font-size: 11px;
+  color: var(--text-mute);
+}
+
+/* ── 반응형 ── */
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 48px 24px 40px;
+    gap: 32px;
+  }
+  .hero-title  { font-size: 30px; }
+  .hero-right  { display: none; }
+  .features-grid { grid-template-columns: 1fr 1fr; }
+  .download-card { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 600px) {
+  .nav-inner { padding: 0 16px; }
+  .nav-menu  { display: none; }
+  .features-grid { grid-template-columns: 1fr; }
+  .section-title { font-size: 22px; }
+  .footer-inner  { flex-direction: column; align-items: flex-start; }
+}

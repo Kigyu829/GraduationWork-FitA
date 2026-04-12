@@ -1,0 +1,63 @@
+/* ============================================================
+   sc202.css — 신체정보 입력 1 전용 스타일
+   의존: common.css
+   ============================================================ */
+
+/* ── 페이지 레이아웃 ── */
+body.health-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 20px;
+}
+
+.health-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ── 폼 카드 너비 (sc202 전용) ── */
+/* form-card 기본 스타일 → common.css */
+.form-card { max-width: 560px; }
+
+/* ── 헤더 마진 조정 ── */
+.form-header { margin-bottom: 28px; }
+
+/* ── 2열 그리드 ── */
+.input-grid.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── 생년월일 3분할 ── */
+.birth-wrap {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 8px;
+}
+
+.birth-wrap input {
+  padding: 11px 10px;
+  text-align: center;
+}
+
+/* ── 하단 안내 ── */
+.form-footer {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-mute);
+  line-height: 1.6;
+}
+
+/* ── 반응형 ── */
+@media (max-width: 540px) {
+  .form-card               { padding: 28px 20px; }
+  .input-grid.two-col      { grid-template-columns: 1fr; }
+  .form-header h1          { font-size: 20px; }
+  .birth-wrap              { grid-template-columns: 1fr 1fr 1fr; }
+}
