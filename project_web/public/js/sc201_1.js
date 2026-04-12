@@ -26,8 +26,7 @@
     });
   }
 
-  /* ── registeredPhone 누락 보정
-     기존에 페이지를 열어서 email만 세팅됐고 phone이 없는 경우 보완 ── */
+  /* ── registeredPhone 누락 보정 ── */
   if (localStorage.getItem('registeredEmail') === 'test1@test.com'
       && !localStorage.getItem('registeredPhone')) {
     localStorage.setItem('registeredPhone', '010-1234-5678');
@@ -39,7 +38,7 @@ const loginError = document.getElementById('loginError');
 const saveIdBox  = document.getElementById('saveId');
 const loginIdEl  = document.getElementById('loginId');
 
-/* ── 저장된 아이디 복원 (이메일 또는 전화번호) ── */
+/* ── 저장된 아이디 복원 ── */
 window.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem('savedLoginId');
   if (saved && loginIdEl) {
@@ -48,17 +47,15 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/* ── 입력값이 전화번호인지 판단 ── */
 function isPhoneNumber(val) {
   return /^[\d\-]+$/.test(val);
 }
 
-/* ── 전화번호 정규화 (하이픈 제거 후 비교) ── */
 function normalizePhone(val) {
   return val.replace(/\D/g, '');
 }
 
-/* ── 소셜 로그인 버튼 (추후 연동) ── */
+/* ── 소셜 로그인 버튼 ── */
 document.querySelectorAll('.social-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const provider = btn.classList.contains('naver')  ? '네이버'  :
@@ -80,7 +77,6 @@ if (loginForm) {
       return;
     }
 
-    /* 아이디 저장 처리 */
     if (saveIdBox && saveIdBox.checked) {
       localStorage.setItem('savedLoginId', inputId);
     } else {
@@ -93,11 +89,9 @@ if (loginForm) {
     let   idMatch = false;
 
     if (byPhone) {
-      /* 전화번호: 하이픈 제거 후 비교 */
       const storedPhone = localStorage.getItem('registeredPhone') || '';
       idMatch = normalizePhone(inputId) === normalizePhone(storedPhone);
     } else {
-      /* 이메일 */
       idMatch = inputId === reg.email;
     }
 
@@ -108,7 +102,6 @@ if (loginForm) {
 
     loginError.classList.remove('show');
 
-    /* 신체정보 입력 여부에 따라 분기 */
     const userData = Storage.getUser();
     location.href = userData.targetWeight ? 'sc301.html' : 'sc202.html';
   });

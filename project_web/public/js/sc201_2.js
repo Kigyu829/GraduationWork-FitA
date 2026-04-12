@@ -151,18 +151,16 @@ if (signupForm) {
       alert('전화번호 인증을 완료해주세요.'); return;
     }
 
-    /* 저장 후 신체정보 초기화 (회원가입 직후는 항상 sc202부터) */
     Storage.setRegistered(email, password, nickname);
     localStorage.setItem('registeredPhone', phone);
-    Storage.setUser({});  /* targetWeight 없음 → 로그인 시 sc202 분기 */
+    Storage.setUser({});
 
-    /* 완료 팝업 표시 (PPT4) */
     if (welcomeNameEl) welcomeNameEl.textContent = nickname;
     if (successOverlay) successOverlay.classList.add('show');
   });
 }
 
-/* ── 완료 팝업 → sc202(신체정보 입력) ── */
+/* ── 완료 팝업 → sc202 ── */
 if (successContinueBtn) {
   successContinueBtn.addEventListener('click', () => {
     location.href = 'sc202.html';

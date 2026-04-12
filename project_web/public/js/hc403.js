@@ -1,12 +1,5 @@
-/* hc403.js — 판독 결과 + 인증 (CNN 서버 연동)
+/* hc403.js — 판독 결과 + 인증 + 치팅/단식 기록 (CNN 서버 연동)
    의존: common.js
-
-   [메뉴 불일치 흐름]
-   1. CNN 인식 음식이 AI 플랜 메뉴에 없으면 → reason-panel 노출
-   2. 단식  → kcal=0,      reason='fasting'  으로 doVerify
-   3. 치팅  → kcal=원래값, reason='cheating' 으로 doVerify
-   4. 기타  → 사용자 입력 텍스트를 reason으로 doVerify
-   5. 일반 인증(메뉴 일치) → 기존 certBtn 흐름 유지
 */
 'use strict';
 
@@ -17,8 +10,8 @@ window.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  const photoEl    = document.getElementById('resultPhoto');
-  const photoPanel = document.getElementById('photoPanel');
+  const photoEl     = document.getElementById('resultPhoto');
+  const photoPanel  = document.getElementById('photoPanel');
   const resultPanel = document.getElementById('resultPanel');
 
   photoEl.src = photo;
@@ -27,9 +20,15 @@ window.addEventListener('DOMContentLoaded', () => {
   if (photoEl.complete) startAnimation();
 
   function startAnimation() {
-    setTimeout(() => { document.getElementById('resultContainer')?.classList.add('show'); }, 60);
-    setTimeout(() => { photoPanel?.classList.add('slide-in'); }, 80);
-    setTimeout(() => { resultPanel?.classList.add('fade-in'); }, 300);
+    setTimeout(() => {
+      document.getElementById('resultContainer')?.classList.add('show');
+    }, 60);
+    setTimeout(() => {
+      photoPanel?.classList.add('slide-in');
+    }, 80);
+    setTimeout(() => {
+      resultPanel?.classList.add('fade-in');
+    }, 300);
     setTimeout(renderFromCnn, 400);
   }
 
@@ -38,7 +37,10 @@ window.addEventListener('DOMContentLoaded', () => {
   ══════════════════════════════════ */
   function renderFromCnn() {
     const raw = sessionStorage.getItem('cnnResult');
-    if (!raw) { renderError('CNN 분석 결과가 없습니다. 다시 시도해주세요.'); return; }
+    if (!raw) {
+      renderError('CNN 분석 결과가 없습니다. 다시 시도해주세요.');
+      return;
+    }
     try {
       const parsed = JSON.parse(raw);
       if (!parsed.success) throw new Error(parsed.error || 'CNN 분석 실패');
@@ -49,12 +51,9 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /* ══════════════════════════════════
-     판독 결과 UI 렌더
-  ══════════════════════════════════ */
   function renderResult(data) {
     const matchBadge  = document.getElementById('matchBadge');
-    const foodNameEl  = document.getElementById('foodName');
+    const foodName    = document.getElementById('foodName');
     const nutrientsEl = document.getElementById('resultNutrients');
     const memoEl      = document.getElementById('resultMemo');
 
@@ -67,7 +66,8 @@ window.addEventListener('DOMContentLoaded', () => {
       else if (matchPct >= 45) matchBadge.classList.add('mid');
       else                     matchBadge.classList.add('low');
     }
-    if (foodNameEl) foodNameEl.textContent = data.detected_food_kr;
+
+    if (foodName) foodName.textContent = data.detected_food_kr;
 
     if (nutrientsEl) {
       const top5 = data.top_5 || [];
@@ -100,164 +100,279 @@ window.addEventListener('DOMContentLoaded', () => {
         : `신뢰도가 낮습니다 (${matchPct}%). 다른 각도로 재촬영을 권장합니다.`;
     }
 
-    bindButtons(data.detected_food_kr);
+    bindButtons();
+    bindSkipButtons();  /* 치팅/단식 버튼 바인딩 */
   }
 
-  /* ── 오류 시 UI ── */
   function renderError(msg) {
     const matchBadge  = document.getElementById('matchBadge');
-    const foodNameEl  = document.getElementById('foodName');
+    const foodName    = document.getElementById('foodName');
     const nutrientsEl = document.getElementById('resultNutrients');
     const memoEl      = document.getElementById('resultMemo');
 
     if (matchBadge) { matchBadge.textContent = '분석 실패'; matchBadge.classList.add('low'); }
-    if (foodNameEl)  foodNameEl.textContent = '판독 오류';
+    if (foodName)    foodName.textContent = '판독 오류';
     if (nutrientsEl) nutrientsEl.innerHTML = `<div class="nutrient-row" style="color:var(--red);font-size:12px;">${msg}</div>`;
     if (memoEl)      memoEl.textContent = 'CNN 서버가 실행 중인지 확인하거나 다시 시도해주세요.';
 
-    bindButtons('');
+    bindButtons();
+    bindSkipButtons();
   }
 
-  /* ══════════════════════════════════
-     버튼 바인딩
-  ══════════════════════════════════ */
-  function bindButtons(detectedFood) {
-    /* 재업로드 */
+  /* ── 인증 버튼 ── */
+  function bindButtons() {
     document.getElementById('retakeBtn')?.addEventListener('click', () => {
       sessionStorage.removeItem('uploadedPhoto');
       sessionStorage.removeItem('uploadedPhotoName');
       sessionStorage.removeItem('cnnResult');
       navigateTo('sc401.html');
     });
+    document.getElementById('certBtn')?.addEventListener('click', showCertSuccess);
+  }
 
-    /* 인증하기 버튼 */
-    document.getElementById('certBtn')?.addEventListener('click', () => {
-      handleCertClick(detectedFood);
+  /* ══════════════════════════════════
+     치팅/단식 버튼 바인딩
+  ══════════════════════════════════ */
+  let skipMode = 'cheat'; /* 'cheat' | 'fast' */
+  let eatType  = 'partial'; /* 'partial' | 'all' */
+
+  function bindSkipButtons() {
+    const cheatBtn  = document.getElementById('cheatBtn');
+    const fastBtn   = document.getElementById('fastBtn');
+    const overlay   = document.getElementById('skipModalOverlay');
+    const cancelBtn = document.getElementById('skipCancelBtn');
+    const confirmBtn = document.getElementById('skipConfirmBtn');
+
+    /* 치팅 버튼 */
+    cheatBtn?.addEventListener('click', () => {
+      skipMode = 'cheat';
+      document.getElementById('skipModalIcon').textContent  = '🍕';
+      document.getElementById('skipModalTitle').textContent = '치팅 기록';
+      document.getElementById('skipModalSub').textContent   = '어떤 메뉴를 드셨나요? 메모를 남겨주세요.';
+      document.getElementById('skipTypeRow').style.display  = 'flex';
+      document.getElementById('skipReason').placeholder     = '예) 점심에 피자를 먹었어요 / 저녁 케이크 추가';
+      document.getElementById('skipReason').value           = '';
+      openSkipModal();
     });
 
-    /* 사유 패널 버튼들 */
-    bindReasonPanel(detectedFood);
-  }
-
-  /* ══════════════════════════════════
-     인증 클릭 → 메뉴 일치 여부 판단
-  ══════════════════════════════════ */
-  function handleCertClick(detectedFood) {
-    const uploadParams = getUploadParams();
-    const expectedFood = uploadParams.expectedFood;
-
-    /* 메뉴에 있는 음식이면 기존 인증 팝업 */
-    if (!expectedFood || isMenuMatch(detectedFood, expectedFood)) {
-      showCertFlow(detectedFood, null);
-    } else {
-      /* 메뉴에 없는 음식 → 사유 선택 패널 노출 */
-      showReasonPanel();
-    }
-  }
-
-  /* ══════════════════════════════════
-     메뉴 일치 여부 판단
-     AI 플랜 전체 메뉴 목록과 비교
-  ══════════════════════════════════ */
-  function isMenuMatch(detectedFood, expectedFood) {
-    if (!detectedFood || !expectedFood) return true;
-    const norm = s => s.replace(/\s/g, '').toLowerCase();
-    const d = norm(detectedFood);
-    const e = norm(expectedFood);
-
-    /* 직접 포함 여부 */
-    if (d.includes(e) || e.includes(d)) return true;
-
-    /* AI 플랜 전체 메뉴 토큰과 비교 */
-    const userData   = Storage.getUser();
-    const mealPlan   = userData.aiMealPlan;
-    if (!mealPlan) return false;
-
-    const allMenuTokens = ['breakfast', 'lunch', 'dinner'].flatMap(key => {
-      const meal = mealPlan[key];
-      if (!meal) return [];
-      const menuArr = Array.isArray(meal.menu) ? meal.menu : [meal.menu || ''];
-      return menuArr.flatMap(m => m.split(/[,·+\s]+/)).map(norm).filter(Boolean);
+    /* 단식 버튼 */
+    fastBtn?.addEventListener('click', () => {
+      skipMode = 'fast';
+      document.getElementById('skipModalIcon').textContent  = '🚫';
+      document.getElementById('skipModalTitle').textContent = '단식 기록';
+      document.getElementById('skipModalSub').textContent   = '안 드신 이유를 간단히 남겨주세요.';
+      document.getElementById('skipTypeRow').style.display  = 'flex';
+      document.getElementById('skipReason').placeholder     = '예) 몸이 좋지 않아서 / 의도적으로 건너뜀';
+      document.getElementById('skipReason').value           = '';
+      openSkipModal();
     });
 
-    return allMenuTokens.some(token => d.includes(token) || token.includes(d));
-  }
-
-  /* ══════════════════════════════════
-     사유 패널 노출 / 숨김
-  ══════════════════════════════════ */
-  function showReasonPanel() {
-    const panel      = document.getElementById('reasonPanel');
-    const actionsEl  = document.getElementById('resultActions');
-    if (panel)     panel.classList.add('show');
-    if (actionsEl) actionsEl.style.display = 'none';
-  }
-
-  function hideReasonPanel() {
-    const panel      = document.getElementById('reasonPanel');
-    const actionsEl  = document.getElementById('resultActions');
-    if (panel)     panel.classList.remove('show');
-    if (actionsEl) actionsEl.style.display = '';
-  }
-
-  /* ══════════════════════════════════
-     사유 선택 패널 버튼 바인딩
-  ══════════════════════════════════ */
-  function bindReasonPanel(detectedFood) {
-    const uploadParams = getUploadParams();
-
-    /* 단식 */
-    document.getElementById('reasonFasting')?.addEventListener('click', () => {
-      showCustomConfirm({
-        icon:    '🚫',
-        title:   '단식으로 기록할까요?',
-        desc:    '이 끼니의 칼로리가 <strong>0 kcal</strong>으로 처리됩니다.<br>정말 단식으로 기록하시겠어요?',
-        confirmText: '네, 단식으로 기록',
-        cancelText:  '취소',
-        confirmClass: 'danger',
-        onConfirm: () => {
-          doVerify(detectedFood || '단식', 0, 'fasting');
-          showSuccessOverlay('단식으로 기록됐어요. 칼로리는 0으로 처리됐습니다. 💪');
-        },
+    /* 부분/전부 타입 토글 */
+    document.querySelectorAll('.skip-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.skip-type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        eatType = btn.dataset.type;
       });
     });
 
-    /* 치팅 */
-    document.getElementById('reasonCheating')?.addEventListener('click', () => {
-      doVerify(detectedFood || '치팅', uploadParams.mealKcal, 'cheating');
-      showEncouragementOverlay(detectedFood || '치팅');
-    });
+    /* 취소 */
+    cancelBtn?.addEventListener('click', closeSkipModal);
+    overlay?.addEventListener('click', e => { if (e.target === overlay) closeSkipModal(); });
 
-    /* 기타: 채팅 입력 후 인증 */
-    document.getElementById('reasonChatSubmit')?.addEventListener('click', () => {
-      const input  = document.getElementById('reasonChatInput');
-      const reason = input?.value.trim();
-      if (!reason) { alert('사유를 입력해주세요.'); return; }
-      doVerify(detectedFood || reason, uploadParams.mealKcal, reason);
-      showSuccessOverlay(`"${reason}"으로 기록됐어요.`);
+    /* 기록하기 */
+    confirmBtn?.addEventListener('click', () => {
+      const reason = document.getElementById('skipReason')?.value.trim();
+      saveSkipRecord(skipMode, eatType, reason);
+      closeSkipModal();
     });
+  }
 
-    /* Enter 키로도 제출 */
-    document.getElementById('reasonChatInput')?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        document.getElementById('reasonChatSubmit')?.click();
-      }
-    });
+  function openSkipModal() {
+    const overlay = document.getElementById('skipModalOverlay');
+    overlay?.classList.add('show');
+  }
 
-    /* 취소 → 일반 인증으로 */
-    document.getElementById('reasonCancel')?.addEventListener('click', hideReasonPanel);
+  function closeSkipModal() {
+    const overlay = document.getElementById('skipModalOverlay');
+    overlay?.classList.remove('show');
   }
 
   /* ══════════════════════════════════
-     공통 인증 흐름 (메뉴 일치 시)
+     치팅/단식 기록 저장 → sc311 전달
   ══════════════════════════════════ */
-  function showCertFlow(detectedFood, forceReason) {
-    const uploadParams = getUploadParams();
-    const expectedFood = uploadParams.expectedFood;
+  function saveSkipRecord(mode, type, reason) {
+    const uploadParams = new URLSearchParams(sessionStorage.getItem('uploadParams') || '');
+    const mealType     = uploadParams.get('meal') || 'breakfast';
+    const mealKcal     = parseInt(uploadParams.get('kcal') || '0', 10);
 
-    if (!forceReason && expectedFood && !isMenuMatch(detectedFood, expectedFood)) {
-      /* 불일치 경고 팝업 */
+    const today    = new Date();
+    const dateStr  = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    const sc311Key = `sc311_${dateStr}`;
+
+    let sc311State;
+    try {
+      sc311State = JSON.parse(localStorage.getItem(sc311Key)) || { meals: {}, workouts: {} };
+    } catch(e) {
+      sc311State = { meals: {}, workouts: {} };
+    }
+
+    /* 끼니 상태에 치팅/단식 정보 저장 */
+    sc311State.meals[mealType] = {
+      verified: true,           /* 인증 완료로 처리 */
+      kcal:     type === 'all' ? 0 : mealKcal,
+      skipMode: mode,           /* 'cheat' | 'fast' */
+      eatType:  type,           /* 'partial' | 'all' */
+      reason:   reason || '',
+      food:     mode === 'cheat' ? (reason || '치팅') : '단식',
+    };
+
+    localStorage.setItem(sc311Key, JSON.stringify(sc311State));
+
+    /* 전체 식단 달성 체크 업데이트 */
+    const allVerified = ['breakfast', 'lunch', 'dinner']
+      .every(k => sc311State.meals[k]?.verified);
+    const checkKey = `check_${dateStr}`;
+    try {
+      const state = JSON.parse(localStorage.getItem(checkKey)) || { meal: false, workout: false };
+      state.meal  = allVerified;
+      localStorage.setItem(checkKey, JSON.stringify(state));
+    } catch(e) {
+      localStorage.setItem(checkKey, JSON.stringify({ meal: allVerified, workout: false }));
+    }
+
+    /* 완료 오버레이 */
+    const modeLabel = mode === 'cheat' ? '치팅' : '단식';
+    const typeLabel = type === 'all' ? '전부 안 먹음' : '일부만 먹음';
+    showSkipDoneOverlay(modeLabel, typeLabel, reason);
+  }
+
+  function showSkipDoneOverlay(modeLabel, typeLabel, reason) {
+    const overlay = document.createElement('div');
+    overlay.className = 'cert-overlay';
+    overlay.innerHTML = `
+      <div class="cert-popup">
+        <div class="cert-popup-icon">${modeLabel === '치팅' ? '🍕' : '🚫'}</div>
+        <div class="cert-popup-title">${modeLabel} 기록 완료</div>
+        <div class="cert-popup-sub">
+          <strong>${typeLabel}</strong>으로 기록됐어요.<br>
+          ${reason ? `<span style="color:var(--text-mute);font-size:12px;">"${reason}"</span><br>` : ''}
+          <br>오늘도 건강한 하루 보내세요! 💪
+        </div>
+        <button class="primary-btn cert-popup-btn" id="skipDoneBtn">확인</button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('show')));
+
+    overlay.querySelector('#skipDoneBtn')?.addEventListener('click', () => {
+      sessionStorage.removeItem('uploadedPhoto');
+      sessionStorage.removeItem('uploadedPhotoName');
+      sessionStorage.removeItem('cnnResult');
+      navigateTo('sc311.html');
+    });
+  }
+
+  /* ══════════════════════════════════
+     인증 완료 팝업 (기존 로직 유지)
+  ══════════════════════════════════ */
+  function showCertSuccess() {
+    const uploadParams = new URLSearchParams(sessionStorage.getItem('uploadParams') || '');
+    const mealType     = uploadParams.get('meal') || 'breakfast';
+    const mealKcal     = parseInt(uploadParams.get('kcal') || '0', 10);
+    const expectedFood = uploadParams.get('mainFood') || '';
+
+    let detectedFood = '';
+    try {
+      const cnnData = JSON.parse(sessionStorage.getItem('cnnResult'));
+      detectedFood  = cnnData?.data?.detected_food_kr || '';
+    } catch(e) {}
+
+    function isFoodMatch() {
+      if (!expectedFood || !detectedFood) return true;
+      const norm = s => s.replace(/\s/g, '').toLowerCase();
+      return norm(detectedFood).includes(norm(expectedFood)) ||
+             norm(expectedFood).includes(norm(detectedFood));
+    }
+
+    function doVerify(food) {
+      const today   = new Date();
+      const dateStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+      const sc311Key = `sc311_${dateStr}`;
+      let sc311State;
+      try {
+        sc311State = JSON.parse(localStorage.getItem(sc311Key)) || { meals: {}, workouts: {} };
+      } catch(e) {
+        sc311State = { meals: {}, workouts: {} };
+      }
+      sc311State.meals[mealType] = {
+        verified: true,
+        kcal:     mealKcal,
+        food:     food || '',
+        skipMode: null,
+        eatType:  'full',
+        reason:   '',
+      };
+      localStorage.setItem(sc311Key, JSON.stringify(sc311State));
+
+      const checkKey    = `check_${dateStr}`;
+      const allVerified = ['breakfast', 'lunch', 'dinner']
+        .every(k => sc311State.meals[k]?.verified);
+      try {
+        const state = JSON.parse(localStorage.getItem(checkKey)) || { meal: false, workout: false };
+        state.meal  = allVerified;
+        localStorage.setItem(checkKey, JSON.stringify(state));
+      } catch(e) {
+        localStorage.setItem(checkKey, JSON.stringify({ meal: allVerified, workout: false }));
+      }
+    }
+
+    function showSuccessOverlay() {
+      const overlay = document.createElement('div');
+      overlay.className = 'cert-overlay';
+      overlay.innerHTML = `
+        <div class="cert-popup">
+          <div class="cert-popup-icon">🎉</div>
+          <div class="cert-popup-title">인증 완료!</div>
+          <div class="cert-popup-sub">오늘의 식단이 성공적으로 인증됐어요.<br>대시보드에서 확인해보세요!</div>
+          <button class="primary-btn cert-popup-btn" id="certDoneBtn">대시보드로 이동</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('show')));
+      overlay.querySelector('#certDoneBtn')?.addEventListener('click', () => {
+        sessionStorage.removeItem('uploadedPhoto');
+        sessionStorage.removeItem('uploadedPhotoName');
+        sessionStorage.removeItem('cnnResult');
+        navigateTo('sc301.html');
+      });
+    }
+
+    function showEncouragementOverlay(food) {
+      const overlay = document.createElement('div');
+      overlay.className = 'cert-overlay';
+      overlay.innerHTML = `
+        <div class="cert-popup">
+          <div class="cert-popup-icon">😊</div>
+          <div class="cert-popup-title">인증 완료!</div>
+          <div class="cert-popup-sub">
+            <strong>${food}</strong>(으)로 인증됐어요.<br><br>
+            다음엔 식단대로 지켜봐요! 꾸준하게 하다 보면 목표에 가까워질 거예요 💪
+          </div>
+          <button class="primary-btn cert-popup-btn" id="certEncourageDoneBtn">대시보드로 이동</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('show')));
+      overlay.querySelector('#certEncourageDoneBtn')?.addEventListener('click', () => {
+        sessionStorage.removeItem('uploadedPhoto');
+        sessionStorage.removeItem('uploadedPhotoName');
+        sessionStorage.removeItem('cnnResult');
+        navigateTo('sc301.html');
+      });
+    }
+
+    if (!isFoodMatch()) {
       const mismatch = document.createElement('div');
       mismatch.className = 'cert-overlay';
       mismatch.innerHTML = `
@@ -269,179 +384,79 @@ window.addEventListener('DOMContentLoaded', () => {
             CNN 인식 결과: <strong>${detectedFood}</strong><br><br>
             다른 음식으로 인식됐어요. 그래도 인증할까요?
           </div>
-          <div style="display:flex;gap:10px;width:100%;">
-            <button class="secondary-btn cert-popup-btn" id="mismatchCancelBtn" style="flex:1;">아니요</button>
-            <button class="primary-btn cert-popup-btn" id="mismatchOkBtn" style="flex:1;">그래도 인증</button>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+            <button class="primary-btn" id="forceVerifyBtn">그래도 인증</button>
+            <button class="primary-btn" id="retakeMismatchBtn"
+              style="background:var(--card,#2a2a3a);color:var(--text,#fff);border:1px solid var(--border,#444);">
+              다시 찍기
+            </button>
+            <button class="skip-btn cheat-btn" id="mismatchCheatBtn"
+              style="background:rgba(245,166,35,0.12);border-color:rgba(245,166,35,0.4);color:#F5A623;">
+              🍕 치팅으로 기록
+            </button>
           </div>
         </div>
       `;
       document.body.appendChild(mismatch);
       requestAnimationFrame(() => requestAnimationFrame(() => mismatch.classList.add('show')));
 
-      mismatch.querySelector('#mismatchCancelBtn')?.addEventListener('click', () => mismatch.remove());
-      mismatch.querySelector('#mismatchOkBtn')?.addEventListener('click', () => {
+      mismatch.querySelector('#retakeMismatchBtn')?.addEventListener('click', () => {
+        sessionStorage.removeItem('uploadedPhoto');
+        sessionStorage.removeItem('uploadedPhotoName');
+        sessionStorage.removeItem('cnnResult');
+        navigateTo('sc401.html');
+      });
+
+      mismatch.querySelector('#forceVerifyBtn')?.addEventListener('click', () => {
         mismatch.remove();
-        doVerify(detectedFood, uploadParams.mealKcal, 'mismatch');
+        doVerify(detectedFood);
         showEncouragementOverlay(detectedFood);
       });
-    } else {
-      doVerify(detectedFood, uploadParams.mealKcal, forceReason || 'matched');
-      showSuccessOverlay(null);
+
+      /* 불일치 시 치팅으로 바로 기록 */
+      mismatch.querySelector('#mismatchCheatBtn')?.addEventListener('click', () => {
+        mismatch.remove();
+        saveSkipRecord('cheat', 'partial', `식단과 다른 음식: ${detectedFood}`);
+        closeSkipModal();
+      });
+      return;
     }
-  }
 
-  /* ══════════════════════════════════
-     localStorage에 인증 상태 저장
-     reason: 'matched' | 'fasting' | 'cheating' | 'mismatch' | 기타 텍스트
-  ══════════════════════════════════ */
-  function doVerify(food, kcal, reason) {
-    const uploadParams = getUploadParams();
-    const mealType     = uploadParams.mealType;
-    const finalKcal    = (reason === 'fasting') ? 0 : (kcal ?? uploadParams.mealKcal);
-
-    const today   = new Date();
-    const dateStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-    const sc311Key = `sc311_${dateStr}`;
-
-    let sc311State;
-    try { sc311State = JSON.parse(localStorage.getItem(sc311Key)) || { meals: {}, workouts: {} }; }
-    catch(e) { sc311State = { meals: {}, workouts: {} }; }
-
-    sc311State.meals[mealType] = {
-      verified: true,
-      kcal:     finalKcal,
-      food:     food || '',
-      reason:   reason || 'matched',
-    };
-    localStorage.setItem(sc311Key, JSON.stringify(sc311State));
-
-    /* 전체 식단 인증 여부 → check_ 키 업데이트 */
-    const checkKey    = `check_${dateStr}`;
-    const allVerified = ['breakfast', 'lunch', 'dinner'].every(k => sc311State.meals[k]?.verified);
-    try {
-      const state = JSON.parse(localStorage.getItem(checkKey)) || { meal: false, workout: false };
-      state.meal  = allVerified;
-      localStorage.setItem(checkKey, JSON.stringify(state));
-    } catch(e) {
-      localStorage.setItem(checkKey, JSON.stringify({ meal: allVerified, workout: false }));
-    }
-  }
-
-  /* ══════════════════════════════════
-     성공 오버레이
-  ══════════════════════════════════ */
-  function showSuccessOverlay(customMsg) {
-    const overlay = document.createElement('div');
-    overlay.className = 'cert-overlay';
-    overlay.innerHTML = `
-      <div class="cert-popup">
-        <div class="cert-popup-icon">🎉</div>
-        <div class="cert-popup-title">인증 완료!</div>
-        <div class="cert-popup-sub">${customMsg || '오늘의 식단이 성공적으로 인증됐어요.<br>대시보드에서 확인해보세요!'}</div>
-        <button class="primary-btn cert-popup-btn" id="certDoneBtn">대시보드로 이동</button>
-      </div>
-    `;
-    document.body.appendChild(overlay);
-    requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('show')));
-
-    overlay.querySelector('#certDoneBtn')?.addEventListener('click', () => {
-      sessionStorage.removeItem('uploadedPhoto');
-      sessionStorage.removeItem('uploadedPhotoName');
-      sessionStorage.removeItem('cnnResult');
-      navigateTo('sc301.html');
-    });
-  }
-
-  /* ── 치팅/불일치 격려 오버레이 ── */
-  function showEncouragementOverlay(food) {
-    const overlay = document.createElement('div');
-    overlay.className = 'cert-overlay';
-    overlay.innerHTML = `
-      <div class="cert-popup">
-        <div class="cert-popup-icon">😊</div>
-        <div class="cert-popup-title">인증 완료!</div>
-        <div class="cert-popup-sub">
-          <strong>${food}</strong>(으)로 인증됐어요.<br><br>
-          꾸준하게 하다 보면 목표에 가까워질 거예요 💪
-        </div>
-        <button class="primary-btn cert-popup-btn" id="certEncourageDoneBtn">대시보드로 이동</button>
-      </div>
-    `;
-    document.body.appendChild(overlay);
-    requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('show')));
-
-    overlay.querySelector('#certEncourageDoneBtn')?.addEventListener('click', () => {
-      sessionStorage.removeItem('uploadedPhoto');
-      sessionStorage.removeItem('uploadedPhotoName');
-      sessionStorage.removeItem('cnnResult');
-      navigateTo('sc301.html');
-    });
-  }
-
-  /* ══════════════════════════════════
-     업로드 파라미터 파싱 헬퍼
-  ══════════════════════════════════ */
-  function getUploadParams() {
-    const raw = sessionStorage.getItem('uploadParams') || '';
-    const p   = new URLSearchParams(raw);
-    return {
-      mealType:     p.get('meal')     || 'breakfast',
-      mealKcal:     parseInt(p.get('kcal') || '0', 10),
-      expectedFood: p.get('mainFood') || '',
-    };
+    doVerify(expectedFood || detectedFood);
+    showSuccessOverlay();
   }
 });
 
-
-/* ══════════════════════════════════
-   커스텀 Confirm 모달 (confirm() 대체)
-   opts: { icon, title, desc, confirmText, cancelText, confirmClass, onConfirm }
-   confirmClass: 'primary' | 'danger'
-══════════════════════════════════ */
-function showCustomConfirm(opts) {
-  document.getElementById('customConfirmModal')?.remove();
-
-  const modal = document.createElement('div');
-  modal.id        = 'customConfirmModal';
-  modal.className = 'custom-confirm-overlay';
-  modal.innerHTML = `
-    <div class="custom-confirm-box">
-      <div class="custom-confirm-icon">${opts.icon || '⚠️'}</div>
-      <div class="custom-confirm-title">${opts.title}</div>
-      <div class="custom-confirm-desc">${opts.desc}</div>
-      <div class="custom-confirm-actions">
-        <button class="custom-confirm-cancel" id="ccCancel">${opts.cancelText || '취소'}</button>
-        <button class="custom-confirm-ok ${opts.confirmClass === 'danger' ? 'danger' : ''}" id="ccOk">${opts.confirmText || '확인'}</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modal);
-  requestAnimationFrame(() => requestAnimationFrame(() => modal.classList.add('show')));
-
-  const close = () => {
-    modal.classList.remove('show');
-    setTimeout(() => modal.remove(), 260);
-  };
-
-  modal.querySelector('#ccCancel').addEventListener('click', close);
-  modal.querySelector('#ccOk').addEventListener('click', () => {
-    close();
-    opts.onConfirm?.();
-  });
-  modal.addEventListener('click', e => { if (e.target === modal) close(); });
-}
-
-
-/* ── 상단 로고 클릭: 로그인 여부에 따라 분기 ── */
-document.querySelectorAll('.site-logo').forEach(logo => {
-  logo.addEventListener('click', e => {
-    e.preventDefault();
-    const reg = Storage.getRegistered();
-    navigateTo(reg.email ? 'sc301.html' : 'sc101.html');
-  });
-});
 /* ── 페이지 전환 헬퍼 ── */
 function navigateTo(url) {
   document.body.classList.add('page-exit');
-  setTimeout(() => { location.href = url; }, 340);
+  setTimeout(() => { location.href = url; }, 320);
 }
+
+/* drawer.js */
+'use strict';
+
+window.addEventListener('DOMContentLoaded', () => {
+  const toggle  = document.getElementById('drawerToggle');
+  const drawer  = document.getElementById('drawer');
+  const overlay = document.getElementById('drawerOverlay');
+  const close   = document.getElementById('drawerClose');
+  const logout  = document.getElementById('drawerLogout');
+
+  function openDrawer()  { drawer?.classList.add('open');    overlay?.classList.add('show'); }
+  function closeDrawer() { drawer?.classList.remove('open'); overlay?.classList.remove('show'); }
+
+  toggle?.addEventListener('click', openDrawer);
+  close?.addEventListener('click',  closeDrawer);
+  overlay?.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+  drawer?.querySelectorAll('.drawer-menu-btn[data-href]').forEach(btn => {
+    btn.addEventListener('click', () => navigateTo(btn.dataset.href));
+  });
+
+  logout?.addEventListener('click', () => {
+    localStorage.removeItem('healthUserData');
+    navigateTo('sc101.html');
+  });
+});

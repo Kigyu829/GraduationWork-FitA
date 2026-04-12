@@ -34,7 +34,7 @@
       <button class="drawer-menu-btn" data-href="sc302.html"><span>🤖</span>AI 식단 추천</button>
       <button class="drawer-menu-btn" data-href="sc311.html"><span>💪</span>오늘의 식단/운동</button>
       <button class="drawer-menu-btn active" data-href="sc401.html"><span>🥗</span>식단 인증</button>
-      <button class="drawer-menu-btn" data-href="sc701.html"><span>👤</span>마이페이지</button>
+      <button class="drawer-menu-btn" data-href="sc601.html"><span>📅</span>히스토리(달력)</button>
     </nav>
     <button class="drawer-logout" id="drawerLogout">로그아웃</button>
   </aside>
@@ -44,7 +44,6 @@
   <main class="result-main">
     <div class="result-container" id="resultContainer">
 
-      <!-- ── 좌측: 사진 패널 ── -->
       <div class="photo-panel" id="photoPanel">
         <div class="photo-bg-blob blob1"></div>
         <div class="photo-bg-blob blob2"></div>
@@ -63,11 +62,8 @@
         </div>
       </div>
 
-      <!-- ── 우측: 결과 패널 ── -->
       <div class="result-panel" id="resultPanel">
         <div class="result-card">
-
-          <!-- 인식 결과 -->
           <div class="result-card-header">
             <span class="result-match-badge" id="matchBadge">분석 중...</span>
           </div>
@@ -80,65 +76,45 @@
           </div>
           <div class="result-memo" id="resultMemo"></div>
 
-          <!-- ── 기본 액션 버튼 ── -->
-          <div class="result-actions" id="resultActions">
+          <!-- ── 버튼 영역: 인증 + 치팅/단식 ── -->
+          <div class="result-actions">
             <button class="secondary-btn" id="retakeBtn">재업로드</button>
             <button class="primary-btn cert-btn" id="certBtn">✅ 인증하기</button>
           </div>
 
-          <!-- ══════════════════════════════
-               메뉴에 없는 음식 사유 선택 패널
-               hc403.js에서 .show 클래스로 노출
-               ══════════════════════════════ -->
-          <div class="reason-panel" id="reasonPanel">
-
-            <div class="reason-header">
-              <span class="reason-icon">⚠️</span>
-              <div>
-                <div class="reason-title">플랜에 없는 음식이에요</div>
-                <div class="reason-sub">사유를 선택하거나 직접 입력해주세요.</div>
-              </div>
-            </div>
-
-            <!-- 사유 버튼 -->
-            <div class="reason-btns">
-              <button class="reason-btn" id="reasonFasting">
-                <span class="reason-btn-icon">🚫</span>
-                <div>
-                  <div class="reason-btn-label">단식</div>
-                  <div class="reason-btn-desc">칼로리 0으로 기록</div>
-                </div>
-              </button>
-              <button class="reason-btn" id="reasonCheating">
-                <span class="reason-btn-icon">🍔</span>
-                <div>
-                  <div class="reason-btn-label">치팅</div>
-                  <div class="reason-btn-desc">칼로리 그대로 기록</div>
-                </div>
-              </button>
-            </div>
-
-            <!-- 기타: 직접 입력 -->
-            <div class="reason-divider">
-              <span>위에 해당사항이 없으면</span>
-            </div>
-
-            <div class="reason-chat-wrap">
-              <textarea
-                id="reasonChatInput"
-                class="reason-chat-input"
-                placeholder="사유를 직접 입력하세요 (예: 외식, 간식, 음료 등)"
-                rows="2"
-              ></textarea>
-              <button class="reason-chat-submit" id="reasonChatSubmit">입력하고 인증</button>
-            </div>
-          </div><!-- /reason-panel -->
-
+          <!-- 치팅/단식 버튼 (인증 버튼 아래 별도 행) -->
+          <div class="result-skip-actions">
+            <button class="skip-btn cheat-btn" id="cheatBtn">🍕 치팅 기록</button>
+            <button class="skip-btn fast-btn"  id="fastBtn">🚫 단식 기록</button>
+          </div>
+          <div class="skip-hint">일부 또는 전부 먹지 않은 경우 선택하세요</div>
         </div>
       </div>
 
     </div>
   </main>
+
+  <!-- 치팅/단식 모달 -->
+  <div class="skip-modal-overlay" id="skipModalOverlay">
+    <div class="skip-modal" id="skipModal">
+      <div class="skip-modal-icon" id="skipModalIcon">🍕</div>
+      <div class="skip-modal-title" id="skipModalTitle">치팅 기록</div>
+      <div class="skip-modal-sub"  id="skipModalSub">어떤 메뉴를 어떻게 드셨나요?</div>
+
+      <div class="skip-modal-type-row" id="skipTypeRow">
+        <button class="skip-type-btn active" data-type="partial">일부만 먹음</button>
+        <button class="skip-type-btn"        data-type="all">전부 안 먹음</button>
+      </div>
+
+      <textarea class="skip-modal-textarea" id="skipReason"
+        placeholder="예) 밥만 먹고 국은 안 먹었어요 / 점심을 건너뛰었어요"></textarea>
+
+      <div class="skip-modal-actions">
+        <button class="secondary-btn" id="skipCancelBtn">취소</button>
+        <button class="primary-btn"   id="skipConfirmBtn">기록하기</button>
+      </div>
+    </div>
+  </div>
 
   <script src="../js/common.js"></script>
   <script src="../js/hc403.js"></script>

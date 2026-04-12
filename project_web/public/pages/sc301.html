@@ -12,7 +12,6 @@
     <aside class="sidebar">
       <div class="sidebar-top">
 
-        <!-- 로고: id="sidebarLogo" → 클릭 시 sc101로 이동 (sc301.js) -->
         <div class="sidebar-logo" id="sidebarLogo" style="cursor:pointer;">
           <div class="sidebar-logo-icon">🏃</div>
           <span class="sidebar-logo-text">HealthDash</span>
@@ -41,12 +40,13 @@
             <button class="menu-btn" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
             <button class="menu-btn" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
             <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
-            <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">⚙️</span>마이페이지</button>
+            <button class="menu-btn" data-href="sc601.html"><span class="menu-btn-icon">📅</span>히스토리(달력)</button>
+            <button class="menu-btn" data-href="sc501.html"><span class="menu-btn-icon">💬</span>AI 상담</button>
+            <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">👤</span>마이페이지</button>
           </div>
         </div>
       </div>
 
-      <!-- 로그아웃: id="logoutBtn" → 클릭 시 sc101로 이동 (sc301.js) -->
       <button class="logout-btn" id="logoutBtn">로그아웃</button>
     </aside>
 
@@ -83,6 +83,7 @@
           </section>
 
           <div class="summary-grid">
+            <!-- 목표 진행률 -->
             <section class="card progress-card tint-yellow">
               <div class="card-header">
                 <span class="card-title">목표 진행률</span>
@@ -108,7 +109,7 @@
               </div>
             </section>
 
-            <!-- 오늘의 식단 + 체크박스 -->
+            <!-- 오늘의 식단 -->
             <section class="card meal-card tint-pink">
               <div class="card-header">
                 <span class="card-title" style="cursor:pointer;" onclick="location.href='sc311.html?tab=meal'">오늘의 식단 →</span>
@@ -118,14 +119,13 @@
                 <div class="spinner"></div>
                 <span>AI가 맞춤 식단을 준비 중...</span>
               </div>
-              <!-- 오늘 식단 목표 체크 -->
               <label class="today-check-row">
                 <input type="checkbox" id="checkMeal" />
                 <span class="today-check-label">오늘 식단 목표를 지켰어요</span>
               </label>
             </section>
 
-            <!-- 오늘의 운동 + 체크박스 + 달성 상태 -->
+            <!-- 오늘의 운동 -->
             <section class="card workout-card tint-green">
               <div class="card-header">
                 <span class="card-title" style="cursor:pointer;" onclick="location.href='sc311.html?tab=workout'">오늘의 운동 →</span>
@@ -135,15 +135,14 @@
                 <div class="spinner"></div>
                 <span>AI가 운동 플랜을 준비 중...</span>
               </div>
-              <!-- 오늘 운동 목표 체크 -->
               <label class="today-check-row">
                 <input type="checkbox" id="checkWorkout" />
                 <span class="today-check-label">오늘 운동 목표를 지켰어요</span>
               </label>
-              <!-- 전체 달성 상태 (식단+운동 합산) -->
               <div class="today-check-status" id="todayCheckStatus">아직 체크하지 않았어요.</div>
             </section>
 
+            <!-- 건강 지표 -->
             <section class="card bmi-card tint-blue">
               <div class="card-header">
                 <span class="card-title">건강 지표</span>
@@ -196,35 +195,9 @@
             </section>
           </div>
 
-          <div class="insight-grid">
-            <section class="card water-card slim-card">
-              <div class="card-header">
-                <span class="card-title">물 섭취</span>
-                <span class="card-badge water-badge" id="waterBadge">0 / 8잔</span>
-              </div>
-              <div class="water-cups" id="waterCups"></div>
-              <div class="water-actions">
-                <button class="water-btn" id="addWaterBtn">+ 한 잔 마셨어요</button>
-                <button class="water-btn water-btn-reset" id="resetWaterBtn">초기화</button>
-              </div>
-              <div class="water-tip" id="waterTip">오늘의 수분 섭취 목표: 2,000ml</div>
-            </section>
-
-            <section class="card streak-card slim-card">
-              <div class="card-header">
-                <span class="card-title">연속 기록</span>
-                <span class="card-badge streak-badge">🔥 스트릭</span>
-              </div>
-              <div class="streak-main">
-                <div class="streak-number" id="streakCount">0</div>
-                <div class="streak-label">일 연속</div>
-              </div>
-              <div class="streak-week" id="streakWeek"></div>
-              <div class="streak-info" id="streakInfo">체중을 매일 기록하면 스트릭이 쌓여요!</div>
-            </section>
-          </div>
         </section>
 
+        <!-- 우측 패널: 달력 + 체중 차트만 유지 -->
         <aside class="right-panel">
           <section class="card calendar-card right-card">
             <div class="card-header">

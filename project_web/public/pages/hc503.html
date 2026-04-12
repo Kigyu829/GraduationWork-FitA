@@ -1,4 +1,3 @@
-<!--AI re-planning conference-->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -10,7 +9,7 @@
   <link rel="stylesheet" href="../css/hc503.css" />
 </head>
 <body>
-<div class="dashboard">
+<div class="dashboard hc503-dashboard">
 
   <!-- ── 좌측 사이드바 ── -->
   <aside class="sidebar">
@@ -40,10 +39,10 @@
         <div class="menu-card-title">메뉴</div>
         <div class="menu-list">
           <button class="menu-btn" data-href="sc301.html"><span class="menu-btn-icon">🏠</span>대시보드</button>
-          <button class="menu-btn active" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
-          <button class="menu-btn" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
+          <button class="menu-btn" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
+          <button class="menu-btn active" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
           <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
-          <button class="menu-btn" data-href="sc601.html"><span class="menu-btn-icon">📅</span>히스토리</button>
+          <button class="menu-btn" data-href="sc601.html"><span class="menu-btn-icon">📅</span>히스토리(달력)</button>
           <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">👤</span>마이페이지</button>
         </div>
       </div>
@@ -51,166 +50,131 @@
     <button class="logout-btn" id="logoutBtn">로그아웃</button>
   </aside>
 
-  <!-- ── 메인: 중앙 플랜 + 우측 피드백 패널 ── -->
+  <!-- ── 메인 ── -->
   <main class="hc503-main">
 
     <!-- 상단 헤더 -->
-    <div class="hc503-header">
+    <div class="hc503-page-header">
       <div class="hc503-header-left">
-        <div class="hc503-ai-badge">
-          <span class="hc503-ai-dot"></span>
-          AI 플랜 완성
-        </div>
-        <div class="hc503-title">오늘의 식단과 운동을 확인해보세요</div>
-        <div class="hc503-sub">AI가 회원님의 목표에 맞게 플랜을 만들었어요. 마음에 드시나요?</div>
+        <div class="hc503-page-title">🤖 AI 플랜 확인</div>
+        <div class="hc503-page-sub">생성된 식단과 운동 플랜을 확인하고 의견을 알려주세요</div>
       </div>
-      <div class="hc503-date-chip" id="hc503DateChip"></div>
+      <!-- 별로예요 버튼 클릭 시 AI 상담 토글 -->
+      <button class="hc503-chat-toggle-btn" id="hc503ChatToggleBtn" style="display:none;">
+        🤖 AI 상담
+      </button>
     </div>
 
-    <!-- 콘텐츠 영역: 중앙 플랜 | 우측 피드백 -->
+    <!-- 플랜 + 채팅 레이아웃 -->
     <div class="hc503-body">
 
-      <!-- ── 중앙: 플랜 뷰 ── -->
-      <section class="hc503-plan-area" id="hc503PlanArea">
+      <!-- 중앙: 플랜 카드들 (세로 배치) -->
+      <div class="hc503-plans" id="hc503Plans">
 
-        <!-- 현재 플랜 + 새 플랜 비교 래퍼 -->
-        <div class="plan-compare-wrap" id="planCompareWrap">
+        <!-- 식단 플랜 카드 -->
+        <div class="hc503-card">
+          <div class="hc503-card-header">
+            <span class="hc503-card-icon">🥗</span>
+            <span class="hc503-card-title">식단 플랜</span>
+            <span class="hc503-card-badge" id="mealPlanBadge">AI 추천</span>
+          </div>
 
-          <!-- 현재 플랜 패널 -->
-          <div class="plan-panel" id="currentPlanPanel">
-            <div class="plan-panel-head">
-              <span class="plan-panel-badge current">현재 플랜</span>
+          <!-- 비교 뷰 (재생성 후) -->
+          <div class="hc503-compare" id="mealCompare" style="display:none;">
+            <div class="hc503-compare-col old">
+              <div class="hc503-compare-label">📌 기존 플랜</div>
+              <div id="mealOldContent"></div>
             </div>
-
-            <!-- 식단 블록 -->
-            <div class="plan-block">
-              <div class="plan-block-label">🥗 식단</div>
-              <div class="plan-meal-list" id="currentMealList">
-                <div class="plan-skeleton"></div>
-                <div class="plan-skeleton"></div>
-                <div class="plan-skeleton"></div>
-              </div>
-              <div class="plan-total-row" id="currentMealTotal"></div>
-              <div class="plan-tip" id="currentMealTip"></div>
-            </div>
-
-            <!-- 운동 블록 -->
-            <div class="plan-block">
-              <div class="plan-block-label">💪 운동</div>
-              <div class="plan-workout-list" id="currentWorkoutList">
-                <div class="plan-skeleton"></div>
-                <div class="plan-skeleton"></div>
-                <div class="plan-skeleton"></div>
-              </div>
-              <div class="plan-total-row" id="currentWorkoutTotal"></div>
+            <div class="hc503-compare-arrow">→</div>
+            <div class="hc503-compare-col new">
+              <div class="hc503-compare-label">✨ 새 플랜</div>
+              <div id="mealNewContent"></div>
             </div>
           </div>
 
-          <!-- 비교 화살표 (재생성 후 표시) -->
-          <div class="compare-arrow" id="compareArrow" style="display:none;">
-            <div class="arrow-track">
-              <div class="arrow-icon">→</div>
-            </div>
-            <div class="arrow-label">재생성</div>
+          <!-- 일반 뷰 -->
+          <div id="mealPlanContent">
+            <div class="hc503-meal-grid" id="mealGrid"></div>
+            <div class="hc503-plan-total" id="mealTotal"></div>
+            <div class="hc503-plan-tip"   id="mealTip"></div>
           </div>
-
-          <!-- 새 플랜 패널 (재생성 후 표시) -->
-          <div class="plan-panel new-plan" id="newPlanPanel" style="display:none;">
-            <div class="plan-panel-head">
-              <span class="plan-panel-badge new">✨ 새 플랜</span>
-            </div>
-
-            <div class="plan-block">
-              <div class="plan-block-label">🥗 식단</div>
-              <div class="plan-meal-list" id="newMealList"></div>
-              <div class="plan-total-row" id="newMealTotal"></div>
-              <div class="plan-tip" id="newMealTip"></div>
-            </div>
-
-            <div class="plan-block">
-              <div class="plan-block-label">💪 운동</div>
-              <div class="plan-workout-list" id="newWorkoutList"></div>
-              <div class="plan-total-row" id="newWorkoutTotal"></div>
-            </div>
-
-            <!-- 새 플랜 확정 버튼 -->
-            <div class="new-plan-actions">
-              <button class="btn-keep-old" id="btnKeepOld">이전 플랜 유지</button>
-              <button class="btn-apply-new" id="btnApplyNew">✅ 이 플랜으로 시작</button>
-            </div>
-          </div>
-
-        </div><!-- /plan-compare-wrap -->
-      </section>
-
-      <!-- ── 우측: 피드백 패널 (항상 표시) ── -->
-      <aside class="hc503-feedback" id="hc503Feedback">
-
-        <!-- 피드백 헤더 -->
-        <div class="feedback-header">
-          <div class="feedback-header-title">플랜이 마음에 드시나요?</div>
-          <div class="feedback-header-sub">아래 버튼을 눌러주세요</div>
         </div>
 
-        <!-- 좋아요 / 별로예요 버튼 -->
-        <div class="feedback-vote-wrap">
-          <button class="vote-btn vote-like" id="btnLike">
-            <span class="vote-icon">✅</span>
-            <span class="vote-label">괜찮아요!</span>
-            <span class="vote-desc">이 플랜으로 시작할게요</span>
-          </button>
-          <button class="vote-btn vote-dislike" id="btnDislike">
-            <span class="vote-icon">😕</span>
-            <span class="vote-label">별로예요</span>
-            <span class="vote-desc">다른 플랜을 원해요</span>
-          </button>
-        </div>
+        <!-- 운동 플랜 카드 -->
+        <div class="hc503-card">
+          <div class="hc503-card-header">
+            <span class="hc503-card-icon">💪</span>
+            <span class="hc503-card-title">운동 플랜</span>
+            <span class="hc503-card-badge" id="workoutPlanBadge">AI 추천</span>
+          </div>
 
-        <!-- 구분선 -->
-        <div class="feedback-divider" id="feedbackDivider" style="display:none;">
-          <span>어떤 점이 마음에 안 드셨나요?</span>
-        </div>
-
-        <!-- 빠른 선택 버튼 -->
-        <div class="quick-btns" id="quickBtns" style="display:none;">
-          <button class="quick-btn" data-msg="식단 칼로리가 너무 높아요">칼로리 너무 높음</button>
-          <button class="quick-btn" data-msg="식단 칼로리가 너무 낮아요">칼로리 너무 낮음</button>
-          <button class="quick-btn" data-msg="운동 강도가 너무 세요">운동 너무 힘듦</button>
-          <button class="quick-btn" data-msg="운동 강도가 너무 낮아요">운동 너무 쉬움</button>
-          <button class="quick-btn" data-msg="못 먹는 음식이 포함돼 있어요">못 먹는 음식 있음</button>
-          <button class="quick-btn" data-msg="전체적으로 다시 만들어 주세요">전체 재생성 원함</button>
-        </div>
-
-        <!-- AI 채팅 영역 -->
-        <div class="feedback-chat-wrap" id="feedbackChatWrap" style="display:none;">
-
-          <!-- 채팅 메시지 -->
-          <div class="hc503-chat-messages" id="chatMessages">
-            <div class="chat-msg ai">
-              <div class="chat-avatar">🤖</div>
-              <div>
-                <div class="chat-bubble">어떤 부분이 마음에 안 드셨나요? 위 버튼을 누르거나 직접 입력해 주시면 플랜을 수정해 드릴게요!</div>
-              </div>
+          <!-- 비교 뷰 (재생성 후) -->
+          <div class="hc503-compare" id="workoutCompare" style="display:none;">
+            <div class="hc503-compare-col old">
+              <div class="hc503-compare-label">📌 기존 플랜</div>
+              <div id="workoutOldContent"></div>
+            </div>
+            <div class="hc503-compare-arrow">→</div>
+            <div class="hc503-compare-col new">
+              <div class="hc503-compare-label">✨ 새 플랜</div>
+              <div id="workoutNewContent"></div>
             </div>
           </div>
 
-          <!-- 입력창 -->
-          <div class="hc503-chat-input-wrap">
-            <textarea
-              id="chatInput"
-              class="hc503-chat-input"
-              placeholder="예: 닭가슴살 대신 다른 단백질로 바꿔주세요"
-              rows="1"
-            ></textarea>
-            <button class="hc503-chat-send" id="chatSendBtn">➤</button>
+          <!-- 일반 뷰 -->
+          <div id="workoutPlanContent">
+            <div class="hc503-workout-list" id="workoutList"></div>
+            <div class="hc503-plan-total"   id="workoutTotal"></div>
+            <div class="hc503-plan-tip"     id="workoutTip"></div>
           </div>
+        </div>
 
-        </div><!-- /feedback-chat-wrap -->
+        <!-- 하단 판단 버튼 -->
+        <div class="hc503-actions" id="hc503Actions">
+          <button class="hc503-btn-ok"  id="hc503OkBtn">👍 괜찮아요, 이대로 진행할게요</button>
+          <button class="hc503-btn-bad" id="hc503BadBtn">👎 별로예요, 수정해주세요</button>
+        </div>
 
+      </div><!-- /hc503-plans -->
+
+      <!-- 우측: AI 채팅 사이드패널 -->
+      <aside class="hc503-chat-panel" id="hc503ChatPanel">
+        <div class="hc503-chat-header">
+          <div class="hc503-chat-title-wrap">
+            <span class="hc503-chat-title">🤖 AI 상담사</span>
+            <span class="hc503-chat-sub">어떤 부분이 마음에 들지 않으셨나요?</span>
+          </div>
+          <button class="hc503-chat-close" id="hc503ChatClose">×</button>
+        </div>
+
+        <div class="hc503-chat-messages" id="hc503ChatMessages">
+          <div class="hc503-msg ai">
+            <div class="hc503-avatar">🤖</div>
+            <div>
+              <div class="hc503-bubble">플랜에서 불편하신 부분을 알려주시면 바로 수정해드릴게요!<br>예) "저녁이 너무 많아요", "운동이 너무 힘들어요"</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hc503-chat-input-wrap">
+          <textarea class="hc503-input" id="hc503Input"
+            placeholder="불편한 점을 입력해주세요..." rows="1"></textarea>
+          <button class="hc503-send-btn" id="hc503SendBtn">➤</button>
+        </div>
       </aside>
 
     </div><!-- /hc503-body -->
+
   </main>
+</div>
+
+<!-- 재생성 로딩 오버레이 -->
+<div class="hc503-loading-overlay" id="hc503LoadingOverlay">
+  <div class="hc503-loading-box">
+    <div class="hc503-loading-icon">🤖</div>
+    <div class="hc503-loading-title" id="hc503LoadingTitle">플랜을 수정하고 있어요...</div>
+    <div class="hc503-loading-sub">잠시만 기다려주세요</div>
+  </div>
 </div>
 
 <script src="../js/common.js"></script>
