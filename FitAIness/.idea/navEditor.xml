@@ -160,6 +160,18 @@
                       </LayoutPositions>
                     </value>
                   </entry>
+                  <entry key="chatFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="12" />
+                            <option name="y" value="432" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
                   <entry key="dinerFragment">
                     <value>
                       <LayoutPositions>
@@ -188,7 +200,17 @@
                                 <LayoutPositions />
                               </value>
                             </entry>
+                            <entry key="action_home_to_chat">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                             <entry key="action_home_to_diner">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="action_home_to_meal">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -199,6 +221,11 @@
                               </value>
                             </entry>
                             <entry key="action_home_to_target">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="action_home_to_workout">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -230,6 +257,18 @@
                               </value>
                             </entry>
                           </map>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="mealFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="12" />
+                            <option name="y" value="12" />
+                          </Point>
                         </option>
                       </LayoutPositions>
                     </value>
@@ -329,6 +368,18 @@
                           <Point>
                             <option name="x" value="1623" />
                             <option name="y" value="-335" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="workoutFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="292" />
+                            <option name="y" value="12" />
                           </Point>
                         </option>
                       </LayoutPositions>
