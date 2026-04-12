@@ -43,8 +43,8 @@ app.get('/api/health', (req, res) => {
         status: 'ok',
         server: 'ai_server',
         port: PORT,
-        model: 'gemini-2.5-flash',
-        gemini: process.env.GEMINI_API_KEY ? 'configured' : 'NOT CONFIGURED',
+        chat_model: 'ollama/qwen2.5:14b',
+        algorithm: 'rule-based (meal/exercise)',
         endpoints: [
             'POST /api/meal/recommend',
             'POST /api/meal/adjust',
@@ -71,8 +71,8 @@ app.listen(PORT, () => {
     console.log('  FitAiNess AI Server');
     console.log(`  http://localhost:${PORT}`);
     console.log('==============================');
-    console.log(`  모델:       gemini-2.5-flash`);
-    console.log(`  Gemini API: ${process.env.GEMINI_API_KEY ? '설정됨' : '⚠ 미설정'}`);
+    console.log(`  식단/운동:  규칙 기반 알고리즘`);
+    console.log(`  채팅:       Ollama (qwen2.5:14b) @ localhost:11434`);
     console.log('');
     console.log('  POST /api/meal/recommend     - 식단 추천');
     console.log('  POST /api/meal/adjust        - 식단 재조정');

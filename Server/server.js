@@ -18,14 +18,14 @@ function predictFood(imagePath) {
     return new Promise((resolve, reject) => {
         const pythonPath = process.env.PYTHON_PATH || 'python';
         const scriptPath = path.join(__dirname, 'model', 'predict.py');
-        const modelPath = path.join(__dirname, 'model', 'weights', 'food_scouter_v1.pth');
-        const labelsPath = path.join(__dirname, 'model', 'data', 'labels.json');
+        const samPath = path.join(__dirname, 'weights', 'sam_vit_b.pth');
+        const cnnPath = path.join(__dirname, '..', 'model_CNN', 'weights', 'food_scouter_v1.pth');
 
-        console.log(`CNN 추론 시작: ${path.basename(imagePath)}`);
+        console.log(`SAM + CNN 추론 시작: ${path.basename(imagePath)}`);
         const startTime = Date.now();
 
         const python = spawn(pythonPath, [
-            scriptPath, '--image', imagePath, '--model', modelPath, '--labels', labelsPath
+            scriptPath, '--image', imagePath, '--sam', samPath, '--cnn', cnnPath
         ], {
             env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
         });
@@ -43,7 +43,12 @@ function predictFood(imagePath) {
             }
             try {
                 const result = JSON.parse(stdout.trim());
-                console.log(`CNN 추론 완료 (${elapsed}ms): ${result.class_name_kr || result.class_name} (${(result.confidence * 100).toFixed(1)}%)`);
+                const best = result.best;
+                if (best) {
+                    console.log(`Faster R-CNN 추론 완료 (${elapsed}ms): ${best.class_name} (${(best.confidence * 100).toFixed(1)}%)`);
+                } else {
+                    console.log(`Faster R-CNN 추론 완료 (${elapsed}ms): 탐지 없음`);
+                }
                 resolve(result);
             } catch {
                 reject(new Error('CNN 결과 파싱 실패'));
@@ -89,17 +94,19 @@ app.post('/api/analyze', upload.single('image'), async (req, res) => {
         console.log(`\n 웹 서버로부터 분석 요청 수신`);
 
         const prediction = await predictFood(req.file.path);
+        const best = prediction.best;
+
+        const detections = (prediction.detections || []).map(d => ({
+            class_name: d.class_name,
+            confidence: d.confidence,
+        }));
 
         res.json({
             success: true,
             data: {
-                detected_food: prediction.class_name,
-                detected_food_kr: prediction.class_name_kr || prediction.class_name,
-                confidence: prediction.confidence,
-                top_5: prediction.top_5 || [],
-                is_verified: prediction.confidence >= 0.45,
+                detections: detections,
                 analyzed_at: new Date().toISOString(),
-                server: 'cnn_server',
+                server: 'rcnn_server',
             }
         });
 
@@ -111,7 +118,7 @@ app.post('/api/analyze', upload.single('image'), async (req, res) => {
 
 // CNN 모델 정보
 app.get('/api/model/info', (req, res) => {
-    const modelPath = path.join(__dirname, 'model', 'weights', 'food_scouter_v1.pth');
+    const modelPath = path.join(__dirname, 'weights', 'food_detector_v1.pth');
     const labelsPath = path.join(__dirname, 'model', 'data', 'labels.json');
 
     const modelExists = fs.existsSync(modelPath);
@@ -127,8 +134,8 @@ app.get('/api/model/info', (req, res) => {
         model_loaded: modelExists,
         labels_loaded: labelsExist,
         num_classes: numClasses,
-        model_file: modelExists ? 'food_scouter_v1.pth' : 'NOT FOUND',
-        architecture: 'FoodScouterCNN (SE Block + 5 Conv)',
+        model_file: modelExists ? 'food_detector_v1.pth' : 'NOT FOUND',
+        architecture: 'Faster R-CNN (ResNet50 + FPN)',
     });
 });
 
@@ -150,13 +157,13 @@ app.use((err, req, res, next) => {
 
 // 서버 시작
 app.listen(CNN_PORT, () => {
-    console.log('CNN 서버 (AI Server)');
+    console.log('Food Scouter AI 서버 (Faster R-CNN)');
     console.log(`http://localhost:${CNN_PORT}`);
-    console.log('Food Scouter CNN 모델 대기 중');
+    console.log('Food Scouter Faster R-CNN 모델 대기 중');
 
     // 모델 파일 확인
-    const modelPath = path.join(__dirname, 'model', 'weights', 'food_scouter_v1.pth');
+    const modelPath = path.join(__dirname, 'weights', 'food_detector_v1.pth');
     const labelsPath = path.join(__dirname, 'model', 'data', 'labels.json');
-    console.log(`모델 파일: ${fs.existsSync(modelPath) ? '로드됨' : '없음'}`);
+    console.log(`모델 파일: ${fs.existsSync(modelPath) ? '로드됨' : '없음 (학습 후 생성됨)'}`);
     console.log(`라벨 파일: ${fs.existsSync(labelsPath) ? '로드됨' : '없음'}`);
 });

@@ -262,7 +262,7 @@ function saveTodayState(state) {
 /* ════════════════════════════════
    식단 인증 버튼
    ════════════════════════════════ */
-let TOTAL_MEAL_KCAL = 1820; /* renderMealItems에서 AI 플랜 총 칼로리로 업데이트됨 */
+let TOTAL_MEAL_KCAL = 0; /* renderMealItems에서 AI 플랜 총 칼로리로 업데이트됨 */
 
 function initMealVerify() {
   document.querySelectorAll('.verify-btn').forEach(btn => {

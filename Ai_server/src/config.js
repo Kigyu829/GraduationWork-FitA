@@ -95,4 +95,42 @@ function parseGeminiJson(text) {
     }
 }
 
-module.exports = { callGemini, FOOD_LABELS, buildReasonsText, parseGeminiJson };
+// Ollama 로컬 LLM 호출 (chat 기능 전용)
+const http = require('http');
+
+function callOllama(prompt, model = 'qwen2.5:14b') {
+    return new Promise((resolve, reject) => {
+        const body = JSON.stringify({ model, prompt, stream: false });
+        const options = {
+            hostname: 'localhost',
+            port:     11434,
+            path:     '/api/generate',
+            method:   'POST',
+            headers: {
+                'Content-Type':   'application/json',
+                'Content-Length': Buffer.byteLength(body),
+            },
+        };
+
+        const req = http.request(options, res => {
+            let data = '';
+            res.on('data', chunk => { data += chunk; });
+            res.on('end', () => {
+                try {
+                    const parsed = JSON.parse(data);
+                    if (parsed.error) return reject(new Error('Ollama: ' + parsed.error));
+                    resolve(parsed.response || '');
+                } catch {
+                    reject(new Error('Ollama 응답 파싱 실패'));
+                }
+            });
+        });
+
+        req.on('error', err => reject(new Error('Ollama 연결 실패: ' + err.message)));
+        req.setTimeout(120000, () => { req.destroy(); reject(new Error('Ollama 응답 시간 초과')); });
+        req.write(body);
+        req.end();
+    });
+}
+
+module.exports = { callGemini, callOllama, FOOD_LABELS, buildReasonsText, parseGeminiJson };

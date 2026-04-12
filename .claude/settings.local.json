@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(adb devices:*)",
+      "Bash(/c/Users/김인규/AppData/Local/Android/Sdk/platform-tools/adb.exe devices:*)",
+      "Bash(ADB=\"/c/Users/김인규/AppData/Local/Android/Sdk/platform-tools/adb.exe\")",
+      "Bash($ADB shell:*)",
+      "Bash(python make_test_images.py)",
+      "Bash(/c/Users/김인규/Desktop/Graduation_Work/Server/debug.py:*)",
+      "Bash(pip show:*)",
+      "Bash(node -e \":*)",
+      "Bash(curl -s -X POST http://localhost:5000/api/meal/recommend -H \"Content-Type: application/json\" -d '{\"\"\"\"height\"\"\"\":170,\"\"\"\"weight\"\"\"\":75,\"\"\"\"bmi\"\"\"\":26,\"\"\"\"gender\"\"\"\":\"\"\"\"남성\"\"\"\",\"\"\"\"targetWeight\"\"\"\":68,\"\"\"\"targetWeeks\"\"\"\":8}')",
+      "Bash(python -m json.tool)",
+      "Bash(cmd /c \"netstat -ano | findstr LISTEN | findstr 5000\")",
+      "Bash(cmd /c \"netstat -ano\")",
+      "Bash(cmd /c \"powershell -Command \\\\\"Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue | Select-Object LocalPort, State, OwningProcess\\\\\"\")",
+      "Bash(cmd /c \"powershell -Command \\\\\"Get-Process node -ErrorAction SilentlyContinue | Select-Object Id, ProcessName\\\\\"\")",
+      "Bash(cmd /c \"powershell -Command \\\\\"Stop-Process -Name node -Force -ErrorAction SilentlyContinue; Write-Host done\\\\\"\")"
+    ]
+  }
+}

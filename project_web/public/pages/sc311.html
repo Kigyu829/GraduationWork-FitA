@@ -97,7 +97,7 @@
         <!-- 일일 칼로리 요약 -->
         <div class="daily-summary">
           <div class="summary-pill">
-            <span class="summary-pill-val" id="totalKcal">1,820</span>
+            <span class="summary-pill-val" id="totalKcal">-</span>
             <span class="summary-pill-label">총 칼로리</span>
           </div>
           <div class="summary-pill">
@@ -119,11 +119,11 @@
         <div class="meal-item" id="meal-breakfast">
           <div class="meal-emoji"></div>
           <div class="meal-info">
-            <div class="meal-name">그릭요거트 + 견과류 + 바나나</div>
-            <div class="meal-detail">단백질 18g · 탄수화물 42g · 지방 12g</div>
+            <div class="meal-name"></div>
+            <div class="meal-detail"></div>
           </div>
-          <div class="meal-kcal">340 kcal</div>
-          <button class="verify-btn" data-meal="breakfast" data-kcal="340">📷 인증</button>
+          <div class="meal-kcal"></div>
+          <button class="verify-btn" data-meal="breakfast" data-kcal="0">📷 인증</button>
         </div>
 
         <!-- 점심 -->
@@ -131,11 +131,11 @@
         <div class="meal-item" id="meal-lunch">
           <div class="meal-emoji"></div>
           <div class="meal-info">
-            <div class="meal-name">현미밥 + 닭가슴살 샐러드 + 된장국</div>
-            <div class="meal-detail">단백질 38g · 탄수화물 58g · 지방 14g</div>
+            <div class="meal-name"></div>
+            <div class="meal-detail"></div>
           </div>
-          <div class="meal-kcal">580 kcal</div>
-          <button class="verify-btn" data-meal="lunch" data-kcal="580">📷 인증</button>
+          <div class="meal-kcal"></div>
+          <button class="verify-btn" data-meal="lunch" data-kcal="0">📷 인증</button>
         </div>
 
         <!-- 저녁 -->
@@ -143,11 +143,11 @@
         <div class="meal-item" id="meal-dinner">
           <div class="meal-emoji"></div>
           <div class="meal-info">
-            <div class="meal-name">연어구이 + 구운 채소 + 두부</div>
-            <div class="meal-detail">단백질 42g · 탄수화물 28g · 지방 22g</div>
+            <div class="meal-name"></div>
+            <div class="meal-detail"></div>
           </div>
-          <div class="meal-kcal">620 kcal</div>
-          <button class="verify-btn" data-meal="dinner" data-kcal="620">📷 인증</button>
+          <div class="meal-kcal"></div>
+          <button class="verify-btn" data-meal="dinner" data-kcal="0">📷 인증</button>
         </div>
 
       </div><!-- /식단 탭 -->
@@ -169,63 +169,7 @@
           <div style="font-size:24px; font-weight:800; color:var(--teal);" id="workoutBurnKcal">0 kcal</div>
         </div>
 
-        <!-- 운동 목록 -->
-        <div class="meal-section-title">🏃 유산소</div>
-        <div class="workout-list">
-          <div class="workout-item" data-workout="cardio1" data-kcal="200">
-            <div class="workout-icon"></div>
-            <div class="workout-info">
-              <div class="workout-name">빠르게 걷기</div>
-              <div class="workout-detail">30분 · 중간 강도</div>
-            </div>
-            <div class="workout-kcal">200 kcal</div>
-            <div class="workout-check" data-workout="cardio1" data-kcal="200">✓</div>
-          </div>
-        </div>
-
-        <div class="meal-section-title" style="margin-top:20px;">💪 근력</div>
-        <div class="workout-list">
-          <div class="workout-item" data-workout="strength1" data-kcal="80">
-            <div class="workout-icon"></div>
-            <div class="workout-info">
-              <div class="workout-name">스쿼트</div>
-              <div class="workout-detail">15회 × 3세트</div>
-            </div>
-            <div class="workout-kcal">80 kcal</div>
-            <div class="workout-check" data-workout="strength1" data-kcal="80">✓</div>
-          </div>
-          <div class="workout-item" data-workout="strength2" data-kcal="60">
-            <div class="workout-icon"></div>
-            <div class="workout-info">
-              <div class="workout-name">푸시업</div>
-              <div class="workout-detail">10회 × 3세트</div>
-            </div>
-            <div class="workout-kcal">60 kcal</div>
-            <div class="workout-check" data-workout="strength2" data-kcal="60">✓</div>
-          </div>
-          <div class="workout-item" data-workout="strength3" data-kcal="50">
-            <div class="workout-icon"></div>
-            <div class="workout-info">
-              <div class="workout-name">플랭크</div>
-              <div class="workout-detail">30초 × 3세트</div>
-            </div>
-            <div class="workout-kcal">50 kcal</div>
-            <div class="workout-check" data-workout="strength3" data-kcal="50">✓</div>
-          </div>
-        </div>
-
-        <div class="meal-section-title" style="margin-top:20px;">🧘 스트레칭</div>
-        <div class="workout-list">
-          <div class="workout-item" data-workout="stretch1" data-kcal="30">
-            <div class="workout-icon"></div>
-            <div class="workout-info">
-              <div class="workout-name">전신 스트레칭</div>
-              <div class="workout-detail">10분</div>
-            </div>
-            <div class="workout-kcal">30 kcal</div>
-            <div class="workout-check" data-workout="stretch1" data-kcal="30">✓</div>
-          </div>
-        </div>
+        <!-- 운동 목록 (AI 플랜 로드 시 renderWorkoutItems()가 채워줌) -->
 
       </div><!-- /운동 탭 -->
 
