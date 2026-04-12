@@ -124,13 +124,28 @@
             <LayoutPositions>
               <option name="myPositions">
                 <map>
+                  <entry key="action_diner_to_home">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
+                  <entry key="action_target_to_home">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
+                  <entry key="action_target_to_profile">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
                   <entry key="bodyInfoFragment">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="1010" />
-                            <option name="y" value="-97" />
+                            <option name="x" value="1090" />
+                            <option name="y" value="276" />
                           </Point>
                         </option>
                         <option name="myPositions">
@@ -173,7 +188,17 @@
                                 <LayoutPositions />
                               </value>
                             </entry>
+                            <entry key="action_home_to_diner">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                             <entry key="action_home_to_profile">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="action_home_to_target">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -240,6 +265,11 @@
                                 <LayoutPositions />
                               </value>
                             </entry>
+                            <entry key="action_profile_to_target">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                           </map>
                         </option>
                       </LayoutPositions>
@@ -297,8 +327,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="12" />
-                            <option name="y" value="12" />
+                            <option name="x" value="1623" />
+                            <option name="y" value="-335" />
                           </Point>
                         </option>
                       </LayoutPositions>
