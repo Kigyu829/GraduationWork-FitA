@@ -161,9 +161,8 @@ public class BodyInfoFragment extends Fragment
         db.collection("users").document(uid).set(updateData, SetOptions.merge())
                 .addOnSuccessListener(aVoid ->
                 {
-                    Toast.makeText(getContext(), "정보가 저장되었습니다.", Toast.LENGTH_SHORT).show();
-                    // 저장 후 홈 화면으로 이동
-                    NavHostFragment.findNavController(this).navigate(R.id.action_bodyInfo_to_home);
+                    NavHostFragment.findNavController(this)
+                            .navigate(R.id.action_bodyInfo_to_target);
                 })
                 .addOnFailureListener(e ->
                 {

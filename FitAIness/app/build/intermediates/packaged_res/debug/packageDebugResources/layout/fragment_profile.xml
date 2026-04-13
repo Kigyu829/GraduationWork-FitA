@@ -114,7 +114,18 @@
                     android:textColor="@color/white"
                     android:layout_gravity="end"/>
             </LinearLayout>
+
         </androidx.cardview.widget.CardView>
+        <Button
+            android:id="@+id/btnViewRecentLog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="이전 기록 보기"
+            android:backgroundTint="@color/gasoline_green"
+            android:textColor="@color/white"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="16dp" />
+
         <Button
             android:id="@+id/btnLogout"
             android:layout_width="match_parent"
@@ -123,6 +134,25 @@
             android:text="로그아웃"
             android:textColor="@color/white">
         </Button>
+
+
+        <Button
+            android:id="@+id/btnClearData"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="앱 데이터 초기화"
+            android:textColor="#007BFF"
+            android:layout_marginTop="40dp" />
+
+        <Button
+            android:id="@+id/btnDeleteAccount"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="회원 탈퇴"
+            android:textColor="@color/candy_red"
+            android:layout_marginTop="10dp" />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

@@ -104,7 +104,35 @@
                     android:text="데이터를 불러오는 중..."
                     android:textColor="@color/white"
                     android:textSize="16sp"/>
-                <!-- 설정 버튼 (목표 없을 때만 보임) -->
+
+                <LinearLayout
+                    android:id="@+id/layoutWeightUpdate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+                    <TextView
+                    android:id="@+id/tvCurrentWeightDisplay"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="현재 -- kg"
+                    android:textColor="#FFFFFF"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/btnQuickUpdateWeight"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="기록"
+                        android:textColor="#66D0BC"
+                        app:strokeColor="#66D0BC" />
+                </LinearLayout>
+
                 <Button
                     android:id="@+id/btnSetGoal"
                     android:layout_width="match_parent"
@@ -198,7 +226,7 @@
                         android:gravity="center_vertical">
 
                         <TextView
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="일일 운동"

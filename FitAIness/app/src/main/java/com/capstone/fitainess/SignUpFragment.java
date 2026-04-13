@@ -29,7 +29,7 @@ public class SignUpFragment extends Fragment
 {
 
     private FirebaseAuth mAuth;
-    private EditText etNewEmail, etNewPassword, etConfirmPassword;
+    private EditText etNickname, etNewEmail, etNewPassword, etConfirmPassword;
 
 
     public SignUpFragment()
@@ -43,6 +43,7 @@ public class SignUpFragment extends Fragment
         super.onViewCreated(view, savedInstanceState);
 
         mAuth = FirebaseAuth.getInstance();
+        etNickname = view.findViewById(R.id.etNickname);
         etNewEmail = view.findViewById(R.id.etNewEmail);
         etNewPassword = view.findViewById(R.id.etNewPassword);
         etConfirmPassword = view.findViewById(R.id.etConfirmPassword);
@@ -58,9 +59,17 @@ public class SignUpFragment extends Fragment
 
     private void performSignUp()
     {
+        String nickname = etNickname.getText().toString().trim();
         String email = etNewEmail.getText().toString().trim();
         String password = etNewPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
+
+        if (nickname.isEmpty())
+        {
+            etNickname.setError("닉네임을 입력하세요.");
+            etNickname.requestFocus();
+            return;
+        }
 
         if (!InputValidator.isValidEmail(email))
         {
@@ -91,12 +100,13 @@ public class SignUpFragment extends Fragment
 
                         Map<String, Object> user = new HashMap<>();
                         user.put("email", email);
+                        user.put("nickname", nickname);
                         user.put("is_profile_set", false);
 
                         db.collection("users").document(uid).set(user).addOnSuccessListener(aVoid ->
                         {
                             Toast.makeText(getContext(), "계정이 생성되었습니다.", Toast.LENGTH_SHORT).show();
-                            NavHostFragment.findNavController(this).navigate(R.id.action_signup_to_login);
+                            NavHostFragment.findNavController(this).navigate(R.id.action_signup_to_home);
                         });
                     }
                     else

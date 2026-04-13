@@ -113,7 +113,7 @@ public class TargetFragment extends Fragment
             return;
         }
         int targetValue = npTargetWeight.getValue();
-        if (targetValue >= currentWeight) 
+        if (targetValue >= currentWeight)
         {
             new AlertDialog.Builder(requireContext())
                     .setTitle("목표 설정 오류")
@@ -122,6 +122,7 @@ public class TargetFragment extends Fragment
                     .show();
             return;
         }
+
         SharedPreferences prefs = requireActivity().getSharedPreferences("GoalPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
 
@@ -131,7 +132,19 @@ public class TargetFragment extends Fragment
         editor.putBoolean("is_goal_set", true);
         editor.apply();
 
-        Toast.makeText(getContext(), "목표가 설정되었습니다!", Toast.LENGTH_SHORT).show();
-        NavHostFragment.findNavController(this).popBackStack();
+        String uid = FirebaseAuth.getInstance().getUid();
+
+        FirebaseFirestore.getInstance().collection("users").document(uid)
+                .update("is_profile_set", true)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(getContext(), "목표가 설정되었습니다!", Toast.LENGTH_SHORT).show();
+
+                    // 홈 화면으로 이동
+                    NavHostFragment.findNavController(this)
+                            .navigate(R.id.action_target_to_home);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "설정 저장에 실패했습니다: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 }

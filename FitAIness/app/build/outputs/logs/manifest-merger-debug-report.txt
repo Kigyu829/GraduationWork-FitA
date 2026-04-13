@@ -21,6 +21,7 @@ MERGED from [androidx.navigation:navigation-fragment:2.7.7] C:\Users\Blitz\.grad
 MERGED from [androidx.navigation:navigation-ui:2.7.7] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\26c822f874d27e0b220f665a8c1e2394\workspace\transformed\navigation-ui-2.7.7\AndroidManifest.xml:17:1-22:12
 MERGED from [com.google.android.material:material:1.13.0] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\f34512583aff8bbcbda8e9a97e25fc06\workspace\transformed\material-1.13.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.2.1] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\69e17f2c97dc893a494148a41812fefc\workspace\transformed\constraintlayout-2.2.1\AndroidManifest.xml:2:1-9:12
+MERGED from [com.airbnb.android:lottie:6.4.0] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\43058f8d52f376bd9daba4a8b80a2b5f\workspace\transformed\lottie-6.4.0\AndroidManifest.xml:2:1-9:12
 MERGED from [androidx.appcompat:appcompat-resources:1.7.1] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\863252043a604805017e5d45c53a59b9\workspace\transformed\appcompat-resources-1.7.1\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.appcompat:appcompat:1.7.1] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\0b9334c773552aa1aaa897bb937e2aee\workspace\transformed\appcompat-1.7.1\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.viewpager2:viewpager2:1.0.0] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\a226e3997451599a773284ba099b6d2f\workspace\transformed\viewpager2-1.0.0\AndroidManifest.xml:17:1-24:12
@@ -134,6 +135,8 @@ MERGED from [com.google.android.material:material:1.13.0] C:\Users\Blitz\.gradle
 MERGED from [com.google.android.material:material:1.13.0] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\f34512583aff8bbcbda8e9a97e25fc06\workspace\transformed\material-1.13.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.2.1] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\69e17f2c97dc893a494148a41812fefc\workspace\transformed\constraintlayout-2.2.1\AndroidManifest.xml:7:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.2.1] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\69e17f2c97dc893a494148a41812fefc\workspace\transformed\constraintlayout-2.2.1\AndroidManifest.xml:7:5-20
+MERGED from [com.airbnb.android:lottie:6.4.0] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\43058f8d52f376bd9daba4a8b80a2b5f\workspace\transformed\lottie-6.4.0\AndroidManifest.xml:7:5-20
+MERGED from [com.airbnb.android:lottie:6.4.0] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\43058f8d52f376bd9daba4a8b80a2b5f\workspace\transformed\lottie-6.4.0\AndroidManifest.xml:7:5-20
 MERGED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\ad39e52d1cae114487a8abfb7f491df7\workspace\transformed\firebase-auth-24.0.1\AndroidManifest.xml:28:5-73:19
 MERGED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\ad39e52d1cae114487a8abfb7f491df7\workspace\transformed\firebase-auth-24.0.1\AndroidManifest.xml:28:5-73:19
 MERGED from [com.google.firebase:firebase-firestore:26.1.2] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\28ecbd0451b66269f06643b743528476\workspace\transformed\firebase-firestore-26.1.2\AndroidManifest.xml:13:5-24:19
@@ -238,6 +241,8 @@ MERGED from [com.google.android.material:material:1.13.0] C:\Users\Blitz\.gradle
 MERGED from [com.google.android.material:material:1.13.0] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\f34512583aff8bbcbda8e9a97e25fc06\workspace\transformed\material-1.13.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.constraintlayout:constraintlayout:2.2.1] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\69e17f2c97dc893a494148a41812fefc\workspace\transformed\constraintlayout-2.2.1\AndroidManifest.xml:5:5-44
 MERGED from [androidx.constraintlayout:constraintlayout:2.2.1] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\69e17f2c97dc893a494148a41812fefc\workspace\transformed\constraintlayout-2.2.1\AndroidManifest.xml:5:5-44
+MERGED from [com.airbnb.android:lottie:6.4.0] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\43058f8d52f376bd9daba4a8b80a2b5f\workspace\transformed\lottie-6.4.0\AndroidManifest.xml:5:5-44
+MERGED from [com.airbnb.android:lottie:6.4.0] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\43058f8d52f376bd9daba4a8b80a2b5f\workspace\transformed\lottie-6.4.0\AndroidManifest.xml:5:5-44
 MERGED from [androidx.appcompat:appcompat-resources:1.7.1] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\863252043a604805017e5d45c53a59b9\workspace\transformed\appcompat-resources-1.7.1\AndroidManifest.xml:5:5-44
 MERGED from [androidx.appcompat:appcompat-resources:1.7.1] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\863252043a604805017e5d45c53a59b9\workspace\transformed\appcompat-resources-1.7.1\AndroidManifest.xml:5:5-44
 MERGED from [androidx.appcompat:appcompat:1.7.1] C:\Users\Blitz\.gradle\caches\9.3.1\transforms\0b9334c773552aa1aaa897bb937e2aee\workspace\transformed\appcompat-1.7.1\AndroidManifest.xml:5:5-44

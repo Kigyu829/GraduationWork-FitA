@@ -1,7 +1,12 @@
 R_DEF: Internal format may change without notice
 local
+anim slide_in_left
+anim slide_in_right
+anim slide_out_left
+anim slide_out_right
 color background_gray
 color black
+color bottom_nav_color
 color candy_red
 color cbg
 color dark_gray
@@ -26,6 +31,8 @@ font nanum_gothic
 font nanum_gothic_bold
 font quiroh_regular_exfonta40d
 id action_bodyInfo_to_home
+id action_bodyInfo_to_target
+id action_calendar_to_home
 id action_chat_to_home
 id action_chat_to_profile
 id action_diner_to_home
@@ -39,15 +46,21 @@ id action_home_to_target
 id action_home_to_workout
 id action_login_to_home
 id action_login_to_signup
+id action_meal_to_home
 id action_profile_to_bodyInfo
 id action_profile_to_home
 id action_profile_to_login
+id action_profile_to_recentLog
 id action_profile_to_target
+id action_recentLog_to_calendar
+id action_recentLog_to_profile
+id action_signup_to_home
 id action_signup_to_login
 id action_splash_to_home
 id action_splash_to_login
 id action_target_to_home
 id action_target_to_profile
+id action_workout_to_home
 id adjustSection
 id bodyInfoFragment
 id bottom_nav_view
@@ -55,6 +68,8 @@ id btnAdjustCancel
 id btnAdjustConfirm
 id btnBack
 id btnCamera
+id btnClearData
+id btnDeleteAccount
 id btnGallery
 id btnGenerate
 id btnGoChat
@@ -65,15 +80,21 @@ id btnGoToTargetEdit
 id btnGoWorkout
 id btnLogin
 id btnLogout
+id btnMinusWeight
+id btnPlusWeight
+id btnQuickUpdateWeight
 id btnReset
 id btnSave
 id btnSaveTarget
+id btnSaveWeight
 id btnSend
 id btnSetGoal
 id btnSignUp
 id btnSignUpBack
 id btnSignUpSubmit
 id btnUpload
+id btnViewAllCalendar
+id btnViewRecentLog
 id calendarFragment
 id cbWorkout
 id chatFragment
@@ -88,6 +109,7 @@ id etHeight
 id etMessage
 id etNewEmail
 id etNewPassword
+id etNickname
 id etPassword
 id etTargetWeight
 id etWeight
@@ -95,7 +117,9 @@ id homeFragment
 id inputSection
 id ivMealPreview
 id ivStamp
+id layoutWeightUpdate
 id loginFragment
+id lottieWaveBackground
 id mealFragment
 id menuContainer
 id nav_graph
@@ -106,9 +130,11 @@ id npTargetWeight
 id npWeight
 id profileFragment
 id profile_to_chat
+id profile_to_home
 id progressBar
 id rbFemale
 id rbMale
+id recentLogFragment
 id resultContainer
 id rgGender
 id rvDaysGrid
@@ -122,6 +148,7 @@ id targetFragment
 id tvBmiResult
 id tvCalendarStreak
 id tvChatLog
+id tvCurrentWeightDisplay
 id tvDayNumber
 id tvError
 id tvGoalMessage
@@ -137,14 +164,18 @@ id tvProfileGoalMessage
 id tvProfileGoalTitle
 id tvProfileHeight
 id tvProfileWeight
+id tvRecentMealInfo
+id tvRecentWorkoutInfo
 id tvStreakCount
 id tvTip
 id tvTodayMealContent
 id tvTotalCalories
+id tvWeightPickerValue
 id tvWelcomeMessage
 id viewPagerCalendar
 id workoutFragment
 layout activity_main
+layout dialog_bottom_weight
 layout fragment_body_info
 layout fragment_calendar
 layout fragment_chat
@@ -153,6 +184,7 @@ layout fragment_home
 layout fragment_login
 layout fragment_meal
 layout fragment_profile
+layout fragment_recent_log
 layout fragment_sign_up
 layout fragment_splash
 layout fragment_target
@@ -166,6 +198,7 @@ menu bottom_nav_menu
 mipmap ic_launcher
 mipmap ic_launcher_round
 navigation nav_graph
+raw login_background_wave
 string app_name
 string gcm_defaultSenderId
 string google_api_key

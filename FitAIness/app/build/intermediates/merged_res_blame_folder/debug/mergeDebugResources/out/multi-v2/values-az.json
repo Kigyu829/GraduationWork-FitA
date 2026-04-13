@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.capstone.fitainess.app-mergeDebugResources-59:/values-az/values-az.xml",
+            "outputFile": "com.capstone.fitainess.app-mergeDebugResources-60:/values-az/values-az.xml",
             "map": [
                 {
                     "source": "C:\\Users\\Blitz\\.gradle\\caches\\9.3.1\\transforms\\2df525b59afc215e050f2077c262090a\\workspace\\transformed\\play-services-base-18.9.0\\res\\values-az\\values.xml",
