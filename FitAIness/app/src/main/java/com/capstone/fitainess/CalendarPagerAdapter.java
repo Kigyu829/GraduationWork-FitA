@@ -5,13 +5,18 @@ import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class CalendarPagerAdapter extends RecyclerView.Adapter<CalendarPagerAdapter.MonthViewHolder>
 {
@@ -65,8 +70,39 @@ public class CalendarPagerAdapter extends RecyclerView.Adapter<CalendarPagerAdap
         }
 
         // 그리드에 어댑터 연결
-        holder.rvDaysGrid.setLayoutManager(new GridLayoutManager(holder.itemView.getContext(), 7)); // 7칸씩 줄바꿈
-        holder.rvDaysGrid.setAdapter(new CalendarGridAdapter(daysList));
+        holder.rvDaysGrid.setLayoutManager(new GridLayoutManager(holder.itemView.getContext(), 7));
+        holder.rvDaysGrid.setAdapter(new CalendarGridAdapter(daysList, (int day) -> {
+
+            String dateKey = String.format(Locale.getDefault(), "%04d-%02d-%02d", currentYear, currentMonth, day);
+
+            // SharedPreferences에서 완료 여부 가져오기
+            SharedPreferences activitySp = holder.itemView.getContext()
+                    .getSharedPreferences("ActivityPrefs", Context.MODE_PRIVATE);
+
+            boolean isMealDone = activitySp.getBoolean("meal_" + dateKey, false);
+            boolean isWorkoutDone = activitySp.getBoolean("workout_" + dateKey, false);
+
+            // BottomSheetDialog 출력
+            Context context = holder.itemView.getContext();
+            BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
+
+            View bottomSheetView = LayoutInflater.from(context)
+                    .inflate(R.layout.dialog_bottom_daily_record, null);
+            bottomSheetDialog.setContentView(bottomSheetView);
+
+            TextView tvTitle = bottomSheetView.findViewById(R.id.tvRecordDateTitle);
+            TextView tvMeal = bottomSheetView.findViewById(R.id.tvMealStatus);
+            TextView tvWorkout = bottomSheetView.findViewById(R.id.tvWorkoutStatus);
+            Button btnClose = bottomSheetView.findViewById(R.id.btnCloseBottomSheet);
+
+            tvTitle.setText(dateKey + " 활동 기록");
+            tvMeal.setText("식단 인증 : " + (isMealDone ? "완료" : "미완료"));
+            tvWorkout.setText("운동 완료 : " + (isWorkoutDone ? "완료" : "미완료"));
+
+            btnClose.setOnClickListener(v -> bottomSheetDialog.dismiss());
+
+            bottomSheetDialog.show();
+        }));
     }
 
     @Override

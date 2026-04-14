@@ -3962,6 +3962,7 @@ int id btnAdjustConfirm 0x7f09008c
 int id btnBack 0x7f09008d
 int id btnCamera 0x7f09008e
 int id btnClearData 0x7f0902a5
+int id btnCloseBottomSheet 0x7f0902b7
 int id btnDeleteAccount 0x7f0902a6
 int id btnGallery 0x7f09008f
 int id btnGenerate 0x7f090090
@@ -4458,6 +4459,7 @@ int id tvGoalMessage 0x7f090267
 int id tvGoalTitle 0x7f090268
 int id tvMealCalories 0x7f090269
 int id tvMealDesc 0x7f09026a
+int id tvMealStatus 0x7f0902b8
 int id tvMealTimeTitle 0x7f09026b
 int id tvMealTitle 0x7f09026c
 int id tvMonthTitle 0x7f09026d
@@ -4469,12 +4471,14 @@ int id tvProfileHeight 0x7f090272
 int id tvProfileWeight 0x7f090273
 int id tvRecentMealInfo 0x7f0902b4
 int id tvRecentWorkoutInfo 0x7f0902b5
+int id tvRecordDateTitle 0x7f0902b9
 int id tvStreakCount 0x7f090274
 int id tvTip 0x7f090275
 int id tvTodayMealContent 0x7f090276
 int id tvTotalCalories 0x7f090277
 int id tvWeightPickerValue 0x7f0902ad
 int id tvWelcomeMessage 0x7f090278
+int id tvWorkoutStatus 0x7f0902ba
 int id unchecked 0x7f090279
 int id uniform 0x7f09027a
 int id unlabeled 0x7f09027b
@@ -4643,6 +4647,7 @@ int layout design_navigation_menu 0x7f0c002b
 int layout design_navigation_menu_item 0x7f0c002c
 int layout design_text_input_end_icon 0x7f0c002d
 int layout design_text_input_start_icon 0x7f0c002e
+int layout dialog_bottom_daily_record 0x7f0c0084
 int layout dialog_bottom_weight 0x7f0c0082
 int layout fragment_body_info 0x7f0c002f
 int layout fragment_calendar 0x7f0c0030

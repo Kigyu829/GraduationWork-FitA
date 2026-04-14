@@ -56,10 +56,6 @@
         "source": "C:\\Users\\Blitz\\.gradle\\daemon\\9.3.1\\com.capstone.fitainess.app-main-64:\\anim\\slide_in_right.xml"
     },
     {
-        "merged": "com.capstone.fitainess.app-debug-62:/layout_fragment_sign_up.xml.flat",
-        "source": "com.capstone.fitainess.app-main-64:/layout/fragment_sign_up.xml"
-    },
-    {
         "merged": "C:\\Users\\Blitz\\.gradle\\daemon\\9.3.1\\com.capstone.fitainess.app-debug-62:\\drawable_ic_navbar_dashboard.xml.flat",
         "source": "C:\\Users\\Blitz\\.gradle\\daemon\\9.3.1\\com.capstone.fitainess.app-main-64:\\drawable\\ic_navbar_dashboard.xml"
     },
@@ -190,6 +186,10 @@
     {
         "merged": "C:\\Users\\Blitz\\.gradle\\daemon\\9.3.1\\com.capstone.fitainess.app-debug-62:\\anim_slide_out_left.xml.flat",
         "source": "C:\\Users\\Blitz\\.gradle\\daemon\\9.3.1\\com.capstone.fitainess.app-main-64:\\anim\\slide_out_left.xml"
+    },
+    {
+        "merged": "com.capstone.fitainess.app-debug-62:/layout_dialog_bottom_daily_record.xml.flat",
+        "source": "com.capstone.fitainess.app-main-64:/layout/dialog_bottom_daily_record.xml"
     },
     {
         "merged": "C:\\Users\\Blitz\\.gradle\\daemon\\9.3.1\\com.capstone.fitainess.app-debug-62:\\drawable_ic_meal_lunch.xml.flat",

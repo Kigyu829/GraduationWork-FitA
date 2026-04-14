@@ -67,6 +67,7 @@ int id btnAdjustConfirm 0x0
 int id btnBack 0x0
 int id btnCamera 0x0
 int id btnClearData 0x0
+int id btnCloseBottomSheet 0x0
 int id btnDeleteAccount 0x0
 int id btnGallery 0x0
 int id btnGenerate 0x0
@@ -153,6 +154,7 @@ int id tvGoalMessage 0x0
 int id tvGoalTitle 0x0
 int id tvMealCalories 0x0
 int id tvMealDesc 0x0
+int id tvMealStatus 0x0
 int id tvMealTimeTitle 0x0
 int id tvMealTitle 0x0
 int id tvMonthTitle 0x0
@@ -164,15 +166,18 @@ int id tvProfileHeight 0x0
 int id tvProfileWeight 0x0
 int id tvRecentMealInfo 0x0
 int id tvRecentWorkoutInfo 0x0
+int id tvRecordDateTitle 0x0
 int id tvStreakCount 0x0
 int id tvTip 0x0
 int id tvTodayMealContent 0x0
 int id tvTotalCalories 0x0
 int id tvWeightPickerValue 0x0
 int id tvWelcomeMessage 0x0
+int id tvWorkoutStatus 0x0
 int id viewPagerCalendar 0x0
 int id workoutFragment 0x0
 int layout activity_main 0x0
+int layout dialog_bottom_daily_record 0x0
 int layout dialog_bottom_weight 0x0
 int layout fragment_body_info 0x0
 int layout fragment_calendar 0x0

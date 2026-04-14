@@ -69,6 +69,7 @@ id btnAdjustConfirm
 id btnBack
 id btnCamera
 id btnClearData
+id btnCloseBottomSheet
 id btnDeleteAccount
 id btnGallery
 id btnGenerate
@@ -155,6 +156,7 @@ id tvGoalMessage
 id tvGoalTitle
 id tvMealCalories
 id tvMealDesc
+id tvMealStatus
 id tvMealTimeTitle
 id tvMealTitle
 id tvMonthTitle
@@ -166,15 +168,18 @@ id tvProfileHeight
 id tvProfileWeight
 id tvRecentMealInfo
 id tvRecentWorkoutInfo
+id tvRecordDateTitle
 id tvStreakCount
 id tvTip
 id tvTodayMealContent
 id tvTotalCalories
 id tvWeightPickerValue
 id tvWelcomeMessage
+id tvWorkoutStatus
 id viewPagerCalendar
 id workoutFragment
 layout activity_main
+layout dialog_bottom_daily_record
 layout dialog_bottom_weight
 layout fragment_body_info
 layout fragment_calendar

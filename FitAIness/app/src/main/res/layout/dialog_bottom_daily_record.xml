@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#243840"> <TextView
+    android:id="@+id/tvRecordDateTitle"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="YYYY-MM-DD 기록"
+    android:textColor="@color/white"
+    android:textSize="20sp"
+    android:textStyle="bold"
+    android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:id="@+id/tvMealStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="식단 인증 : "
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/tvWorkoutStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="운동 완료 : "
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:layout_marginBottom="32dp"/>
+
+    <Button
+        android:id="@+id/btnCloseBottomSheet"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="확인"
+        android:textColor="#243840"
+        android:backgroundTint="#66D0BC"
+        android:textStyle="bold" />
+
+</LinearLayout>

@@ -15,6 +15,13 @@ import java.util.List;
 public class CalendarGridAdapter extends RecyclerView.Adapter<CalendarGridAdapter.DayViewHolder>
 {
 
+    public interface OnDayClickListener
+    {
+        void onDayClick(int day);
+    }
+
+    private OnDayClickListener listener;
+
     // 각 칸에 들어갈 날짜 모델 (0이면 빈 칸)
     public static class DayInfo
     {
@@ -29,9 +36,10 @@ public class CalendarGridAdapter extends RecyclerView.Adapter<CalendarGridAdapte
 
     private List<DayInfo> days;
 
-    public CalendarGridAdapter(List<DayInfo> days)
+    public CalendarGridAdapter(List<DayInfo> days, OnDayClickListener listener)
     {
         this.days = days;
+        this.listener = listener;
     }
 
     @NonNull
@@ -68,6 +76,10 @@ public class CalendarGridAdapter extends RecyclerView.Adapter<CalendarGridAdapte
             else
                 holder.ivStamp.setVisibility(View.GONE);
         }
+
+        holder.itemView.setOnClickListener(v -> {
+            if (info.day != 0) listener.onDayClick(info.day);
+        });
     }
 
     @Override
