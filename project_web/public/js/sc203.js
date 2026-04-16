@@ -18,7 +18,6 @@ const bmiStatusEl        = document.getElementById('bmiStatus');
 const targetLossInput    = document.getElementById('targetLoss');
 const goalPeriodInput    = document.getElementById('goalPeriod');
 const goalInfoEl         = document.getElementById('goalInfo');
-const activityLevelInput = document.getElementById('activityLevel');
 const warningEl          = document.getElementById('goalWarning');
 const customPeriodWrap   = document.getElementById('customPeriodWrap');
 const customPeriodInput  = document.getElementById('customPeriodWeeks');
@@ -90,12 +89,11 @@ function updateGoalInfo() {
   const currentWeight = Number(savedWeight);
   const targetLoss    = Number(targetLossInput.value);
   const weeks         = getSelectedWeeks();
-  const activity      = activityLevelInput.value;
   const periodLabel   = goalPeriodInput.value === '기타'
     ? (weeks ? `${weeks}주` : '기타')
     : goalPeriodInput.value;
 
-  /* ── 경고는 targetLoss와 weeks만 있으면 activity와 무관하게 먼저 판단 ── */
+  /* ── 경고: targetLoss와 weeks 기준 ── */
   if (targetLoss && weeks) {
     if (isExcessive(targetLoss, weeks)) {
       const perWeek = (targetLoss / weeks).toFixed(1);
@@ -108,7 +106,7 @@ function updateGoalInfo() {
   }
 
   /* ── 프리뷰는 모든 항목이 채워진 경우에만 표시 ── */
-  if (!currentWeight || !targetLoss || !weeks || !activity) {
+  if (!currentWeight || !targetLoss || !weeks) {
     goalInfoEl.textContent = '목표 감량과 기간을 입력하면 목표가 표시됩니다.';
     goalInfoEl.classList.add('muted');
     return;
@@ -140,7 +138,6 @@ function hideWarning() {
 
 /* ── 이벤트 바인딩 ── */
 if (targetLossInput)    targetLossInput.addEventListener('input',  updateGoalInfo);
-if (activityLevelInput) activityLevelInput.addEventListener('change', updateGoalInfo);
 
 /* ── 폼 제출 ── */
 if (bodyInfoForm2) {
@@ -151,12 +148,11 @@ if (bodyInfoForm2) {
     const currentWeight = Number(savedWeight);
     const targetLoss    = Number(targetLossInput.value);
     const weeks         = getSelectedWeeks();
-    const activityLevel = activityLevelInput.value;
     const periodLabel   = goalPeriodInput.value === '기타'
       ? `${weeks}주`
       : goalPeriodInput.value;
 
-    if (!currentWeight || !targetLoss || !weeks || !activityLevel) {
+    if (!currentWeight || !targetLoss || !weeks) {
       alert('모든 항목을 입력해주세요.');
       return;
     }
@@ -186,7 +182,7 @@ if (bodyInfoForm2) {
       goalPeriod:    periodLabel,
       goalWeeks:     weeks,
       targetWeight,
-      activityLevel,
+      activityLevel: '보통',  /* 활동량 제거 — 기본값 고정 */
     });
 
     location.href = 'sc301.html';

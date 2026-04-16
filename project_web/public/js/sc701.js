@@ -286,9 +286,7 @@ function loadGoalForm(data) {
   setTextSafe('statTargetWeight',  data.targetWeight  ? `${data.targetWeight}kg`  : '—');
   setTextSafe('statTargetLoss',    data.targetLoss    ? `${data.targetLoss}kg`    : '—');
   setTextSafe('statGoalPeriod',    data.goalPeriod    || '—');
-  setTextSafe('statActivityLevel', data.activityLevel || '—');
 
-  setVal('inputActivityLevel', data.activityLevel);
   setVal('inputTargetLoss',    data.targetLoss);
 
   const standardPeriods = ['4주', '8주', '12주', '16주'];
@@ -324,7 +322,7 @@ function loadGoalForm(data) {
     updateGoalPreview(data);
   });
 
-  ['inputActivityLevel', 'inputTargetLoss'].forEach(id => {
+  ['inputTargetLoss'].forEach(id => {
     document.getElementById(id)?.addEventListener('input',  () => updateGoalPreview(data));
     document.getElementById(id)?.addEventListener('change', () => updateGoalPreview(data));
   });
@@ -349,7 +347,6 @@ function updateGoalPreview(data) {
   const currentW    = Number(data?.weight || Storage.getUser().weight || 0);
   const targetLoss  = Number(document.getElementById('inputTargetLoss')?.value || 0);
   const weeks       = getGoalWeeks();
-  const activity    = document.getElementById('inputActivityLevel')?.value;
   const periodLabel = getGoalPeriodLabel();
 
   const previewEl  = document.getElementById('goalPreviewText');
@@ -385,10 +382,9 @@ function bindGoalSave(userData) {
     const currentW    = Number(Storage.getUser().weight || userData?.weight || 0);
     const targetLoss  = Number(document.getElementById('inputTargetLoss')?.value);
     const weeks       = getGoalWeeks();
-    const activity    = document.getElementById('inputActivityLevel')?.value;
     const periodLabel = getGoalPeriodLabel();
 
-    if (!targetLoss || !weeks || !activity) { showToast('모든 항목을 입력해주세요.', 'error'); return; }
+    if (!targetLoss || !weeks) { showToast('모든 항목을 입력해주세요.', 'error'); return; }
     if (weeks < 1 || weeks > 52)            { showToast('달성 기간은 1~52주 사이로 입력해주세요.', 'error'); return; }
 
     const targetWeight = currentW - targetLoss;
@@ -402,7 +398,7 @@ function bindGoalSave(userData) {
       if (!ok) return;
     }
 
-    const goalData = { initialWeight: currentW, targetLoss, goalPeriod: periodLabel, goalWeeks: weeks, targetWeight, activityLevel: activity };
+    const goalData = { initialWeight: currentW, targetLoss, goalPeriod: periodLabel, goalWeeks: weeks, targetWeight, activityLevel: '보통' }; /* 활동량 제거 — 기본값 고정 */
 
     try { await apiPost('/profile/goal', goalData); } catch { /* 폴백 */ }
 
@@ -412,7 +408,6 @@ function bindGoalSave(userData) {
     setTextSafe('statTargetWeight',  `${targetWeight}kg`);
     setTextSafe('statTargetLoss',    `${targetLoss}kg`);
     setTextSafe('statGoalPeriod',    periodLabel);
-    setTextSafe('statActivityLevel', activity);
 
     const fresh = buildLocalData();
     renderSidebar(fresh);

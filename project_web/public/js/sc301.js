@@ -424,3 +424,80 @@ function bindLogoClick() {
     location.href = 'sc301.html';
   });
 }
+
+/* ════════════════════════════════
+   오늘 체중 입력
+   ════════════════════════════════ */
+function initTodayWeight() {
+  const input   = document.getElementById('todayWeightInput');
+  const saveBtn = document.getElementById('todayWeightSaveBtn');
+  const hint    = document.getElementById('todayWeightHint');
+
+  /* 오늘 저장된 체중 복원 */
+  const todayKey = `todayWeight_${getTodayKey()}`;
+  const saved    = localStorage.getItem(todayKey);
+  if (saved && input) input.value = saved;
+
+  saveBtn?.addEventListener('click', () => {
+    const val = parseFloat(input?.value);
+    if (!val || val < 20 || val > 300) {
+      if (hint) { hint.textContent = '올바른 체중을 입력해주세요.'; hint.style.color = 'var(--red)'; }
+      return;
+    }
+
+    /* localStorage에 오늘 체중 저장 + 사용자 데이터 업데이트 */
+    localStorage.setItem(todayKey, val);
+    Storage.mergeUser({ weight: String(val) });
+
+    if (hint) { hint.textContent = `✓ ${val}kg 저장됐어요!`; hint.style.color = 'var(--teal)'; }
+    setTimeout(() => { if (hint) hint.textContent = ''; }, 2500);
+
+    /* 대시보드 수치 갱신 */
+    renderProgress();
+    renderSidebar();
+    renderStreakBanner();
+  });
+
+  /* Enter 키로도 저장 */
+  input?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveBtn?.click();
+  });
+}
+
+/* ════════════════════════════════
+   연속 달성 스트릭 배너
+   ════════════════════════════════ */
+function renderStreakBanner() {
+  const banner  = document.getElementById('streakBanner');
+  const textEl  = document.getElementById('streakBannerText');
+  if (!banner || !textEl) return;
+
+  /* 오늘부터 역순으로 연속 달성일 계산 */
+  let streak = 0;
+  const today = new Date();
+
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key    = `check_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    let   checks = {};
+    try { checks = JSON.parse(localStorage.getItem(key)) || {}; } catch {}
+
+    if (checks.meal && checks.workout) {
+      streak++;
+    } else if (i === 0) {
+      /* 오늘 아직 미달성이면 어제부터 카운트 시작 */
+      continue;
+    } else {
+      break;
+    }
+  }
+
+  if (streak >= 1) {
+    banner.style.display = 'flex';
+    textEl.textContent   = `${streak}일째 연속 성공 중!`;
+  } else {
+    banner.style.display = 'none';
+  }
+}
+

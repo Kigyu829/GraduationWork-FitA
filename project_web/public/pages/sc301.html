@@ -76,6 +76,25 @@
               <strong id="remainingWeight">-</strong>
             </div>
           </div>
+
+          <!-- 히어로 하단: 오늘 체중 입력 + 연속 달성 스트릭 -->
+          <div class="hero-bottom-row">
+            <!-- 오늘 체중 입력 -->
+            <div class="today-weight-wrap">
+              <span class="today-weight-label">오늘 체중</span>
+              <div class="today-weight-input-row">
+                <input type="number" id="todayWeightInput" class="today-weight-input"
+                  placeholder="kg 입력" step="0.1" min="20" max="300" />
+                <button class="today-weight-btn" id="todayWeightSaveBtn">저장</button>
+              </div>
+              <span class="today-weight-hint" id="todayWeightHint"></span>
+            </div>
+            <!-- 연속 달성 스트릭 -->
+            <div class="streak-banner" id="streakBanner" style="display:none;">
+              <span class="streak-fire">🔥</span>
+              <span class="streak-text" id="streakBannerText">N일째 연속 성공 중!</span>
+            </div>
+          </div>
         </section>
 
         <!-- ② 목표 진행률 -->

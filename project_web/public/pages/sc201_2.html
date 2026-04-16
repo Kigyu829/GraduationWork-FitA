@@ -68,7 +68,8 @@
           <span class="field-hint" id="pwConfirmHint"></span>
         </div>
 
-        <!-- 전화번호 + 인증번호 전송 -->
+        <!-- [보류] 전화번호 인증 — 추후 연동 예정 -->
+        <!--
         <div class="input-group">
           <label>전화번호</label>
           <div class="verify-row">
@@ -80,13 +81,16 @@
           </div>
         </div>
 
-        <!-- 인증번호 입력 -->
         <div class="input-group" id="verifyCodeGroup" style="display:none;">
           <label for="verifyCode">인증번호</label>
           <input type="text" id="verifyCode" name="verifyCode"
             placeholder="인증번호 6자리 입력" maxlength="6" />
           <span class="field-hint" id="verifyHint"></span>
         </div>
+        -->
+        <!-- [보류] 전화번호 숨김 input (JS에서 빈 값으로 처리) -->
+        <input type="hidden" id="signupPhone" name="phone" value="000-0000-0000" />
+        <div id="verifyCodeGroup" style="display:none;"></div>
 
         <!-- 가입하기 버튼 -->
         <button type="submit" class="primary-btn" style="width:100%;">가입하기</button>

@@ -58,7 +58,7 @@ function normalizePhone(val) {
   return val.replace(/\D/g, '');
 }
 
-/* ── 소셜 로그인 버튼 (추후 연동) ── */
+/* [보류] 소셜 로그인 버튼 — 추후 연동 예정
 document.querySelectorAll('.social-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const provider = btn.classList.contains('naver')  ? '네이버'  :
@@ -66,6 +66,7 @@ document.querySelectorAll('.social-btn').forEach(btn => {
     alert(`${provider} 로그인은 추후 연동 예정입니다.`);
   });
 });
+*/
 
 /* ── 로그인 제출 ── */
 if (loginForm) {

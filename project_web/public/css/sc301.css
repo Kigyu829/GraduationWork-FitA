@@ -873,3 +873,98 @@ button, input { font: inherit; }
 .hist-day.streak-mid   { border-radius: 0; border-left: none; border-right: none; margin-left: -2px; margin-right: -2px; position: relative; z-index: 1; }
 .hist-day.streak-end   { border-radius: 0 10px 10px 0; border-left: none; margin-left: -2px; position: relative; z-index: 1; }
 
+/* ── 히어로 하단: 오늘 체중 입력 + 스트릭 ── */
+.hero-bottom-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.today-weight-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.today-weight-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.today-weight-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.today-weight-input {
+  width: 100px;
+  padding: 8px 12px;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-weight: 800;
+  outline: none;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.today-weight-input:focus { border-color: var(--teal); }
+.today-weight-input::placeholder { color: var(--text-mute); font-weight: 400; }
+
+.today-weight-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--teal);
+  color: #09131a;
+  font-size: 12px;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.today-weight-btn:hover  { opacity: 0.88; }
+.today-weight-btn:active { transform: scale(0.97); }
+
+.today-weight-hint {
+  font-size: 11px;
+  color: var(--teal);
+  min-height: 14px;
+}
+
+/* 연속 달성 스트릭 배너 */
+.streak-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(245, 166, 35, 0.12);
+  border: 1px solid rgba(245, 166, 35, 0.3);
+  border-radius: 99px;
+  animation: streakPulse 2s ease-in-out infinite;
+}
+
+@keyframes streakPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,166,35,0); }
+  50%       { box-shadow: 0 0 0 6px rgba(245,166,35,0.08); }
+}
+
+.streak-fire { font-size: 20px; line-height: 1; }
+
+.streak-text {
+  font-size: 13px;
+  font-weight: 800;
+  color: #F5A623;
+  letter-spacing: -0.01em;
+}
+

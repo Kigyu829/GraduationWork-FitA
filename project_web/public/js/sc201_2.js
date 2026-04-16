@@ -92,6 +92,7 @@ phoneEl.addEventListener('input', () => {
 let mockCode     = '';
 let codeVerified = false;
 
+/* [보류] 전화번호 인증 — 추후 연동 예정
 sendVerifyBtn.addEventListener('click', () => {
   const phone = phoneEl.value.replace(/\D/g, '');
   if (phone.length < 10) {
@@ -109,8 +110,9 @@ sendVerifyBtn.addEventListener('click', () => {
   sendVerifyBtn.textContent = '재전송';
   console.log('[DEV] 인증번호:', mockCode);
 });
+*/
 
-/* ── 인증번호 실시간 검사 ── */
+/* [보류] 인증번호 실시간 검사 — 추후 연동 예정
 verifyCodeEl.addEventListener('input', () => {
   if (!mockCode) return;
   if (verifyCodeEl.value === mockCode) {
@@ -126,6 +128,7 @@ verifyCodeEl.addEventListener('input', () => {
     codeVerified = false;
   }
 });
+*/
 
 /* ── 가입하기 제출 ── */
 if (signupForm) {
@@ -138,7 +141,7 @@ if (signupForm) {
     const pwConfirm = pwConfirmEl.value;
     const phone     = phoneEl.value.trim();
 
-    if (!email || !nickname || !password || !pwConfirm || !phone) {
+    if (!email || !nickname || !password || !pwConfirm) {
       alert('모든 항목을 입력해주세요.'); return;
     }
     if (password.length < 8) {
@@ -147,9 +150,11 @@ if (signupForm) {
     if (password !== pwConfirm) {
       alert('비밀번호가 일치하지 않습니다.'); return;
     }
+    /* [보류] 전화번호 인증 검사 — 추후 연동 시 활성화
     if (!codeVerified) {
       alert('전화번호 인증을 완료해주세요.'); return;
     }
+    */
 
     /* 저장 후 신체정보 초기화 (회원가입 직후는 항상 sc202부터) */
     Storage.setRegistered(email, password, nickname);
