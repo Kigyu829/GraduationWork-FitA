@@ -27,9 +27,13 @@ const BODY_PART_MAP = {
     '상체':  ['팔굽혀펴기', '팔굽혀펴기 (무릎)', '트라이셉 딥', '버드독'],
 };
 
-// 감성 점수 단어 목록
+// 감성 점수 단어 목록 (운동 종류 선호/제외 판단용)
 const POSITIVE_WORDS = ['더', '많이', '원해', '하고 싶', '하고싶', '강화', '늘려', '추가', '포함', '집중', '자주', '좋아'];
 const NEGATIVE_WORDS = ['못', '안 해', '안해', '부상', '다쳤', '아파', '불편', '못하겠', '힘들어', '무리', '빼줘', '제외'];
+
+// 강도 조정 키워드
+const INTENSITY_UP_WORDS   = ['늘리', '강도 높', '강도 올', '더 하고', '운동량', '많이 하', '빡세게', '세게', '열심히'];
+const INTENSITY_DOWN_WORDS = ['줄이', '강도 낮', '쉽게', '가볍게', '적게', '조금만', '덜 하', '살살'];
 
 function shuffle(arr) {
     const a = [...arr];
@@ -100,16 +104,33 @@ function parseReasons(reasons = []) {
 /** 분 단위 duration 문자열 변환 */
 function fmtDuration(min) { return `${min}분`; }
 
+/** reasons에서 강도 delta 계산 (+1: 강화, -1: 완화, 0: 유지) */
+function parseIntensityDelta(reasons = []) {
+    let delta = 0;
+    for (const reason of reasons) {
+        if (INTENSITY_UP_WORDS.some(w => reason.includes(w)))   delta++;
+        if (INTENSITY_DOWN_WORDS.some(w => reason.includes(w))) delta--;
+    }
+    return Math.sign(delta); // -1, 0, 1 로 고정
+}
+
+/** intensity + delta → 조정된 intensity */
+function shiftIntensity(base, delta) {
+    const levels = ['low', 'medium', 'high'];
+    const idx    = levels.indexOf(base);
+    return levels[Math.max(0, Math.min(2, idx + delta))];
+}
+
 /** 운동 플랜 구성 */
-function buildPlan(intensity, excludedNames = new Set(), preferredNames = new Set()) {
+function buildPlan(intensity, excludedNames = new Set(), preferredNames = new Set(), mainCount = 4) {
     // 워밍업: 2개
     const warmup = shuffle(WARMUP.filter(e => !excludedNames.has(e.name)))
         .slice(0, 2)
         .map(e => ({ name: e.name, duration: fmtDuration(e.duration), calories: e.calories }));
 
-    // 메인: preferred 우선 배치 후 4개 선택
+    // 메인: preferred 우선 배치 후 mainCount개 선택
     let mainPool = MAIN[intensity].filter(e => !excludedNames.has(e.name));
-    if (mainPool.length < 4) {
+    if (mainPool.length < mainCount) {
         const fallback = intensity === 'high' ? MAIN.medium : MAIN.low;
         mainPool = [...mainPool, ...fallback.filter(e => !excludedNames.has(e.name))];
     }
@@ -117,7 +138,7 @@ function buildPlan(intensity, excludedNames = new Set(), preferredNames = new Se
         ...shuffle(mainPool.filter(e =>  preferredNames.has(e.name))),
         ...shuffle(mainPool.filter(e => !preferredNames.has(e.name))),
     ];
-    const mainExercises = orderedPool.slice(0, 4).map(e => ({
+    const mainExercises = orderedPool.slice(0, mainCount).map(e => ({
         name: e.name, sets: e.sets, reps: e.reps, calories: e.calories,
     }));
 
@@ -151,15 +172,22 @@ function recommendExercise({ bmi, targetWeeks }) {
     return buildPlan(intensity);
 }
 
-/** 운동 재조정 (감성 점수 기반) */
+/** 운동 재조정 (강도 조정 + 감성 점수 기반) */
 function adjustExercise({ bmi, targetWeeks, reasons = [] }) {
-    const intensity = getIntensity(bmi, targetWeeks);
+    const baseIntensity  = getIntensity(bmi, targetWeeks);
+    const intensityDelta = parseIntensityDelta(reasons);
+    const intensity      = shiftIntensity(baseIntensity, intensityDelta);
+
+    // 강도 올리면 메인 운동 1개 추가, 낮추면 1개 감소
+    const mainCount = 4 + intensityDelta; // 3 / 4 / 5
+
     const { excluded, preferred } = parseReasons(reasons);
 
+    console.log(`  [강도 조정] ${baseIntensity} → ${intensity} (delta: ${intensityDelta}), 메인 ${mainCount}개`);
     console.log(`  [감성 점수] excluded: [${[...excluded].join(', ')}]`);
     console.log(`  [감성 점수] preferred: [${[...preferred].join(', ')}]`);
 
-    return buildPlan(intensity, excluded, preferred);
+    return buildPlan(intensity, excluded, preferred, mainCount);
 }
 
 module.exports = { recommendExercise, adjustExercise };

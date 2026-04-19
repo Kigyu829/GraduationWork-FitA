@@ -1,115 +1,108 @@
 /* ============================================================
-   sc201_1.js — 로그인
-   의존: common.js
+   sc201_1.js — 로그인 (Firebase Auth)
+   의존: common.js, firebase-config.js
    ============================================================ */
 
 'use strict';
 
-/* ── 테스트 계정 초기 세팅 (등록 계정 없을 때만 1회) ── */
-(function initTestAccount() {
-  if (!localStorage.getItem('registeredEmail')) {
-    Storage.setRegistered('test1@test.com', 'test1TEST', 'test1');
-    localStorage.setItem('registeredPhone', '010-1234-5678');
-
-    /* 테스트용 신체정보 + 목표 데이터 */
-    Storage.setUser({
-      gender:        '남성',
-      birth:         '1998-05-15',
-      height:        '175',
-      weight:        '78',
-      bmi:           calculateBMI('175', '78'),   /* common.js */
-      initialWeight: 78,
-      targetLoss:    8,
-      goalPeriod:    '12주',
-      targetWeight:  70,
-      activityLevel: '보통',
-    });
-  }
-
-  /* ── registeredPhone 누락 보정
-     기존에 페이지를 열어서 email만 세팅됐고 phone이 없는 경우 보완 ── */
-  if (localStorage.getItem('registeredEmail') === 'test1@test.com'
-      && !localStorage.getItem('registeredPhone')) {
-    localStorage.setItem('registeredPhone', '010-1234-5678');
-  }
-})();
-
 const loginForm  = document.getElementById('loginForm');
 const loginError = document.getElementById('loginError');
-const saveIdBox  = document.getElementById('saveId');
-const loginIdEl  = document.getElementById('loginId');
 
-/* ── 저장된 아이디 복원 (이메일 또는 전화번호) ── */
+/* ── 저장된 아이디 복원 ── */
 window.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem('savedLoginId');
-  if (saved && loginIdEl) {
-    loginIdEl.value = saved;
-    if (saveIdBox) saveIdBox.checked = true;
+  if (saved) {
+    const el = document.getElementById('loginId');
+    if (el) el.value = saved;
+    const cb = document.getElementById('saveId');
+    if (cb) cb.checked = true;
   }
 });
 
-/* ── 입력값이 전화번호인지 판단 ── */
-function isPhoneNumber(val) {
-  return /^[\d\-]+$/.test(val);
-}
-
-/* ── 전화번호 정규화 (하이픈 제거 후 비교) ── */
-function normalizePhone(val) {
-  return val.replace(/\D/g, '');
-}
+/* ── 이미 로그인된 경우 자동 이동 (Firebase Auth 세션 복원) ── */
+auth.onAuthStateChanged(async user => {
+  if (!user) return;
+  sessionStorage.setItem('_fitUid',   user.uid);
+  sessionStorage.setItem('_fitEmail', user.email || '');
+  try {
+    const doc = await db.collection('users').doc(user.uid).get();
+    if (doc.exists) {
+      const data = doc.data();
+      if (data.nickname) sessionStorage.setItem('_fitNick', data.nickname);
+      if (data.userData) localStorage.setItem(`hud_${user.uid}`, JSON.stringify(data.userData));
+      if (data.userData?.targetWeight) { location.replace('sc301.html'); return; }
+    }
+    location.replace('sc202.html');
+  } catch { /* 네트워크 오류 시 무시 */ }
+});
 
 /* ── 소셜 로그인 버튼 (추후 연동) ── */
 document.querySelectorAll('.social-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    const provider = btn.classList.contains('naver')  ? '네이버'  :
-                     btn.classList.contains('kakao')  ? '카카오' : '구글';
+    const provider = btn.classList.contains('naver') ? '네이버' :
+                     btn.classList.contains('kakao') ? '카카오' : '구글';
     alert(`${provider} 로그인은 추후 연동 예정입니다.`);
   });
 });
 
 /* ── 로그인 제출 ── */
 if (loginForm) {
-  loginForm.addEventListener('submit', function (e) {
+  loginForm.addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    const inputId  = loginIdEl.value.trim();
+    const inputId  = document.getElementById('loginId').value.trim();
     const password = document.getElementById('loginPw').value;
+    const saveIdCb = document.getElementById('saveId');
 
     if (!inputId || !password) {
-      loginError.classList.add('show');
+      loginError?.classList.add('show');
       return;
     }
 
-    /* 아이디 저장 처리 */
-    if (saveIdBox && saveIdBox.checked) {
+    /* 아이디 저장 */
+    if (saveIdCb?.checked) {
       localStorage.setItem('savedLoginId', inputId);
     } else {
       localStorage.removeItem('savedLoginId');
     }
 
-    /* ── 이메일 / 전화번호 분기 인증 ── */
-    const reg     = Storage.getRegistered();
-    const byPhone = isPhoneNumber(inputId);
-    let   idMatch = false;
+    const submitBtn = loginForm.querySelector('button[type="submit"]');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '로그인 중...'; }
 
-    if (byPhone) {
-      /* 전화번호: 하이픈 제거 후 비교 */
-      const storedPhone = localStorage.getItem('registeredPhone') || '';
-      idMatch = normalizePhone(inputId) === normalizePhone(storedPhone);
-    } else {
-      /* 이메일 */
-      idMatch = inputId === reg.email;
+    try {
+      const cred = await auth.signInWithEmailAndPassword(inputId, password);
+      const uid  = cred.user.uid;
+
+      sessionStorage.setItem('_fitUid',   uid);
+      sessionStorage.setItem('_fitEmail', cred.user.email || '');
+
+      /* Firestore에서 사용자 데이터 로드 후 localStorage 캐시 */
+      const doc = await db.collection('users').doc(uid).get();
+      if (doc.exists) {
+        const data = doc.data();
+        if (data.nickname) sessionStorage.setItem('_fitNick', data.nickname);
+        if (data.userData) localStorage.setItem(`hud_${uid}`, JSON.stringify(data.userData));
+
+        /* 오늘 일별 데이터도 캐시 */
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        const dayDoc = await db.collection('users').doc(uid).collection('daily').doc(todayStr).get();
+        if (dayDoc.exists) {
+          const dd = dayDoc.data();
+          if (dd.check) localStorage.setItem(lsKey('check', todayStr), JSON.stringify(dd.check));
+          if (dd.sc311) localStorage.setItem(lsKey('sc311', todayStr), JSON.stringify(dd.sc311));
+          if (dd.plan)  localStorage.setItem(lsKey('plan',  todayStr), JSON.stringify(dd.plan));
+        }
+
+        const ud = data.userData || {};
+        location.href = ud.targetWeight ? 'sc301.html' : 'sc202.html';
+      } else {
+        location.href = 'sc202.html';
+      }
+    } catch (err) {
+      loginError?.classList.add('show');
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '로그인'; }
+      console.error('로그인 실패:', err.code);
     }
-
-    if (!idMatch || password !== reg.password) {
-      loginError.classList.add('show');
-      return;
-    }
-
-    loginError.classList.remove('show');
-
-    /* 신체정보 입력 여부에 따라 분기 */
-    const userData = Storage.getUser();
-    location.href = userData.targetWeight ? 'sc301.html' : 'sc202.html';
   });
 }

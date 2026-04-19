@@ -1,1 +1,457 @@
-<!--my page-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>마이페이지 – HealthDash</title>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/sc301.css" />
+  <link rel="stylesheet" href="../css/sc701.css" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+<div class="dashboard">
+
+  <!-- ── 좌측 앱 사이드바 ── -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo" id="sidebarLogo" style="cursor:pointer;">
+        <div class="sidebar-logo-icon">🏃</div>
+        <span class="sidebar-logo-text">HealthDash</span>
+      </div>
+
+      <div class="sidebar-card profile-card">
+        <div class="profile-avatar" id="sidebarAvatar">👤</div>
+        <div id="userName">내 정보</div>
+        <div id="userBasicInfo">불러오는 중...</div>
+        <div class="profile-weights">
+          <div class="weight-chip">
+            <span class="weight-chip-label">현재 체중</span>
+            <span class="weight-chip-value" id="currentWeightText">-</span>
+          </div>
+          <div class="weight-chip">
+            <span class="weight-chip-label">목표 체중</span>
+            <span class="weight-chip-value" id="targetWeightText">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-card menu-card">
+        <div class="menu-card-title">메뉴</div>
+        <div class="menu-list">
+          <button class="menu-btn" data-href="sc301.html"><span class="menu-btn-icon">🏠</span>대시보드</button>
+          <button class="menu-btn" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
+          <button class="menu-btn" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
+          <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
+          <button class="menu-btn" id="menuAiChat"><span class="menu-btn-icon">💬</span>AI 상담</button>
+          <button class="menu-btn" id="menuHistory"><span class="menu-btn-icon">📅</span>히스토리</button>
+          <button class="menu-btn active" data-href="sc701.html"><span class="menu-btn-icon">⚙️</span>마이페이지</button>
+        </div>
+      </div>
+    </div>
+    <button class="logout-btn" id="logoutBtn">로그아웃</button>
+  </aside>
+
+  <!-- ── 메인 콘텐츠 ── -->
+  <main class="mypage-main">
+
+    <!-- 페이지 타이틀 -->
+    <div class="mypage-title-bar">
+      <h1 class="mypage-title">마이페이지</h1>
+    </div>
+
+    <!-- 웰컴 배너 -->
+    <div class="welcome-banner">
+      <div class="welcome-left">
+        <div class="welcome-avatar-wrap">
+          <div class="welcome-avatar" id="heroAvatar">👤</div>
+          <label class="avatar-cam-btn" for="avatarFileInput" title="사진 변경">📷</label>
+          <input type="file" id="avatarFileInput" accept="image/*" style="display:none;" />
+        </div>
+        <div class="welcome-text">
+          <p class="welcome-greeting">반가워요, <strong id="heroName">사용자</strong>님!</p>
+          <p class="welcome-sub" id="heroEmail">—</p>
+          <div class="welcome-chips">
+            <span class="wchip" id="heroBadgeGender">—</span>
+            <span class="wchip" id="heroBadgeAge">—</span>
+            <span class="wchip" id="heroBadgeBMI">BMI —</span>
+          </div>
+        </div>
+      </div>
+      <div class="welcome-stats">
+        <div class="wstat">
+          <span class="wstat-label">현재 체중</span>
+          <strong class="wstat-val" id="bannerCurrentWeight">—</strong>
+        </div>
+        <div class="wstat-divider"></div>
+        <div class="wstat">
+          <span class="wstat-label">목표 체중</span>
+          <strong class="wstat-val teal" id="bannerTargetWeight">—</strong>
+        </div>
+        <div class="wstat-divider"></div>
+        <div class="wstat">
+          <span class="wstat-label">감량 목표</span>
+          <strong class="wstat-val" id="bannerTargetLoss">—</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- 콘텐츠 바디: 좌측 네비 + 우측 폼 -->
+    <div class="mypage-body">
+
+      <!-- 좌측 카테고리 네비 -->
+      <nav class="mypage-nav">
+        <div class="nav-group">
+          <div class="nav-group-title">기본정보</div>
+          <button class="nav-item active" data-section="secProfile">프로필 수정</button>
+          <button class="nav-item" data-section="secBody">신체 정보</button>
+        </div>
+        <div class="nav-group">
+          <div class="nav-group-title">목표 관리</div>
+          <button class="nav-item" data-section="secGoal">목표 재설정</button>
+        </div>
+        <div class="nav-group">
+          <div class="nav-group-title">계정</div>
+          <button class="nav-item" data-section="secEmail">이메일 변경</button>
+          <button class="nav-item" data-section="secPassword">비밀번호 변경</button>
+          <button class="nav-item danger-nav" data-section="secDanger">회원 탈퇴</button>
+        </div>
+      </nav>
+
+      <!-- 우측 폼 콘텐츠 -->
+      <div class="mypage-form-area">
+
+        <!-- ── 프로필 수정 ── -->
+        <section class="form-section active" id="secProfile">
+          <div class="section-header">
+            <h2 class="section-title">프로필 수정</h2>
+            <p class="section-desc">앱에서 표시될 닉네임을 변경해요.</p>
+          </div>
+          <div class="section-divider"></div>
+
+          <div class="field-row">
+            <label class="field-label">닉네임 <span class="required">*</span></label>
+            <div class="field-input-wrap">
+              <input type="text" id="inputNickname" class="field-input" placeholder="닉네임 입력" maxlength="20" />
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+          <div class="form-actions">
+            <button class="btn-cancel">취소</button>
+            <button class="btn-save" id="btnSaveNickname">저장</button>
+          </div>
+        </section>
+
+        <!-- ── 신체 정보 ── -->
+        <section class="form-section" id="secBody">
+          <div class="section-header">
+            <h2 class="section-title">신체 정보</h2>
+            <p class="section-desc">키·체중·성별 등 기본 신체 정보를 수정해요.</p>
+          </div>
+          <div class="section-divider"></div>
+
+          <div class="field-row">
+            <label class="field-label">성별</label>
+            <div class="field-input-wrap">
+              <select id="inputGender" class="field-input">
+                <option value="">선택</option>
+                <option value="남성">남성</option>
+                <option value="여성">여성</option>
+              </select>
+            </div>
+          </div>
+          <div class="section-divider light"></div>
+
+          <div class="field-row">
+            <label class="field-label">생년월일</label>
+            <div class="field-input-wrap">
+              <input type="date" id="inputBirth" class="field-input" />
+            </div>
+          </div>
+          <div class="section-divider light"></div>
+
+          <div class="field-row">
+            <label class="field-label">키 (cm) <span class="required">*</span></label>
+            <div class="field-input-wrap">
+              <input type="number" id="inputHeight" class="field-input" placeholder="예: 170" min="100" max="250" />
+            </div>
+          </div>
+          <div class="section-divider light"></div>
+
+          <div class="field-row">
+            <label class="field-label">현재 체중 (kg) <span class="required">*</span></label>
+            <div class="field-input-wrap">
+              <input type="number" id="inputWeight" class="field-input" placeholder="예: 65" min="20" max="300" step="0.1" />
+            </div>
+          </div>
+          <div class="section-divider light"></div>
+
+          <!-- BMI 미리보기 -->
+          <div class="field-row" id="bmiMiniRow" style="display:none;">
+            <label class="field-label">예상 BMI</label>
+            <div class="field-input-wrap bmi-preview-row">
+              <strong class="bmi-val" id="bmiMiniValue">—</strong>
+              <span class="bmi-status" id="bmiMiniStatus"></span>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+          <div class="form-actions">
+            <button class="btn-cancel">취소</button>
+            <button class="btn-save" id="btnSaveBody">저장</button>
+          </div>
+        </section>
+
+        <!-- ── 목표 재설정 ── -->
+        <section class="form-section" id="secGoal">
+          <div class="section-header">
+            <h2 class="section-title">목표 재설정</h2>
+            <p class="section-desc">새로운 다이어트 목표를 설정해요.</p>
+          </div>
+          <div class="section-divider"></div>
+
+          <!-- 현황 요약 -->
+          <div class="goal-current-bar">
+            <div class="gcb-item">
+              <span class="gcb-label">시작 체중</span>
+              <strong id="statInitialWeight">—</strong>
+            </div>
+            <div class="gcb-arrow">→</div>
+            <div class="gcb-item">
+              <span class="gcb-label">목표 체중</span>
+              <strong class="teal" id="statTargetWeight">—</strong>
+            </div>
+            <div class="gcb-divider"></div>
+            <div class="gcb-item">
+              <span class="gcb-label">감량 목표</span>
+              <strong id="statTargetLoss">—</strong>
+            </div>
+            <div class="gcb-divider"></div>
+            <div class="gcb-item">
+              <span class="gcb-label">기간</span>
+              <strong id="statGoalPeriod">—</strong>
+            </div>
+            <div class="gcb-divider"></div>
+            <div class="gcb-item">
+              <span class="gcb-label">활동량</span>
+              <strong id="statActivityLevel">—</strong>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <div class="field-row">
+            <label class="field-label">평소 활동량 <span class="required">*</span></label>
+            <div class="field-input-wrap">
+              <select id="inputActivityLevel" class="field-input">
+                <option value="">선택하세요</option>
+                <option value="낮음">낮음 — 주로 앉아서 생활</option>
+                <option value="보통">보통 — 가벼운 활동 포함</option>
+                <option value="높음">높음 — 규칙적인 운동</option>
+              </select>
+            </div>
+          </div>
+          <div class="section-divider light"></div>
+
+          <div class="field-row">
+            <label class="field-label">목표 감량 (kg) <span class="required">*</span></label>
+            <div class="field-input-wrap">
+              <input type="number" id="inputTargetLoss" class="field-input" placeholder="예: 5" min="1" step="0.1" />
+            </div>
+          </div>
+          <div class="section-divider light"></div>
+
+          <div class="field-row">
+            <label class="field-label">달성 기간 <span class="required">*</span></label>
+            <div class="field-input-wrap">
+              <select id="inputGoalPeriod" class="field-input">
+                <option value="">선택하세요</option>
+                <option value="4주">4주</option>
+                <option value="8주">8주</option>
+                <option value="12주">12주</option>
+                <option value="16주">16주</option>
+                <option value="기타">기타 (직접 입력)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="customWeeksWrap" style="display:none;">
+            <div class="section-divider light"></div>
+            <div class="field-row">
+              <label class="field-label">직접 입력 (주)</label>
+              <div class="field-input-wrap" style="display:flex; align-items:center; gap:8px;">
+                <input type="number" id="inputCustomWeeks" class="field-input" placeholder="예: 20" min="1" max="52" style="flex:1;" />
+                <span style="font-size:13px; color:var(--text-sec); white-space:nowrap;">주</span>
+              </div>
+              <span class="field-hint-text" id="customWeeksHint"></span>
+            </div>
+          </div>
+
+          <div class="section-divider light"></div>
+
+          <!-- 목표 프리뷰 -->
+          <div class="field-row">
+            <label class="field-label">목표 미리보기</label>
+            <div class="field-input-wrap">
+              <div class="goal-preview-inline" id="goalPreviewBox">
+                <p class="goal-preview-text muted" id="goalPreviewText">목표 감량과 기간을 입력하면 표시됩니다.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 경고 -->
+          <div class="goal-warning-inline" id="goalWarningBox" style="display:none;"></div>
+
+          <div class="section-divider"></div>
+          <div class="form-actions">
+            <button class="btn-cancel">취소</button>
+            <button class="btn-save" id="btnSaveGoal">저장</button>
+          </div>
+        </section>
+
+        <!-- ── 이메일 변경 ── -->
+        <section class="form-section" id="secEmail">
+          <div class="section-header">
+            <h2 class="section-title">이메일 변경</h2>
+            <p class="section-desc">로그인에 사용되는 이메일을 변경해요.</p>
+          </div>
+          <div class="section-divider"></div>
+
+          <div class="field-row">
+            <label class="field-label">새 이메일 <span class="required">*</span></label>
+            <div class="field-input-wrap">
+              <input type="email" id="inputEmail" class="field-input" placeholder="새 이메일 주소" />
+            </div>
+          </div>
+          <div class="section-divider light"></div>
+
+          <div class="field-row">
+            <label class="field-label">현재 비밀번호 <span class="required">*</span></label>
+            <div class="field-input-wrap">
+              <input type="password" id="inputEmailPwConfirm" class="field-input" placeholder="현재 비밀번호 확인" />
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+          <div class="form-actions">
+            <button class="btn-cancel">취소</button>
+            <button class="btn-save" id="btnSaveEmail">저장</button>
+          </div>
+        </section>
+
+        <!-- ── 비밀번호 변경 ── -->
+        <section class="form-section" id="secPassword">
+          <div class="section-header">
+            <h2 class="section-title">비밀번호 변경</h2>
+            <p class="section-desc">계정 보안을 위해 주기적으로 변경해요.</p>
+          </div>
+          <div class="section-divider"></div>
+
+          <div class="field-row">
+            <label class="field-label">현재 비밀번호 <span class="required">*</span></label>
+            <div class="field-input-wrap">
+              <input type="password" id="inputCurrentPw" class="field-input" placeholder="현재 비밀번호" />
+            </div>
+          </div>
+          <div class="section-divider light"></div>
+
+          <div class="field-row">
+            <label class="field-label">새 비밀번호 <span class="required">*</span></label>
+            <div class="field-input-wrap">
+              <input type="password" id="inputNewPw" class="field-input" placeholder="8자 이상" />
+              <!-- 강도 바 -->
+              <div class="pw-strength" id="pwStrengthWrap" style="display:none;">
+                <div class="pw-strength-bar">
+                  <div class="pw-strength-fill" id="pwStrengthFill"></div>
+                </div>
+                <span class="pw-strength-label" id="pwStrengthLabel"></span>
+              </div>
+            </div>
+          </div>
+          <div class="section-divider light"></div>
+
+          <div class="field-row">
+            <label class="field-label">새 비밀번호 확인 <span class="required">*</span></label>
+            <div class="field-input-wrap">
+              <input type="password" id="inputNewPwConfirm" class="field-input" placeholder="새 비밀번호 재입력" />
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+          <div class="form-actions">
+            <button class="btn-cancel">취소</button>
+            <button class="btn-save" id="btnSavePw">저장</button>
+          </div>
+        </section>
+
+        <!-- ── 회원 탈퇴 ── -->
+        <section class="form-section" id="secDanger">
+          <div class="section-header">
+            <h2 class="section-title" style="color:var(--red,#FF0B55);">회원 탈퇴 / 데이터 초기화</h2>
+            <p class="section-desc">아래 작업은 되돌릴 수 없으니 신중하게 진행해요.</p>
+          </div>
+          <div class="section-divider"></div>
+
+          <div class="field-row">
+            <label class="field-label">건강 데이터 초기화</label>
+            <div class="field-input-wrap">
+              <p class="field-desc-text">신체정보, 목표, AI 플랜 등 모든 건강 기록이 삭제됩니다. 계정은 유지됩니다.</p>
+              <button class="btn-danger-outline" id="btnResetData">🗑️ 데이터 초기화</button>
+            </div>
+          </div>
+          <div class="section-divider light"></div>
+
+          <div class="field-row">
+            <label class="field-label" style="color:var(--red,#FF0B55);">회원 탈퇴</label>
+            <div class="field-input-wrap">
+              <p class="field-desc-text">계정과 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.</p>
+              <button class="btn-danger-fill" id="btnDeleteAccount">❌ 회원 탈퇴</button>
+            </div>
+          </div>
+        </section>
+
+      </div><!-- /mypage-form-area -->
+    </div><!-- /mypage-body -->
+
+  </main>
+</div>
+
+<!-- 토스트 알림 -->
+<div class="toast" id="toast"></div>
+
+  <!-- sc501: AI 상담 오버레이 -->
+  <div class="ai-overlay" id="aiOverlay">
+    <div class="ai-overlay-panel" id="aiOverlayPanel">
+      <div class="ai-overlay-header">
+        <div class="ai-overlay-title">🤖 AI 상담</div>
+        <button class="ai-overlay-close" id="aiOverlayClose">×</button>
+      </div>
+      <div class="ai-overlay-messages" id="aiOverlayMessages">
+        <div class="chat-msg ai">
+          <div class="chat-avatar">🤖</div>
+          <div>
+            <div class="chat-bubble">안녕하세요! 궁금한 점을 편하게 물어보세요 😊</div>
+            <div class="chat-time">AI 상담사</div>
+          </div>
+        </div>
+      </div>
+      <div class="ai-overlay-input-wrap">
+        <textarea class="ai-overlay-input" id="aiOverlayInput" placeholder="질문을 입력하세요..." rows="1"></textarea>
+        <button class="ai-overlay-send" id="aiOverlaySend">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+<script src="../js/common.js"></script>
+<script src="../js/sc701.js"></script>
+</body>
+</html>

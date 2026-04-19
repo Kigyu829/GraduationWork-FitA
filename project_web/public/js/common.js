@@ -5,36 +5,94 @@
 
 'use strict';
 
-/* ── localStorage 헬퍼 ── */
+/* ── Firebase UID 헬퍼 ── */
+function getCurrentUid() {
+  if (typeof auth !== 'undefined' && auth.currentUser) return auth.currentUser.uid;
+  return sessionStorage.getItem('_fitUid') || null;
+}
+
+/**
+ * UID를 포함한 날짜별 localStorage 키 생성
+ * @param {string} prefix - 'check' | 'plan' | 'sc311' | 'water' | 'motivationMsg' | ...
+ * @param {string} dateStr - 'YYYY-MM-DD'
+ */
+function lsKey(prefix, dateStr) {
+  const uid = getCurrentUid();
+  return uid ? `${prefix}_${uid}_${dateStr}` : `${prefix}_${dateStr}`;
+}
+
+/**
+ * 날짜별 데이터를 Firestore에 동기화 (비동기, 오류 무시)
+ * sc311.js / hc403.js write 이후 호출
+ */
+function syncDayToFirestore(dateStr) {
+  const uid = getCurrentUid();
+  if (!uid || typeof db === 'undefined') return;
+  const read = key => { try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; } };
+  const checkData = read(lsKey('check', dateStr));
+  const sc311Data = read(lsKey('sc311', dateStr));
+  const planData  = read(lsKey('plan',  dateStr));
+  const dayDoc = {};
+  if (checkData) dayDoc.check = checkData;
+  if (sc311Data) dayDoc.sc311 = sc311Data;
+  if (planData)  dayDoc.plan  = planData;
+  if (Object.keys(dayDoc).length) {
+    db.collection('users').doc(uid).collection('daily').doc(dateStr)
+      .set(dayDoc, { merge: true }).catch(console.error);
+  }
+}
+
+/* ── localStorage / Firestore 헬퍼 ── */
 const Storage = {
+  _key() {
+    const uid = getCurrentUid();
+    return uid ? `hud_${uid}` : 'healthUserData';
+  },
   getUser() {
-    try { return JSON.parse(localStorage.getItem('healthUserData')) || {}; }
+    try { return JSON.parse(localStorage.getItem(this._key())) || {}; }
     catch { return {}; }
   },
   setUser(data) {
-    localStorage.setItem('healthUserData', JSON.stringify(data));
+    localStorage.setItem(this._key(), JSON.stringify(data));
+    const uid = getCurrentUid();
+    if (uid && typeof db !== 'undefined') {
+      db.collection('users').doc(uid).set({ userData: data }, { merge: true }).catch(console.error);
+    }
   },
   mergeUser(partial) {
     this.setUser({ ...this.getUser(), ...partial });
   },
   getRegistered() {
+    const uid = getCurrentUid();
+    if (uid) {
+      return {
+        email:    sessionStorage.getItem('_fitEmail') || '',
+        password: '',
+        nickname: sessionStorage.getItem('_fitNick')  || '',
+      };
+    }
+    /* 레거시 fallback (Firebase 미연결 환경) */
     return {
       email:    localStorage.getItem('registeredEmail')    || '',
       password: localStorage.getItem('registeredPw')       || '',
       nickname: localStorage.getItem('registeredNickname') || '',
     };
   },
-  setRegistered(email, password, nickname) {
-    localStorage.setItem('registeredEmail',    email);
-    localStorage.setItem('registeredPw',       password);
-    localStorage.setItem('registeredNickname', nickname);
+  setRegistered(email, _pw, nickname) {
+    sessionStorage.setItem('_fitEmail', email);
+    sessionStorage.setItem('_fitNick',  nickname);
   },
   clearAll() {
+    const uid = getCurrentUid();
+    if (uid) localStorage.removeItem(`hud_${uid}`);
     localStorage.removeItem('healthUserData');
     localStorage.removeItem('registeredEmail');
     localStorage.removeItem('registeredPw');
     localStorage.removeItem('registeredNickname');
     localStorage.removeItem('savedEmail');
+    sessionStorage.removeItem('_fitUid');
+    sessionStorage.removeItem('_fitEmail');
+    sessionStorage.removeItem('_fitNick');
   },
 };
 
@@ -66,8 +124,9 @@ function formatDate(date = new Date()) {
 
 /* ── 로그아웃 공통 처리 ── */
 function handleLogout() {
-  localStorage.removeItem('healthUserData');
-  location.href = '../html/sc201_1.html';
+  if (typeof auth !== 'undefined') auth.signOut().catch(() => {});
+  Storage.clearAll();
+  location.href = 'sc201_1.html';
 }
 
 /* ── 메뉴 버튼 네비게이션 공통 바인딩 ── */
@@ -81,9 +140,8 @@ function bindMenuBtns() {
 
 /* ── 로그인 여부 확인 → 미로그인 시 로그인 페이지로 ── */
 function requireLogin() {
-  const reg = Storage.getRegistered();
-  if (!reg.email) {
-    location.href = '../html/sc201_1.html';
+  if (!getCurrentUid()) {
+    location.href = 'sc201_1.html';
     return false;
   }
   return true;
@@ -208,4 +266,359 @@ function getWorkoutIcon(name) {
     }
   }
   return '🏃';
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ── 페이지 전환 헬퍼 (sc401, hc402, hc403 공통) ── */
+function navigateTo(url) {
+  document.body.classList.add('page-exit');
+  setTimeout(() => { location.href = url; }, 320);
+}
+
+
+/* ════════════════════════════════
+   공통 AI상담 오버레이 + 히스토리 달력
+   sc301, sc302, sc311, sc602 공통 사용
+   DOMContentLoaded에서 initCommonOverlays() 호출
+   ════════════════════════════════ */
+function initCommonOverlays() {
+  if (document.getElementById('menuAiChat')) initAiOverlay();
+  /* 히스토리 메뉴: 모달 여부와 무관하게 항상 sc602 오늘날짜로 이동 */
+  const histBtn = document.getElementById('menuHistory');
+  if (histBtn) {
+    histBtn.addEventListener('click', () => {
+      const d = new Date();
+      const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      location.href = `sc602.html?date=${dateStr}`;
+    });
+  }
+  /* sc301 전용: 히스토리 달력 모달 (달력 위에서 날짜 선택) */
+  if (document.getElementById('histModalOverlay')) initHistModal();
+}
+
+/* ════════════════════════════════
+   sc501 — AI 상담 오버레이 (sc301 내)
+   ════════════════════════════════ */
+function initAiOverlay() {
+  const menuBtn   = document.getElementById('menuAiChat');
+  const overlay   = document.getElementById('aiOverlay');
+  const closeBtn  = document.getElementById('aiOverlayClose');
+  const sendBtn   = document.getElementById('aiOverlaySend');
+  const input     = document.getElementById('aiOverlayInput');
+  const messages  = document.getElementById('aiOverlayMessages');
+
+  const AI_RESPONSES = [
+    '좋은 질문이에요! 현재 식단 구성은 균형 잡혀 있어요 💪',
+    '운동 강도가 걱정되신다면, 처음엔 세트 수를 줄이고 점진적으로 늘려가세요.',
+    '식사 간격을 3~4시간으로 유지하면 혈당 조절에 도움이 돼요.',
+    '충분한 수분 섭취도 잊지 마세요. 하루 2L 이상을 목표로 해보세요.',
+    '단백질 섭취량을 체중 1kg당 1.2~1.6g 수준으로 맞추는 게 좋아요.',
+  ];
+  let aiIdx = 0;
+
+  menuBtn?.addEventListener('click', () => {
+    overlay?.classList.add('show');
+  });
+
+  closeBtn?.addEventListener('click', () => {
+    overlay?.classList.remove('show');
+  });
+
+  overlay?.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.classList.remove('show');
+  });
+
+  function sendMessage() {
+    const text = input?.value.trim();
+    if (!text) return;
+    appendAiMsg('user', text);
+    input.value = '';
+    input.style.height = 'auto';
+
+    const typing = appendTypingIndicator();
+    setTimeout(() => {
+      typing.remove();
+      appendAiMsg('ai', AI_RESPONSES[aiIdx % AI_RESPONSES.length]);
+      aiIdx++;
+    }, 1000 + Math.random() * 600);
+  }
+
+  sendBtn?.addEventListener('click', sendMessage);
+  input?.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+  input?.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+  });
+
+  function appendAiMsg(role, text) {
+    if (!messages) return;
+    const now  = new Date();
+    const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const div  = document.createElement('div');
+    div.className = `chat-msg ${role}`;
+    div.innerHTML = `
+      <div class="chat-avatar">${role === 'ai' ? '🤖' : '👤'}</div>
+      <div>
+        <div class="chat-bubble">${text}</div>
+        <div class="chat-time">${role === 'ai' ? 'AI 상담사' : '나'} · ${time}</div>
+      </div>`;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function appendTypingIndicator() {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ai';
+    div.innerHTML = `
+      <div class="chat-avatar">🤖</div>
+      <div class="typing-indicator">
+        <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+      </div>`;
+    messages?.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    return div;
+  }
+}
+
+/* ════════════════════════════════
+   sc601 — 히스토리 달력 모달 (sc301 내)
+   ════════════════════════════════ */
+let histYear, histMonth;
+
+function initHistModal() {
+  const menuBtn  = document.getElementById('menuHistory');
+  const overlay  = document.getElementById('histModalOverlay');
+  const closeBtn = document.getElementById('histModalClose');
+  const prevBtn  = document.getElementById('histPrevMonth');
+  const nextBtn  = document.getElementById('histNextMonth');
+
+  const today = new Date();
+  histYear  = today.getFullYear();
+  histMonth = today.getMonth();
+
+  /* menuHistory 클릭은 initCommonOverlays에서 처리 */
+
+  /* sc301 달력의 달력 카드 타이틀 클릭 시도 sc601 모달 */
+  document.querySelector('.calendar-card .card-title')?.addEventListener('click', openHistModal);
+
+  closeBtn?.addEventListener('click', () => overlay?.classList.remove('show'));
+  overlay?.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('show'); });
+
+  prevBtn?.addEventListener('click', () => {
+    histMonth--;
+    if (histMonth < 0) { histMonth = 11; histYear--; }
+    buildHistCal();
+  });
+  nextBtn?.addEventListener('click', () => {
+    histMonth++;
+    if (histMonth > 11) { histMonth = 0; histYear++; }
+    buildHistCal();
+  });
+}
+
+function openHistModal() {
+  const overlay = document.getElementById('histModalOverlay');
+  overlay?.classList.add('show');
+  buildHistCal();
+}
+
+/* Firestore에서 해당 월의 check 데이터를 가져와 localStorage에 캐시 */
+async function loadMonthChecksFromFirestore(year, month) {
+  const uid = getCurrentUid();
+  if (!uid || typeof db === 'undefined') return;
+
+  const mm        = String(month + 1).padStart(2, '0');
+  const startDate = `${year}-${mm}-01`;
+  const endDate   = `${year}-${mm}-31`;
+
+  try {
+    const snap = await db.collection('users').doc(uid).collection('daily')
+      .where(firebase.firestore.FieldPath.documentId(), '>=', startDate)
+      .where(firebase.firestore.FieldPath.documentId(), '<=', endDate)
+      .get();
+
+    snap.forEach(doc => {
+      const data  = doc.data();
+      const dateStr = doc.id;
+      if (data.check) {
+        localStorage.setItem(lsKey('check', dateStr), JSON.stringify(data.check));
+      }
+    });
+  } catch (e) {
+    console.warn('[buildHistCal] Firestore 로드 실패:', e.message);
+  }
+}
+
+async function buildHistCal() {
+  const titleEl = document.getElementById('histCalTitle');
+  const daysEl  = document.getElementById('histDays');
+  if (!titleEl || !daysEl) return;
+
+  titleEl.textContent = `${histYear}년 ${histMonth + 1}월`;
+  daysEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;opacity:.4;font-size:12px">불러오는 중...</div>';
+
+  /* Firestore에서 해당 월 check 데이터 로드 → localStorage 캐시 */
+  await loadMonthChecksFromFirestore(histYear, histMonth);
+
+  daysEl.innerHTML = '';
+
+  const firstDay    = new Date(histYear, histMonth, 1).getDay();
+  const daysInMonth = new Date(histYear, histMonth + 1, 0).getDate();
+  const offset      = firstDay === 0 ? 6 : firstDay - 1;
+
+  for (let i = 0; i < offset; i++) {
+    const el = document.createElement('div');
+    el.className = 'hist-day empty';
+    daysEl.appendChild(el);
+  }
+
+  /* 달성 상태 미리 계산 */
+  const statusArr = [null];
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr  = `${histYear}-${String(histMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let checks = {};
+    try { checks = JSON.parse(localStorage.getItem(lsKey('check', dateStr))) || {}; } catch {}
+    if (checks.meal && checks.workout) statusArr.push('both');
+    else if (checks.meal)              statusArr.push('meal');
+    else if (checks.workout)           statusArr.push('workout');
+    else                               statusArr.push(null);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr  = `${histYear}-${String(histMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+    const btn = document.createElement('button');
+    btn.className = 'hist-day';
+    btn.dataset.date = dateStr;
+
+    /* 오늘 표시 */
+    const today = new Date();
+    if (histYear === today.getFullYear() && histMonth === today.getMonth() && d === today.getDate()) {
+      btn.classList.add('today');
+    }
+
+    const status = statusArr[d];
+    if (status) {
+      btn.classList.add(`done-${status}`);
+
+      /* 연속 streak */
+      const col = (offset + d - 1) % 7;
+      const prev = statusArr[d - 1];
+      const next = statusArr[d + 1];
+      const samePrev = prev === status && col !== 0;
+      const sameNext = next === status && col !== 6;
+
+      if (samePrev && sameNext)  btn.classList.add('streak-mid');
+      else if (samePrev)         btn.classList.add('streak-end');
+      else if (sameNext)         btn.classList.add('streak-start');
+    }
+
+    const icon = status === 'both' ? '🌟' : status === 'meal' ? '🥗' : status === 'workout' ? '💪' : '';
+    btn.innerHTML = `<span class="hist-day-num">${d}</span>${icon ? `<span class="hist-day-icon">${icon}</span>` : ''}`;
+
+    btn.addEventListener('click', () => {
+      document.getElementById('histModalOverlay')?.classList.remove('show');
+      location.href = `sc602.html?date=${dateStr}`;
+    });
+
+    daysEl.appendChild(btn);
+  }
+}
+
+/* ════════════════════════════════
+   사이드바 공통 함수
+   sc301, sc302, sc311, sc602, sc701에서 공통 사용
+   ════════════════════════════════ */
+
+/* 사이드바 프로필/체중 정보 렌더 */
+function renderSidebar() {
+  const data = Storage.getUser();
+  const reg  = Storage.getRegistered();
+
+  const nameEl = document.getElementById('userName');
+  const infoEl = document.getElementById('userBasicInfo');
+  const cwEl   = document.getElementById('currentWeightText');
+  const twEl   = document.getElementById('targetWeightText');
+
+  if (nameEl) nameEl.textContent = reg.nickname ? `${reg.nickname}님` : '사용자';
+  if (infoEl) {
+    const parts = [];
+    if (data.gender) parts.push(data.gender);
+    if (data.height) parts.push(`키 ${data.height}cm`);
+    infoEl.textContent = parts.join(' · ') || '기본 정보 없음';
+  }
+  if (cwEl) cwEl.textContent = data.weight      ? `${data.weight}kg`      : '-';
+  if (twEl) twEl.textContent = data.targetWeight ? `${data.targetWeight}kg` : '-';
+
+  initMobileSidebar();
+}
+
+/* ── 모바일 사이드바 햄버거 메뉴 초기화 ── */
+function initMobileSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  if (!sidebar || document.getElementById('sidebarToggleBtn')) return;
+
+  /* 햄버거 버튼 생성 */
+  const btn = document.createElement('button');
+  btn.id = 'sidebarToggleBtn';
+  btn.className = 'sidebar-toggle-btn';
+  btn.setAttribute('aria-label', '메뉴 열기');
+  btn.textContent = '☰';
+  document.body.appendChild(btn);
+
+  /* 어두운 배경 막 생성 */
+  const backdrop = document.createElement('div');
+  backdrop.className = 'sidebar-backdrop';
+  backdrop.id = 'sidebarBackdrop';
+  document.body.appendChild(backdrop);
+
+  const open  = () => { sidebar.classList.add('sidebar-open');    backdrop.classList.add('show'); };
+  const close = () => { sidebar.classList.remove('sidebar-open'); backdrop.classList.remove('show'); };
+
+  btn.addEventListener('click', () => {
+    sidebar.classList.contains('sidebar-open') ? close() : open();
+  });
+
+  /* 막 클릭 시 닫기 */
+  backdrop.addEventListener('click', close);
+
+  /* 메뉴 항목 클릭 시 닫기 (페이지 이동 전 자연스럽게) */
+  sidebar.addEventListener('click', e => {
+    if (e.target.closest('.menu-btn') || e.target.closest('#logoutBtn') || e.target.closest('#sidebarLogo')) {
+      setTimeout(close, 120);
+    }
+  });
+}
+
+/* 로그아웃 버튼 바인딩 */
+function bindLogout() {
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    if (typeof auth !== 'undefined') auth.signOut().catch(() => {});
+    Storage.clearAll();
+    location.href = 'sc101.html';
+  });
+}
+
+/* 로고 클릭 바인딩
+   - sc101: 맨 위로 스크롤 (sc101.js에서 별도 처리)
+   - 로그인 후 페이지: sc301로 이동 */
+function bindLogoClick() {
+  document.getElementById('sidebarLogo')?.addEventListener('click', () => {
+    location.href = 'sc301.html';
+  });
 }

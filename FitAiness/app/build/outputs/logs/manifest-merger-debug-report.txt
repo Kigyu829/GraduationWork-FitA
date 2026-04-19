@@ -1,26 +1,31 @@
 -- Merging decision tree log ---
 provider#androidx.core.content.FileProvider
-INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:32:9-40:20
+INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:32:9-40:20
 	android:grantUriPermissions
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:36:13-47
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:36:13-47
 	android:authorities
-		INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:34:13-64
+		INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:34:13-64
 	android:exported
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:35:13-37
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:35:13-37
 	android:name
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:33:13-62
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:33:13-62
 manifest
-ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:2:1-43:12
-INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:2:1-43:12
-INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:2:1-43:12
-INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:2:1-43:12
+ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:2:1-43:12
+INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:2:1-43:12
+INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:2:1-43:12
+INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:2:1-43:12
 MERGED from [androidx.navigation:navigation-common:2.7.7] C:\Users\김인규\.gradle\caches\9.3.1\transforms\d8f03fd64ed886d4a1bab7d987284208\workspace\transformed\navigation-common-2.7.7\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.navigation:navigation-runtime:2.7.7] C:\Users\김인규\.gradle\caches\9.3.1\transforms\a618f12ab2118c254163879821833e16\workspace\transformed\navigation-runtime-2.7.7\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.navigation:navigation-fragment:2.7.7] C:\Users\김인규\.gradle\caches\9.3.1\transforms\9c752a74d98e26577b30164f915616ee\workspace\transformed\navigation-fragment-2.7.7\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.navigation:navigation-ui:2.7.7] C:\Users\김인규\.gradle\caches\9.3.1\transforms\26c822f874d27e0b220f665a8c1e2394\workspace\transformed\navigation-ui-2.7.7\AndroidManifest.xml:17:1-22:12
 MERGED from [com.google.android.material:material:1.13.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\f34512583aff8bbcbda8e9a97e25fc06\workspace\transformed\material-1.13.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.2.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\69e17f2c97dc893a494148a41812fefc\workspace\transformed\constraintlayout-2.2.1\AndroidManifest.xml:2:1-9:12
+MERGED from [androidx.camera:camera-video:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\073c11922ac87852ec12d00b9743d4d1\workspace\transformed\camera-video-1.3.4\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.camera:camera-lifecycle:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\19efe7b19f9c6ecb0ee82db76ff8e136\workspace\transformed\camera-lifecycle-1.3.4\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.camera:camera-camera2:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\34704f5ba9e78c02392333ea764daac2\workspace\transformed\camera-camera2-1.3.4\AndroidManifest.xml:17:1-36:12
+MERGED from [androidx.camera:camera-core:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\62672cb7e6616a86bb15ae1f77411d96\workspace\transformed\camera-core-1.3.4\AndroidManifest.xml:17:1-36:12
+MERGED from [androidx.camera:camera-view:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\4538950739d3b4dcb4c7e8fb41bf2c93\workspace\transformed\camera-view-1.3.4\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.appcompat:appcompat-resources:1.7.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\863252043a604805017e5d45c53a59b9\workspace\transformed\appcompat-resources-1.7.1\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.appcompat:appcompat:1.7.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\0b9334c773552aa1aaa897bb937e2aee\workspace\transformed\appcompat-1.7.1\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.viewpager2:viewpager2:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\a226e3997451599a773284ba099b6d2f\workspace\transformed\viewpager2-1.0.0\AndroidManifest.xml:17:1-24:12
@@ -50,13 +55,13 @@ MERGED from [androidx.graphics:graphics-shapes-android:1.0.1] C:\Users\김인규
 MERGED from [androidx.activity:activity-ktx:1.13.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\1fb5d4b96a89633b300422e37505199c\workspace\transformed\activity-ktx-1.13.0\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\29779afd78e45b47759ee4c3fffa81ed\workspace\transformed\savedstate-ktx-1.2.1\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\189528ae578fd7a14089506a1c60d1d7\workspace\transformed\savedstate-1.2.1\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.loader:loader:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\f57716f2ae47cc28c4587ff65c45db66\workspace\transformed\loader-1.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.lifecycle:lifecycle-livedata:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\9a1eab1bb7a30803d3ba948b380aaad2\workspace\transformed\lifecycle-livedata-2.6.2\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.lifecycle:lifecycle-runtime:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\d6253677697c656db5b15d26b94b8849\workspace\transformed\lifecycle-runtime-2.6.2\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\f57716f2ae47cc28c4587ff65c45db66\workspace\transformed\loader-1.0.0\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\1ac6bf6106dd720ade971d2aebe88c73\workspace\transformed\lifecycle-viewmodel-2.6.2\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ef8340cce4bd0a2dffa294dc4e89fc1f\workspace\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:17:1-35:12
 MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\1be3f6110ca2fb7e7d1346aeb158f258\workspace\transformed\lifecycle-livedata-core-ktx-2.6.2\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\df0f598fbd1eb3047d0ec7dc0107c0ca\workspace\transformed\lifecycle-livedata-core-2.6.2\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\9a1eab1bb7a30803d3ba948b380aaad2\workspace\transformed\lifecycle-livedata-2.6.2\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\1fd559e01ef2614ebcc686a57cb3d2cd\workspace\transformed\lifecycle-runtime-ktx-2.6.2\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\18041dc9da1175e832495554ee4a52ab\workspace\transformed\lifecycle-viewmodel-ktx-2.6.2\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\10bb389141c6e985a003edc1d0aea576\workspace\transformed\lifecycle-viewmodel-savedstate-2.6.2\AndroidManifest.xml:17:1-22:12
@@ -85,55 +90,68 @@ MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\�
 MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\25d2eb7306ec20d87b15c608d5b0c00b\workspace\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.android.libraries.identity.googleid:googleid:1.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\56726162adc5f7ddd6b8369f33eb6820\workspace\transformed\googleid-1.1.0\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.cardview:cardview:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\b0bf36904ab291b79183359ea6b5c04e\workspace\transformed\cardview-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.mediapipe:tasks-vision:0.10.8] C:\Users\김인규\.gradle\caches\9.3.1\transforms\45f505f64d0a2a48af706885dae621c6\workspace\transformed\tasks-vision-0.10.8\AndroidManifest.xml:2:1-9:12
 MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\81ec41bee8eb25ab94ecfd7e911f2b23\workspace\transformed\cursoradapter-1.0.0\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\76e673905a76b43d9d4c17684e240e82\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:17:1-55:12
+MERGED from [androidx.exifinterface:exifinterface:1.3.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\14ed42f49e2e27e0910b84e63132dd1f\workspace\transformed\exifinterface-1.3.2\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\1351f704d90b257afeffb2b611045497\workspace\transformed\interpolator-1.0.0\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\c18c6b15c1e4593d53b056dbb076e1f9\workspace\transformed\startup-runtime-1.1.1\AndroidManifest.xml:17:1-33:12
 MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\4bc29bd31e698f4d6a177b7d84dfbaa5\workspace\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:17:1-22:12
 MERGED from [com.google.firebase:firebase-components:19.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\dadd7c99f56dddb188176412c2e10880\workspace\transformed\firebase-components-19.0.0\AndroidManifest.xml:15:1-20:12
+MERGED from [com.google.mediapipe:tasks-core:0.10.8] C:\Users\김인규\.gradle\caches\9.3.1\transforms\1370f2ac75953e0910e1dd64e7e4c942\workspace\transformed\tasks-core-0.10.8\AndroidManifest.xml:2:1-9:12
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\797ce38e704586cdc53d697a995d0c36\workspace\transformed\transport-backend-cct-3.1.0\AndroidManifest.xml:15:1-38:12
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ce7ec005a4b278c7ba9e1960809f188d\workspace\transformed\transport-runtime-3.1.0\AndroidManifest.xml:15:1-41:12
+MERGED from [com.google.android.datatransport:transport-api:3.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\898be5b9d857820d014abeb9271acc2d\workspace\transformed\transport-api-3.0.0\AndroidManifest.xml:15:1-22:12
 MERGED from [androidx.tracing:tracing:1.2.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\45954c551ed68fec91fceaa44ff53b0a\workspace\transformed\tracing-1.2.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.firebase:firebase-encoders-json:18.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\8d65966204904f25e167d39a6343b3ed\workspace\transformed\firebase-encoders-json-18.0.0\AndroidManifest.xml:15:1-23:12
 MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\7179296fbb615e913e4fab8f926c8ece\workspace\transformed\core-runtime-2.2.0\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.compose.runtime:runtime-annotation-android:1.9.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\5b2193b8fd5f379a51179e9928f2f8a1\workspace\transformed\runtime-annotation\AndroidManifest.xml:2:1-7:12
 MERGED from [io.grpc:grpc-android:1.62.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\debfecf6664cf5d0090a66ec0a630b36\workspace\transformed\grpc-android-1.62.2\AndroidManifest.xml:2:1-9:12
 MERGED from [com.google.firebase:protolite-well-known-types:18.0.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\800d475df339e90c5295d7be79465d04\workspace\transformed\protolite-well-known-types-18.0.1\AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.android.play:core-common:2.0.3] C:\Users\김인규\.gradle\caches\9.3.1\transforms\5f522dfbfd349e3c49a7a75c04911db4\workspace\transformed\core-common-2.0.3\AndroidManifest.xml:2:1-21:12
 	package
-		INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml
 	android:versionName
-		INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml
 	xmlns:tools
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:3:5-51
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:3:5-51
 	android:versionCode
-		INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml
 	xmlns:android
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:2:11-69
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:2:11-69
 uses-permission#android.permission.INTERNET
-ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:5:5-67
+ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:5:5-67
 MERGED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ad39e52d1cae114487a8abfb7f491df7\workspace\transformed\firebase-auth-24.0.1\AndroidManifest.xml:25:5-67
 MERGED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ad39e52d1cae114487a8abfb7f491df7\workspace\transformed\firebase-auth-24.0.1\AndroidManifest.xml:25:5-67
 MERGED from [com.google.firebase:firebase-firestore:26.1.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\28ecbd0451b66269f06643b743528476\workspace\transformed\firebase-firestore-26.1.2\AndroidManifest.xml:11:5-67
 MERGED from [com.google.firebase:firebase-firestore:26.1.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\28ecbd0451b66269f06643b743528476\workspace\transformed\firebase-firestore-26.1.2\AndroidManifest.xml:11:5-67
 MERGED from [com.google.android.recaptcha:recaptcha:18.6.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\879cd4430623c7ca699968d3e34a0920\workspace\transformed\recaptcha-18.6.1\AndroidManifest.xml:7:5-67
 MERGED from [com.google.android.recaptcha:recaptcha:18.6.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\879cd4430623c7ca699968d3e34a0920\workspace\transformed\recaptcha-18.6.1\AndroidManifest.xml:7:5-67
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\797ce38e704586cdc53d697a995d0c36\workspace\transformed\transport-backend-cct-3.1.0\AndroidManifest.xml:26:5-67
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\797ce38e704586cdc53d697a995d0c36\workspace\transformed\transport-backend-cct-3.1.0\AndroidManifest.xml:26:5-67
 	android:name
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:5:22-64
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:5:22-64
 uses-permission#android.permission.CAMERA
-ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:6:5-65
+ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:6:5-65
 	android:name
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:6:22-62
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:6:22-62
 uses-feature#android.hardware.camera
-ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:7:5-85
+ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:7:5-85
 	android:required
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:7:58-82
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:7:58-82
 	android:name
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:7:19-57
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:7:19-57
 application
-ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:9:5-41:19
-INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:9:5-41:19
+ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:9:5-41:19
+INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:9:5-41:19
 MERGED from [com.google.android.material:material:1.13.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\f34512583aff8bbcbda8e9a97e25fc06\workspace\transformed\material-1.13.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.13.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\f34512583aff8bbcbda8e9a97e25fc06\workspace\transformed\material-1.13.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.2.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\69e17f2c97dc893a494148a41812fefc\workspace\transformed\constraintlayout-2.2.1\AndroidManifest.xml:7:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.2.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\69e17f2c97dc893a494148a41812fefc\workspace\transformed\constraintlayout-2.2.1\AndroidManifest.xml:7:5-20
+MERGED from [androidx.camera:camera-camera2:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\34704f5ba9e78c02392333ea764daac2\workspace\transformed\camera-camera2-1.3.4\AndroidManifest.xml:23:5-34:19
+MERGED from [androidx.camera:camera-camera2:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\34704f5ba9e78c02392333ea764daac2\workspace\transformed\camera-camera2-1.3.4\AndroidManifest.xml:23:5-34:19
+MERGED from [androidx.camera:camera-core:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\62672cb7e6616a86bb15ae1f77411d96\workspace\transformed\camera-core-1.3.4\AndroidManifest.xml:23:5-34:19
+MERGED from [androidx.camera:camera-core:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\62672cb7e6616a86bb15ae1f77411d96\workspace\transformed\camera-core-1.3.4\AndroidManifest.xml:23:5-34:19
 MERGED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ad39e52d1cae114487a8abfb7f491df7\workspace\transformed\firebase-auth-24.0.1\AndroidManifest.xml:28:5-73:19
 MERGED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ad39e52d1cae114487a8abfb7f491df7\workspace\transformed\firebase-auth-24.0.1\AndroidManifest.xml:28:5-73:19
 MERGED from [com.google.firebase:firebase-firestore:26.1.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\28ecbd0451b66269f06643b743528476\workspace\transformed\firebase-firestore-26.1.2\AndroidManifest.xml:13:5-24:19
@@ -172,60 +190,64 @@ MERGED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\김인�
 MERGED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\76e673905a76b43d9d4c17684e240e82\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:23:5-53:19
 MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\c18c6b15c1e4593d53b056dbb076e1f9\workspace\transformed\startup-runtime-1.1.1\AndroidManifest.xml:25:5-31:19
 MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\c18c6b15c1e4593d53b056dbb076e1f9\workspace\transformed\startup-runtime-1.1.1\AndroidManifest.xml:25:5-31:19
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\797ce38e704586cdc53d697a995d0c36\workspace\transformed\transport-backend-cct-3.1.0\AndroidManifest.xml:28:5-36:19
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\797ce38e704586cdc53d697a995d0c36\workspace\transformed\transport-backend-cct-3.1.0\AndroidManifest.xml:28:5-36:19
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ce7ec005a4b278c7ba9e1960809f188d\workspace\transformed\transport-runtime-3.1.0\AndroidManifest.xml:25:5-39:19
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ce7ec005a4b278c7ba9e1960809f188d\workspace\transformed\transport-runtime-3.1.0\AndroidManifest.xml:25:5-39:19
 MERGED from [com.google.android.play:core-common:2.0.3] C:\Users\김인규\.gradle\caches\9.3.1\transforms\5f522dfbfd349e3c49a7a75c04911db4\workspace\transformed\core-common-2.0.3\AndroidManifest.xml:11:5-19:19
 MERGED from [com.google.android.play:core-common:2.0.3] C:\Users\김인규\.gradle\caches\9.3.1\transforms\5f522dfbfd349e3c49a7a75c04911db4\workspace\transformed\core-common-2.0.3\AndroidManifest.xml:11:5-19:19
 	android:extractNativeLibs
-		INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.18.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\e0f43eec7b4de847300d205e2e9333c1\workspace\transformed\core-1.18.0\AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:16:9-35
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:16:9-35
 	android:label
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:14:9-41
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:14:9-41
 	android:fullBackupContent
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:12:9-54
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:12:9-54
 	android:roundIcon
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:15:9-54
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:15:9-54
 	tools:targetApi
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:19:9-29
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:19:9-29
 	android:icon
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:13:9-43
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:13:9-43
 	android:allowBackup
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:10:9-35
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:10:9-35
 	android:theme
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:17:9-47
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:17:9-47
 	android:dataExtractionRules
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:11:9-65
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:11:9-65
 	android:usesCleartextTraffic
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:18:9-44
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:18:9-44
 activity#com.capstone.fitainess.MainActivity
-ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:21:9-30:20
+ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:21:9-30:20
 	android:exported
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:23:13-36
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:23:13-36
 	android:theme
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:24:13-54
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:24:13-54
 	android:name
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:22:13-41
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:22:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:26:13-29:29
+ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:26:13-29:29
 action#android.intent.action.MAIN
-ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:27:17-69
+ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:27:17-69
 	android:name
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:27:25-66
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:27:25-66
 category#android.intent.category.LAUNCHER
-ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:28:17-77
+ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:28:17-77
 	android:name
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:28:27-74
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:28:27-74
 meta-data#android.support.FILE_PROVIDER_PATHS
-ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:37:13-39:54
+ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:37:13-39:54
 	android:resource
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:39:17-51
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:39:17-51
 	android:name
-		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml:38:17-67
+		ADDED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml:38:17-67
 uses-sdk
-INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
-INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml
-INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml
+INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml
+INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml
 MERGED from [androidx.navigation:navigation-common:2.7.7] C:\Users\김인규\.gradle\caches\9.3.1\transforms\d8f03fd64ed886d4a1bab7d987284208\workspace\transformed\navigation-common-2.7.7\AndroidManifest.xml:20:5-44
 MERGED from [androidx.navigation:navigation-common:2.7.7] C:\Users\김인규\.gradle\caches\9.3.1\transforms\d8f03fd64ed886d4a1bab7d987284208\workspace\transformed\navigation-common-2.7.7\AndroidManifest.xml:20:5-44
 MERGED from [androidx.navigation:navigation-runtime:2.7.7] C:\Users\김인규\.gradle\caches\9.3.1\transforms\a618f12ab2118c254163879821833e16\workspace\transformed\navigation-runtime-2.7.7\AndroidManifest.xml:20:5-44
@@ -238,6 +260,16 @@ MERGED from [com.google.android.material:material:1.13.0] C:\Users\김인규\.gr
 MERGED from [com.google.android.material:material:1.13.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\f34512583aff8bbcbda8e9a97e25fc06\workspace\transformed\material-1.13.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.constraintlayout:constraintlayout:2.2.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\69e17f2c97dc893a494148a41812fefc\workspace\transformed\constraintlayout-2.2.1\AndroidManifest.xml:5:5-44
 MERGED from [androidx.constraintlayout:constraintlayout:2.2.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\69e17f2c97dc893a494148a41812fefc\workspace\transformed\constraintlayout-2.2.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.camera:camera-video:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\073c11922ac87852ec12d00b9743d4d1\workspace\transformed\camera-video-1.3.4\AndroidManifest.xml:5:5-44
+MERGED from [androidx.camera:camera-video:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\073c11922ac87852ec12d00b9743d4d1\workspace\transformed\camera-video-1.3.4\AndroidManifest.xml:5:5-44
+MERGED from [androidx.camera:camera-lifecycle:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\19efe7b19f9c6ecb0ee82db76ff8e136\workspace\transformed\camera-lifecycle-1.3.4\AndroidManifest.xml:5:5-44
+MERGED from [androidx.camera:camera-lifecycle:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\19efe7b19f9c6ecb0ee82db76ff8e136\workspace\transformed\camera-lifecycle-1.3.4\AndroidManifest.xml:5:5-44
+MERGED from [androidx.camera:camera-camera2:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\34704f5ba9e78c02392333ea764daac2\workspace\transformed\camera-camera2-1.3.4\AndroidManifest.xml:21:5-44
+MERGED from [androidx.camera:camera-camera2:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\34704f5ba9e78c02392333ea764daac2\workspace\transformed\camera-camera2-1.3.4\AndroidManifest.xml:21:5-44
+MERGED from [androidx.camera:camera-core:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\62672cb7e6616a86bb15ae1f77411d96\workspace\transformed\camera-core-1.3.4\AndroidManifest.xml:21:5-44
+MERGED from [androidx.camera:camera-core:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\62672cb7e6616a86bb15ae1f77411d96\workspace\transformed\camera-core-1.3.4\AndroidManifest.xml:21:5-44
+MERGED from [androidx.camera:camera-view:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\4538950739d3b4dcb4c7e8fb41bf2c93\workspace\transformed\camera-view-1.3.4\AndroidManifest.xml:5:5-44
+MERGED from [androidx.camera:camera-view:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\4538950739d3b4dcb4c7e8fb41bf2c93\workspace\transformed\camera-view-1.3.4\AndroidManifest.xml:5:5-44
 MERGED from [androidx.appcompat:appcompat-resources:1.7.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\863252043a604805017e5d45c53a59b9\workspace\transformed\appcompat-resources-1.7.1\AndroidManifest.xml:5:5-44
 MERGED from [androidx.appcompat:appcompat-resources:1.7.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\863252043a604805017e5d45c53a59b9\workspace\transformed\appcompat-resources-1.7.1\AndroidManifest.xml:5:5-44
 MERGED from [androidx.appcompat:appcompat:1.7.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\0b9334c773552aa1aaa897bb937e2aee\workspace\transformed\appcompat-1.7.1\AndroidManifest.xml:5:5-44
@@ -296,12 +328,10 @@ MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] C:\Users\김인규\.gradl
 MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\29779afd78e45b47759ee4c3fffa81ed\workspace\transformed\savedstate-ktx-1.2.1\AndroidManifest.xml:20:5-44
 MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\189528ae578fd7a14089506a1c60d1d7\workspace\transformed\savedstate-1.2.1\AndroidManifest.xml:20:5-44
 MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\189528ae578fd7a14089506a1c60d1d7\workspace\transformed\savedstate-1.2.1\AndroidManifest.xml:20:5-44
-MERGED from [androidx.loader:loader:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\f57716f2ae47cc28c4587ff65c45db66\workspace\transformed\loader-1.0.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.loader:loader:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\f57716f2ae47cc28c4587ff65c45db66\workspace\transformed\loader-1.0.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-livedata:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\9a1eab1bb7a30803d3ba948b380aaad2\workspace\transformed\lifecycle-livedata-2.6.2\AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-livedata:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\9a1eab1bb7a30803d3ba948b380aaad2\workspace\transformed\lifecycle-livedata-2.6.2\AndroidManifest.xml:20:5-44
 MERGED from [androidx.lifecycle:lifecycle-runtime:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\d6253677697c656db5b15d26b94b8849\workspace\transformed\lifecycle-runtime-2.6.2\AndroidManifest.xml:5:5-44
 MERGED from [androidx.lifecycle:lifecycle-runtime:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\d6253677697c656db5b15d26b94b8849\workspace\transformed\lifecycle-runtime-2.6.2\AndroidManifest.xml:5:5-44
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\f57716f2ae47cc28c4587ff65c45db66\workspace\transformed\loader-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\f57716f2ae47cc28c4587ff65c45db66\workspace\transformed\loader-1.0.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\1ac6bf6106dd720ade971d2aebe88c73\workspace\transformed\lifecycle-viewmodel-2.6.2\AndroidManifest.xml:20:5-44
 MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\1ac6bf6106dd720ade971d2aebe88c73\workspace\transformed\lifecycle-viewmodel-2.6.2\AndroidManifest.xml:20:5-44
 MERGED from [androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ef8340cce4bd0a2dffa294dc4e89fc1f\workspace\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:21:5-44
@@ -310,6 +340,8 @@ MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.6.2] C:\Users\김�
 MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\1be3f6110ca2fb7e7d1346aeb158f258\workspace\transformed\lifecycle-livedata-core-ktx-2.6.2\AndroidManifest.xml:20:5-44
 MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\df0f598fbd1eb3047d0ec7dc0107c0ca\workspace\transformed\lifecycle-livedata-core-2.6.2\AndroidManifest.xml:20:5-44
 MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\df0f598fbd1eb3047d0ec7dc0107c0ca\workspace\transformed\lifecycle-livedata-core-2.6.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\9a1eab1bb7a30803d3ba948b380aaad2\workspace\transformed\lifecycle-livedata-2.6.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\9a1eab1bb7a30803d3ba948b380aaad2\workspace\transformed\lifecycle-livedata-2.6.2\AndroidManifest.xml:20:5-44
 MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\1fd559e01ef2614ebcc686a57cb3d2cd\workspace\transformed\lifecycle-runtime-ktx-2.6.2\AndroidManifest.xml:20:5-44
 MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\1fd559e01ef2614ebcc686a57cb3d2cd\workspace\transformed\lifecycle-runtime-ktx-2.6.2\AndroidManifest.xml:20:5-44
 MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\18041dc9da1175e832495554ee4a52ab\workspace\transformed\lifecycle-viewmodel-ktx-2.6.2\AndroidManifest.xml:20:5-44
@@ -366,10 +398,14 @@ MERGED from [com.google.android.libraries.identity.googleid:googleid:1.1.0] C:\U
 MERGED from [com.google.android.libraries.identity.googleid:googleid:1.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\56726162adc5f7ddd6b8369f33eb6820\workspace\transformed\googleid-1.1.0\AndroidManifest.xml:5:5-44
 MERGED from [androidx.cardview:cardview:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\b0bf36904ab291b79183359ea6b5c04e\workspace\transformed\cardview-1.0.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.cardview:cardview:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\b0bf36904ab291b79183359ea6b5c04e\workspace\transformed\cardview-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.google.mediapipe:tasks-vision:0.10.8] C:\Users\김인규\.gradle\caches\9.3.1\transforms\45f505f64d0a2a48af706885dae621c6\workspace\transformed\tasks-vision-0.10.8\AndroidManifest.xml:5:5-7:41
+MERGED from [com.google.mediapipe:tasks-vision:0.10.8] C:\Users\김인규\.gradle\caches\9.3.1\transforms\45f505f64d0a2a48af706885dae621c6\workspace\transformed\tasks-vision-0.10.8\AndroidManifest.xml:5:5-7:41
 MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\81ec41bee8eb25ab94ecfd7e911f2b23\workspace\transformed\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\81ec41bee8eb25ab94ecfd7e911f2b23\workspace\transformed\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\76e673905a76b43d9d4c17684e240e82\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:21:5-44
 MERGED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\76e673905a76b43d9d4c17684e240e82\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.exifinterface:exifinterface:1.3.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\14ed42f49e2e27e0910b84e63132dd1f\workspace\transformed\exifinterface-1.3.2\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.exifinterface:exifinterface:1.3.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\14ed42f49e2e27e0910b84e63132dd1f\workspace\transformed\exifinterface-1.3.2\AndroidManifest.xml:20:5-22:41
 MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\1351f704d90b257afeffb2b611045497\workspace\transformed\interpolator-1.0.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\1351f704d90b257afeffb2b611045497\workspace\transformed\interpolator-1.0.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\c18c6b15c1e4593d53b056dbb076e1f9\workspace\transformed\startup-runtime-1.1.1\AndroidManifest.xml:21:5-23:41
@@ -378,8 +414,18 @@ MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\User
 MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\4bc29bd31e698f4d6a177b7d84dfbaa5\workspace\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:20:5-44
 MERGED from [com.google.firebase:firebase-components:19.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\dadd7c99f56dddb188176412c2e10880\workspace\transformed\firebase-components-19.0.0\AndroidManifest.xml:18:5-44
 MERGED from [com.google.firebase:firebase-components:19.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\dadd7c99f56dddb188176412c2e10880\workspace\transformed\firebase-components-19.0.0\AndroidManifest.xml:18:5-44
+MERGED from [com.google.mediapipe:tasks-core:0.10.8] C:\Users\김인규\.gradle\caches\9.3.1\transforms\1370f2ac75953e0910e1dd64e7e4c942\workspace\transformed\tasks-core-0.10.8\AndroidManifest.xml:5:5-7:41
+MERGED from [com.google.mediapipe:tasks-core:0.10.8] C:\Users\김인규\.gradle\caches\9.3.1\transforms\1370f2ac75953e0910e1dd64e7e4c942\workspace\transformed\tasks-core-0.10.8\AndroidManifest.xml:5:5-7:41
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\797ce38e704586cdc53d697a995d0c36\workspace\transformed\transport-backend-cct-3.1.0\AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\797ce38e704586cdc53d697a995d0c36\workspace\transformed\transport-backend-cct-3.1.0\AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ce7ec005a4b278c7ba9e1960809f188d\workspace\transformed\transport-runtime-3.1.0\AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ce7ec005a4b278c7ba9e1960809f188d\workspace\transformed\transport-runtime-3.1.0\AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.android.datatransport:transport-api:3.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\898be5b9d857820d014abeb9271acc2d\workspace\transformed\transport-api-3.0.0\AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.android.datatransport:transport-api:3.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\898be5b9d857820d014abeb9271acc2d\workspace\transformed\transport-api-3.0.0\AndroidManifest.xml:18:5-20:41
 MERGED from [androidx.tracing:tracing:1.2.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\45954c551ed68fec91fceaa44ff53b0a\workspace\transformed\tracing-1.2.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.tracing:tracing:1.2.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\45954c551ed68fec91fceaa44ff53b0a\workspace\transformed\tracing-1.2.0\AndroidManifest.xml:20:5-44
+MERGED from [com.google.firebase:firebase-encoders-json:18.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\8d65966204904f25e167d39a6343b3ed\workspace\transformed\firebase-encoders-json-18.0.0\AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.firebase:firebase-encoders-json:18.0.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\8d65966204904f25e167d39a6343b3ed\workspace\transformed\firebase-encoders-json-18.0.0\AndroidManifest.xml:19:5-21:41
 MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\7179296fbb615e913e4fab8f926c8ece\workspace\transformed\core-runtime-2.2.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\7179296fbb615e913e4fab8f926c8ece\workspace\transformed\core-runtime-2.2.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.compose.runtime:runtime-annotation-android:1.9.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\5b2193b8fd5f379a51179e9928f2f8a1\workspace\transformed\runtime-annotation\AndroidManifest.xml:5:5-44
@@ -393,15 +439,39 @@ MERGED from [com.google.android.play:core-common:2.0.3] C:\Users\김인규\.grad
 	tools:overrideLibrary
 		ADDED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ad39e52d1cae114487a8abfb7f491df7\workspace\transformed\firebase-auth-24.0.1\AndroidManifest.xml:23:9-148
 	android:targetSdkVersion
-		INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml
 	android:minSdkVersion
-		INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAiNess\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Users\김인규\Desktop\Graduation_Work\FitAIness\app\src\main\AndroidManifest.xml
+service#androidx.camera.core.impl.MetadataHolderService
+ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\34704f5ba9e78c02392333ea764daac2\workspace\transformed\camera-camera2-1.3.4\AndroidManifest.xml:24:9-33:19
+MERGED from [androidx.camera:camera-core:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\62672cb7e6616a86bb15ae1f77411d96\workspace\transformed\camera-core-1.3.4\AndroidManifest.xml:29:9-33:78
+MERGED from [androidx.camera:camera-core:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\62672cb7e6616a86bb15ae1f77411d96\workspace\transformed\camera-core-1.3.4\AndroidManifest.xml:29:9-33:78
+	tools:node
+		ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\34704f5ba9e78c02392333ea764daac2\workspace\transformed\camera-camera2-1.3.4\AndroidManifest.xml:29:13-31
+	android:enabled
+		ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\34704f5ba9e78c02392333ea764daac2\workspace\transformed\camera-camera2-1.3.4\AndroidManifest.xml:26:13-36
+	android:exported
+		ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\34704f5ba9e78c02392333ea764daac2\workspace\transformed\camera-camera2-1.3.4\AndroidManifest.xml:27:13-37
+	tools:ignore
+		ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\34704f5ba9e78c02392333ea764daac2\workspace\transformed\camera-camera2-1.3.4\AndroidManifest.xml:28:13-75
+	android:name
+		ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\34704f5ba9e78c02392333ea764daac2\workspace\transformed\camera-camera2-1.3.4\AndroidManifest.xml:25:13-75
+meta-data#androidx.camera.core.impl.MetadataHolderService.DEFAULT_CONFIG_PROVIDER
+ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\34704f5ba9e78c02392333ea764daac2\workspace\transformed\camera-camera2-1.3.4\AndroidManifest.xml:30:13-32:89
+	android:value
+		ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\34704f5ba9e78c02392333ea764daac2\workspace\transformed\camera-camera2-1.3.4\AndroidManifest.xml:32:17-86
+	android:name
+		ADDED from [androidx.camera:camera-camera2:1.3.4] C:\Users\김인규\.gradle\caches\9.3.1\transforms\34704f5ba9e78c02392333ea764daac2\workspace\transformed\camera-camera2-1.3.4\AndroidManifest.xml:31:17-103
 uses-permission#android.permission.ACCESS_NETWORK_STATE
 ADDED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ad39e52d1cae114487a8abfb7f491df7\workspace\transformed\firebase-auth-24.0.1\AndroidManifest.xml:26:5-79
 MERGED from [com.google.firebase:firebase-firestore:26.1.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\28ecbd0451b66269f06643b743528476\workspace\transformed\firebase-firestore-26.1.2\AndroidManifest.xml:10:5-79
 MERGED from [com.google.firebase:firebase-firestore:26.1.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\28ecbd0451b66269f06643b743528476\workspace\transformed\firebase-firestore-26.1.2\AndroidManifest.xml:10:5-79
 MERGED from [com.google.android.recaptcha:recaptcha:18.6.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\879cd4430623c7ca699968d3e34a0920\workspace\transformed\recaptcha-18.6.1\AndroidManifest.xml:8:5-79
 MERGED from [com.google.android.recaptcha:recaptcha:18.6.1] C:\Users\김인규\.gradle\caches\9.3.1\transforms\879cd4430623c7ca699968d3e34a0920\workspace\transformed\recaptcha-18.6.1\AndroidManifest.xml:8:5-79
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\797ce38e704586cdc53d697a995d0c36\workspace\transformed\transport-backend-cct-3.1.0\AndroidManifest.xml:25:5-79
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\797ce38e704586cdc53d697a995d0c36\workspace\transformed\transport-backend-cct-3.1.0\AndroidManifest.xml:25:5-79
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ce7ec005a4b278c7ba9e1960809f188d\workspace\transformed\transport-runtime-3.1.0\AndroidManifest.xml:22:5-79
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ce7ec005a4b278c7ba9e1960809f188d\workspace\transformed\transport-runtime-3.1.0\AndroidManifest.xml:22:5-79
 MERGED from [io.grpc:grpc-android:1.62.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\debfecf6664cf5d0090a66ec0a630b36\workspace\transformed\grpc-android-1.62.2\AndroidManifest.xml:7:5-79
 MERGED from [io.grpc:grpc-android:1.62.2] C:\Users\김인규\.gradle\caches\9.3.1\transforms\debfecf6664cf5d0090a66ec0a630b36\workspace\transformed\grpc-android-1.62.2\AndroidManifest.xml:7:5-79
 	android:name
@@ -674,6 +744,34 @@ action#androidx.profileinstaller.action.BENCHMARK_OPERATION
 ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\76e673905a76b43d9d4c17684e240e82\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:17-95
 	android:name
 		ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\76e673905a76b43d9d4c17684e240e82\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:25-92
+service#com.google.android.datatransport.runtime.backends.TransportBackendDiscovery
+ADDED from [com.google.android.datatransport:transport-backend-cct:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\797ce38e704586cdc53d697a995d0c36\workspace\transformed\transport-backend-cct-3.1.0\AndroidManifest.xml:29:9-35:19
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ce7ec005a4b278c7ba9e1960809f188d\workspace\transformed\transport-runtime-3.1.0\AndroidManifest.xml:36:9-38:40
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ce7ec005a4b278c7ba9e1960809f188d\workspace\transformed\transport-runtime-3.1.0\AndroidManifest.xml:36:9-38:40
+	android:exported
+		ADDED from [com.google.android.datatransport:transport-backend-cct:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\797ce38e704586cdc53d697a995d0c36\workspace\transformed\transport-backend-cct-3.1.0\AndroidManifest.xml:31:13-37
+	android:name
+		ADDED from [com.google.android.datatransport:transport-backend-cct:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\797ce38e704586cdc53d697a995d0c36\workspace\transformed\transport-backend-cct-3.1.0\AndroidManifest.xml:30:13-103
+meta-data#backend:com.google.android.datatransport.cct.CctBackendFactory
+ADDED from [com.google.android.datatransport:transport-backend-cct:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\797ce38e704586cdc53d697a995d0c36\workspace\transformed\transport-backend-cct-3.1.0\AndroidManifest.xml:32:13-34:39
+	android:value
+		ADDED from [com.google.android.datatransport:transport-backend-cct:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\797ce38e704586cdc53d697a995d0c36\workspace\transformed\transport-backend-cct-3.1.0\AndroidManifest.xml:34:17-36
+	android:name
+		ADDED from [com.google.android.datatransport:transport-backend-cct:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\797ce38e704586cdc53d697a995d0c36\workspace\transformed\transport-backend-cct-3.1.0\AndroidManifest.xml:33:17-94
+service#com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService
+ADDED from [com.google.android.datatransport:transport-runtime:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ce7ec005a4b278c7ba9e1960809f188d\workspace\transformed\transport-runtime-3.1.0\AndroidManifest.xml:26:9-30:19
+	android:exported
+		ADDED from [com.google.android.datatransport:transport-runtime:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ce7ec005a4b278c7ba9e1960809f188d\workspace\transformed\transport-runtime-3.1.0\AndroidManifest.xml:28:13-37
+	android:permission
+		ADDED from [com.google.android.datatransport:transport-runtime:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ce7ec005a4b278c7ba9e1960809f188d\workspace\transformed\transport-runtime-3.1.0\AndroidManifest.xml:29:13-69
+	android:name
+		ADDED from [com.google.android.datatransport:transport-runtime:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ce7ec005a4b278c7ba9e1960809f188d\workspace\transformed\transport-runtime-3.1.0\AndroidManifest.xml:27:13-117
+receiver#com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver
+ADDED from [com.google.android.datatransport:transport-runtime:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ce7ec005a4b278c7ba9e1960809f188d\workspace\transformed\transport-runtime-3.1.0\AndroidManifest.xml:32:9-34:40
+	android:exported
+		ADDED from [com.google.android.datatransport:transport-runtime:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ce7ec005a4b278c7ba9e1960809f188d\workspace\transformed\transport-runtime-3.1.0\AndroidManifest.xml:34:13-37
+	android:name
+		ADDED from [com.google.android.datatransport:transport-runtime:3.1.0] C:\Users\김인규\.gradle\caches\9.3.1\transforms\ce7ec005a4b278c7ba9e1960809f188d\workspace\transformed\transport-runtime-3.1.0\AndroidManifest.xml:33:13-132
 activity#com.google.android.play.core.common.PlayCoreDialogWrapperActivity
 ADDED from [com.google.android.play:core-common:2.0.3] C:\Users\김인규\.gradle\caches\9.3.1\transforms\5f522dfbfd349e3c49a7a75c04911db4\workspace\transformed\core-common-2.0.3\AndroidManifest.xml:14:9-18:65
 	android:stateNotNeeded

@@ -95,18 +95,23 @@ app.post('/api/analyze', upload.single('image'), async (req, res) => {
 
         const prediction = await predictFood(req.file.path);
         const best = prediction.best;
+        const detections = prediction.detections || [];
 
-        const detections = (prediction.detections || []).map(d => ({
-            class_name: d.class_name,
-            confidence: d.confidence,
+        const top5 = detections.slice(0, 5).map(d => ({
+            class_name_kr: d.class_name,
+            class_name:    d.class_name,
+            confidence:    d.confidence,
         }));
 
         res.json({
             success: true,
             data: {
-                detections: detections,
-                analyzed_at: new Date().toISOString(),
-                server: 'rcnn_server',
+                detected_food_kr: best ? best.class_name : '인식 실패',
+                confidence:       best ? best.confidence : 0,
+                is_verified:      best ? best.confidence >= 0.45 : false,
+                top_5:            top5,
+                analyzed_at:      new Date().toISOString(),
+                server:           'rcnn_server',
             }
         });
 

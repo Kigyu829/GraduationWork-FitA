@@ -15,7 +15,21 @@
       "Bash(cmd /c \"netstat -ano\")",
       "Bash(cmd /c \"powershell -Command \\\\\"Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue | Select-Object LocalPort, State, OwningProcess\\\\\"\")",
       "Bash(cmd /c \"powershell -Command \\\\\"Get-Process node -ErrorAction SilentlyContinue | Select-Object Id, ProcessName\\\\\"\")",
-      "Bash(cmd /c \"powershell -Command \\\\\"Stop-Process -Name node -Force -ErrorAction SilentlyContinue; Write-Host done\\\\\"\")"
+      "Bash(cmd /c \"powershell -Command \\\\\"Stop-Process -Name node -Force -ErrorAction SilentlyContinue; Write-Host done\\\\\"\")",
+      "Bash(npm install:*)",
+      "Bash(cmd /c \"taskkill /F /FI \"\"WINDOWTITLE eq node*\"\" /IM node.exe\")",
+      "Bash(curl:*)",
+      "Bash(cmd /c \"netstat -ano | findstr :5000\")",
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(find /c/Users/김인규/Desktop/Graduation_Work/project_web -name sc203* -o -name common.js)",
+      "Bash(find /c/Users/김인규/Desktop/Graduation_Work/project_web -name sc301* -o -name sc601*)",
+      "Bash(find /c/Users/김인규/Desktop/Graduation_Work -name hc402* -o -name hc403*)",
+      "Bash(find /c/Users/김인규/Desktop/Graduation_Work/project_web -type f -not -path */node_modules/*)",
+      "Bash(find /c/Users/김인규/Desktop/Graduation_Work/FitAIness/app/src -type f -name *.java -o -name *.kt)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/김인규/Desktop/Graduation_Work/project_web/public/pages/**)",
+      "Bash(done)"
     ]
   }
 }

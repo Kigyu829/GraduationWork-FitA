@@ -28,8 +28,8 @@ sys.path.insert(0, _HERE)
 import config
 
 # ── 하이퍼파라미터 ──────────────────────────────────────
-SCORE_THRESHOLD   = 0.27  # FoodScouterCNN 분류 신뢰도 최소값
-NMS_IOU_THRESHOLD = 0.3   # NMS IoU 임계값
+SCORE_THRESHOLD   = 0.15  # FoodScouterCNN 분류 신뢰도 최소값
+NMS_IOU_THRESHOLD = 0.45  # NMS IoU 임계값
 CNN_IMG_SIZE      = 256   # FoodScouterCNN 입력 크기
 MIN_AREA_RATIO    = 0.005 # 이미지 전체 대비 최소 면적 비율 (0.5%)
 MAX_AREA_RATIO    = 0.6   # 이미지 전체 대비 최대 면적 비율 (60%)

@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const { recommendMeal, adjustMeal } = require('../services/mealService');
+const { cacheMiddleware } = require('../middleware/cache');
 
 const router = Router();
 
@@ -7,7 +8,7 @@ const router = Router();
 // POST /api/meal/recommend — 식단 추천
 // Body: { height, weight, bmi, gender, targetWeight, targetWeeks, targetCalories? }
 // ──────────────────────────────────────────
-router.post('/recommend', (req, res) => {
+router.post('/recommend', cacheMiddleware('meal_recommend'), (req, res) => {
     const { height, weight, bmi, gender, targetWeight, targetWeeks, targetCalories: providedCalories } = req.body;
 
     if (!height || !weight || !targetWeight || !targetWeeks) {

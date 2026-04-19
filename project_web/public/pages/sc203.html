@@ -6,6 +6,11 @@
   <title>목표 설정 – HealthDash</title>
   <link rel="stylesheet" href="../css/common.css" />
   <link rel="stylesheet" href="../css/sc203.css" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body class="health-page">
   <div class="health-container">
@@ -110,7 +115,11 @@
     </div>
   </div>
 
-  <script src="../js/common.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+<script src="../js/common.js"></script>
   <script src="../js/sc203.js"></script>
 </body>
 </html>

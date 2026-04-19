@@ -12,10 +12,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-import android.text.InputType;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -25,13 +23,10 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -196,150 +191,71 @@ public class DinerFragment extends Fragment
     // 결과 처리
     // ──────────────────────────────────────
 
-    /** AI 결과를 받아 탐지 음식 체크리스트 표시 */
+    /**
+     * CNN 결과를 받아 식단 매칭 여부를 확인하고 결과 다이얼로그 표시
+     * - 일치 시: ✅ 인증 성공 다이얼로그
+     * - 불일치 시: ⚠️ 음식 달라요 + "그래도 인증" 선택
+     */
     private void showAnalysisResult(JSONObject data, String mealType) {
         if (!isAdded()) return;
         progressBar.setVisibility(View.GONE);
         btnUpload.setEnabled(true);
 
-        List<String> detectedFoods = new ArrayList<>();
-        JSONArray detectionsArr = data.optJSONArray("detections");
-        if (detectionsArr != null) {
-            for (int i = 0; i < detectionsArr.length(); i++) {
-                try {
-                    detectedFoods.add(detectionsArr.getJSONObject(i).getString("class_name"));
-                } catch (Exception ignored) {}
-            }
-        }
+        String detectedKr  = data.optString("detected_food_kr", "알 수 없음");
+        double confidence   = data.optDouble("confidence", 0.0);
+        String expectedFood = getExpectedFood(mealType);
+        int pct             = (int) (confidence * 100);
 
-        showFoodChecklistDialog(new ArrayList<>(detectedFoods), new ArrayList<>(detectedFoods), mealType);
-    }
+        String resultSummary = "인식된 음식: " + detectedKr + " (" + pct + "%)";
 
-    /** 탐지된 음식 체크리스트 다이얼로그 */
-    private void showFoodChecklistDialog(List<String> allFoods, List<String> selected, String mealType) {
-        if (!isAdded()) return;
-
-        if (allFoods.isEmpty()) {
+        if (expectedFood != null && isFoodMatch(expectedFood, detectedKr)) {
+            // 식단과 일치
             new AlertDialog.Builder(requireContext())
-                    .setTitle("🔍 인식된 음식 없음")
-                    .setMessage("음식을 인식하지 못했어요.\n직접 추가할 수 있어요.")
-                    .setPositiveButton("직접 추가", (d, w) -> showAddFoodDialog(allFoods, selected, mealType))
+                    .setTitle("✅ 인증 성공!")
+                    .setMessage(resultSummary + "\n\n오늘 식단대로 잘 드셨어요! 💪")
+                    .setPositiveButton("확인", null)
+                    .show();
+        } else if (expectedFood != null) {
+            // 식단과 불일치
+            String msg = resultSummary
+                    + "\n\n오늘 " + mealType + " 식단: " + expectedFood
+                    + "\n인식 결과: " + detectedKr
+                    + "\n\n식단과 다른 음식이에요.";
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("⚠️ 음식이 달라요")
+                    .setMessage(msg)
+                    .setPositiveButton("그래도 인증", (d, w) ->
+                            showEncouragementToast(detectedKr))
                     .setNegativeButton("취소", null)
-                    .show();
-            return;
-        }
-
-        String[] items = allFoods.toArray(new String[0]);
-        boolean[] checked = new boolean[items.length];
-        for (int i = 0; i < items.length; i++) {
-            checked[i] = selected.contains(items[i]);
-        }
-
-        new AlertDialog.Builder(requireContext())
-                .setTitle("인식된 음식을 선택하세요")
-                .setMultiChoiceItems(items, checked, (dialog, which, isChecked) -> {
-                    if (isChecked) {
-                        if (!selected.contains(items[which])) selected.add(items[which]);
-                    } else {
-                        selected.remove(items[which]);
-                    }
-                })
-                .setPositiveButton("등록", (d, w) -> registerFoods(selected, mealType))
-                .setNeutralButton("+ 직접 추가", (d, w) -> showAddFoodDialog(allFoods, selected, mealType))
-                .setNegativeButton("취소", null)
-                .show();
-    }
-
-    /** 인식 안 된 음식 직접 입력 다이얼로그 */
-    private void showAddFoodDialog(List<String> allFoods, List<String> selected, String mealType) {
-        if (!isAdded()) return;
-
-        EditText input = new EditText(requireContext());
-        input.setHint("음식 이름을 입력하세요");
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        int dp16 = (int) (16 * getResources().getDisplayMetrics().density);
-        input.setPadding(dp16, dp16, dp16, dp16);
-
-        new AlertDialog.Builder(requireContext())
-                .setTitle("음식 직접 추가")
-                .setView(input)
-                .setPositiveButton("추가", (d, w) -> {
-                    String foodName = input.getText().toString().trim();
-                    if (!foodName.isEmpty() && !allFoods.contains(foodName)) {
-                        allFoods.add(foodName);
-                        selected.add(foodName);
-                    }
-                    showFoodChecklistDialog(allFoods, selected, mealType);
-                })
-                .setNegativeButton("취소", (d, w) -> showFoodChecklistDialog(allFoods, selected, mealType))
-                .show();
-    }
-
-    /** 선택된 음식을 식단과 비교 후 등록 */
-    private void registerFoods(List<String> selected, String mealType) {
-        if (!isAdded()) return;
-
-        if (selected.isEmpty()) {
-            Toast.makeText(getContext(), "선택된 음식이 없습니다.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        List<String> expectedFoods = getExpectedFoods(mealType);
-
-        StringBuilder sb = new StringBuilder("기록된 음식:\n");
-        for (String food : selected) sb.append("• ").append(food).append("\n");
-
-        if (expectedFoods.isEmpty()) {
-            new AlertDialog.Builder(requireContext())
-                    .setTitle("✅ 식단 기록 완료")
-                    .setMessage(sb.toString())
-                    .setPositiveButton("확인", null)
-                    .show();
-            return;
-        }
-
-        // 식단 음식 중 몇 개가 선택 목록과 일치하는지 계산
-        int matchCount = 0;
-        for (String exp : expectedFoods) {
-            for (String sel : selected) {
-                if (isFoodMatch(exp, sel)) { matchCount++; break; }
-            }
-        }
-        int total = expectedFoods.size();
-        boolean majorityMatch = matchCount * 2 >= total; // 과반수 이상 일치
-
-        sb.append("\n오늘 ").append(mealType).append(" 식단 (").append(matchCount).append("/").append(total).append(" 일치):\n");
-        for (String exp : expectedFoods) sb.append("• ").append(exp).append("\n");
-
-        if (majorityMatch) {
-            new AlertDialog.Builder(requireContext())
-                    .setTitle("✅ 식단 인증 성공!")
-                    .setMessage(sb.toString())
-                    .setPositiveButton("확인", null)
                     .show();
         } else {
+            // 간식 또는 플랜 없음 → 결과만 표시
             new AlertDialog.Builder(requireContext())
-                    .setTitle("⚠️ 식단과 달라요")
-                    .setMessage(sb.append("\n식단 과반수 이상 일치 시 인증 성공이에요.").toString())
-                    .setPositiveButton("그래도 기록", (d, w) ->
-                            Toast.makeText(getContext(), "다음엔 식단대로 지켜봐요! 꾸준하게 하다 보면 목표에 가까워질 거예요 💪", Toast.LENGTH_LONG).show())
-                    .setNegativeButton("취소", null)
+                    .setTitle("🔍 분석 완료")
+                    .setMessage(resultSummary)
+                    .setPositiveButton("확인", null)
                     .show();
         }
+    }
+
+    /** "그래도 인증" 선택 시 격려 메시지 */
+    private void showEncouragementToast(String detectedFood) {
+        Toast.makeText(getContext(),
+                "다음엔 식단대로 지켜봐요! 꾸준하게 하다 보면 목표에 가까워질 거예요 💪",
+                Toast.LENGTH_LONG).show();
     }
 
     // ──────────────────────────────────────
     // 헬퍼 메서드
     // ──────────────────────────────────────
 
-    /** meal_sp에서 해당 식사의 menu 배열 가져오기 */
-    private List<String> getExpectedFoods(String mealType) {
-        List<String> foods = new ArrayList<>();
+    /** meal_sp에서 해당 식사의 main_food 가져오기 */
+    private String getExpectedFood(String mealType) {
         try {
             String planJson = requireContext()
                     .getSharedPreferences("meal_sp", Context.MODE_PRIVATE)
                     .getString("meal_plan_json", null);
-            if (planJson == null) return foods;
+            if (planJson == null) return null;
 
             JSONObject plan = new JSONObject(planJson);
             String key;
@@ -347,14 +263,12 @@ public class DinerFragment extends Fragment
                 case "아침": key = "breakfast"; break;
                 case "점심": key = "lunch";     break;
                 case "저녁": key = "dinner";    break;
-                default:    return foods;
+                default:    return null; // 간식은 비교 없이 결과만 표시
             }
-            JSONArray menuArr = plan.getJSONObject(key).optJSONArray("menu");
-            if (menuArr != null) {
-                for (int i = 0; i < menuArr.length(); i++) foods.add(menuArr.getString(i));
-            }
-        } catch (Exception ignored) {}
-        return foods;
+            return plan.getJSONObject(key).optString("main_food", null);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /** 음식 이름 일치 여부 (공백·대소문자 무시, 포함 관계도 허용) */

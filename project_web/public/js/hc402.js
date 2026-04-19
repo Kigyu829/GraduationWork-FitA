@@ -3,7 +3,7 @@
 */
 'use strict';
 
-const CNN_SERVER = 'http://localhost:4000';
+const CNN_SERVER = '';
 
 window.addEventListener('DOMContentLoaded', () => {
   const photo = sessionStorage.getItem('uploadedPhoto');
@@ -62,7 +62,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const formData = new FormData();
     formData.append('image', blob, 'food.jpg');
 
-    const res = await fetch(`${CNN_SERVER}/api/analyze`, {
+    const res = await fetch(`${CNN_SERVER}/cnn/api/analyze`, {
       method: 'POST',
       body: formData,
     });
@@ -114,55 +114,4 @@ window.addEventListener('DOMContentLoaded', () => {
 
     setTimeout(() => { navigateTo('hc403.html'); }, 1600);
   }
-});
-
-/* ── 페이지 전환 헬퍼 ── */
-function navigateTo(url) {
-  document.body.classList.add('page-exit');
-  setTimeout(() => { location.href = url; }, 320);
-}
-
-/* drawer.js — 슬라이드 사이드바 공통
-   의존: common.js
-*/
-'use strict';
-
-window.addEventListener('DOMContentLoaded', () => {
-  const toggle  = document.getElementById('drawerToggle');
-  const drawer  = document.getElementById('drawer');
-  const overlay = document.getElementById('drawerOverlay');
-  const close   = document.getElementById('drawerClose');
-  const logout  = document.getElementById('drawerLogout');
-
-  function openDrawer() {
-    drawer?.classList.add('open');
-    overlay?.classList.add('show');
-  }
-
-  function closeDrawer() {
-    drawer?.classList.remove('open');
-    overlay?.classList.remove('show');
-  }
-
-  toggle?.addEventListener('click', openDrawer);
-  close?.addEventListener('click', closeDrawer);
-  overlay?.addEventListener('click', closeDrawer);
-
-  /* ESC 키로 닫기 */
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeDrawer();
-  });
-
-  /* 메뉴 버튼 네비게이션 */
-  drawer?.querySelectorAll('.drawer-menu-btn[data-href]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      navigateTo(btn.dataset.href);
-    });
-  });
-
-  /* 로그아웃 */
-  logout?.addEventListener('click', () => {
-    localStorage.removeItem('healthUserData');
-    navigateTo('sc101.html');
-  });
 });

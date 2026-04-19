@@ -21,15 +21,68 @@ window.addEventListener('DOMContentLoaded', () => {
   renderSidebar();
   renderProgress();
   renderBMIGauge();
-  renderAiPlan();     /* ← AI 식단/운동 플랜 카드 렌더링 */
+  renderAiPlan();
   renderTodayCheck();
-  renderWater();
-  renderStreak();
   renderCalendar();
   bindMenuBtns();     /* common.js */
   bindLogout();
   bindLogoClick();
+  initCommonOverlays();  /* common.js — AI상담 오버레이 + 히스토리 sc602 이동 */
+  initMobileSidebar();   /* common.js — 모바일 햄버거 메뉴 */
+  initBackExit();        /* 안드로이드 뒤로가기 → 앱 종료 */
 });
+
+/* ════════════════════════════════
+   0. 안드로이드 뒤로가기 종료
+   ════════════════════════════════ */
+function initBackExit() {
+  /* PWA standalone 환경에서만 동작 */
+  if (!window.matchMedia('(display-mode: standalone)').matches) return;
+
+  /* 현재 히스토리 스택 맨 위에 더미 상태를 추가
+     → 뒤로가기 시 이전 페이지(로그인)로 가지 않고 popstate 이벤트만 발생 */
+  history.pushState({ backExit: true }, '', location.href);
+
+  let backPressedOnce = false;
+  let toastEl = null;
+
+  window.addEventListener('popstate', () => {
+    /* 다시 더미 상태를 쌓아서 다음 뒤로가기에도 같은 로직 반복 */
+    history.pushState({ backExit: true }, '', location.href);
+
+    if (backPressedOnce) {
+      /* 2번째 뒤로가기 → 앱 종료 */
+      window.close();
+      /* window.close()가 막히는 경우 대비 (일부 브라우저) */
+      document.documentElement.style.transition = 'opacity 0.3s';
+      document.documentElement.style.opacity = '0';
+      setTimeout(() => window.close(), 350);
+      return;
+    }
+
+    backPressedOnce = true;
+
+    /* 토스트 메시지 표시 */
+    if (!toastEl) {
+      toastEl = document.createElement('div');
+      toastEl.style.cssText = [
+        'position:fixed', 'bottom:60px', 'left:50%', 'transform:translateX(-50%)',
+        'background:rgba(0,0,0,0.78)', 'color:#fff', 'font-size:13px', 'font-weight:700',
+        'padding:10px 20px', 'border-radius:24px', 'z-index:9999',
+        'pointer-events:none', 'white-space:nowrap',
+        'transition:opacity 0.3s'
+      ].join(';');
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = '한 번 더 누르면 앱이 종료됩니다';
+    toastEl.style.opacity = '1';
+
+    setTimeout(() => {
+      backPressedOnce = false;
+      if (toastEl) toastEl.style.opacity = '0';
+    }, 2000);
+  });
+}
 
 /* ════════════════════════════════
    1. 헤더 날짜
@@ -56,7 +109,6 @@ function renderSidebar() {
   if (infoEl) {
     const parts = [];
     if (data.gender) parts.push(data.gender);
-    if (data.birth)  parts.push(data.birth.slice(0, 4) + '년생');
     if (data.height) parts.push(`키 ${data.height}cm`);
     infoEl.textContent = parts.join(' · ') || '기본 정보 없음';
   }
@@ -156,24 +208,90 @@ function renderBMIGauge() {
 
     setText('bmrValue',  `${bmr} kcal`);
     setText('tdeeValue', `${tdee} kcal`);
-
-    /* 식단 목표 칼로리: 항상 최신 설정값으로 직접 계산 */
-    const targetWeight2 = Number(data.targetWeight || 0);
-    const goalWeeks2    = Number(data.goalWeeks || 12);
-    const weightToLose2 = Math.max(0, weight - targetWeight2);
-    const rawDeficit2   = Math.round((weightToLose2 * 7700) / (goalWeeks2 * 7));
-    const dailyDeficit2 = Math.min(rawDeficit2, 1000);
-    const targetCal     = Math.max(1200, tdee - dailyDeficit2);
-    setText('targetCaloriesValue', `${targetCal.toLocaleString()} kcal`);
   }
 }
 
 /* ════════════════════════════════
-   5. 오늘 목표 체크
+   5. AI 플랜 대시보드 카드 렌더링
+   ════════════════════════════════ */
+function renderAiPlan() {
+  const data        = Storage.getUser();
+  const mealPlan    = data.aiMealPlan;
+  const workoutPlan = data.aiWorkoutPlan;
+
+  const mealEl    = document.getElementById('mealContent');
+  const workoutEl = document.getElementById('workoutContent');
+
+  if (mealEl) {
+    if (mealPlan) {
+      const MEAL_META = [
+        { key: 'breakfast', emoji: '🌅', label: '아침' },
+        { key: 'lunch',     emoji: '☀️', label: '점심' },
+        { key: 'dinner',    emoji: '🌙', label: '저녁' },
+      ];
+      const rows = MEAL_META.map(({ key, emoji, label }, i) => {
+        const meal = mealPlan[key];
+        if (!meal) return '';
+        const menuArr  = Array.isArray(meal.menu) ? meal.menu : [meal.menu || ''];
+        const menuText = menuArr.join(' · ');
+        const border   = i < 2 ? 'border-bottom:1px solid rgba(255,255,255,0.07);' : '';
+        return `
+          <div style="${border}padding:10px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:11px;color:var(--text-sec);margin-bottom:4px;">${emoji} ${label}</div>
+              <div style="font-size:14px;font-weight:500;line-height:1.4;word-break:keep-all;">${menuText}</div>
+            </div>
+            <span style="font-size:12px;color:var(--teal,#66D0BC);white-space:nowrap;flex-shrink:0;margin-top:18px;">${meal.calories}kcal</span>
+          </div>`;
+      }).join('');
+      mealEl.className = '';
+      mealEl.innerHTML = rows;
+
+      const totalKcal = ['breakfast','lunch','dinner'].reduce((s, k) => s + (mealPlan[k]?.calories || 0), 0);
+      setText('targetCaloriesValue', `${totalKcal} kcal`);
+    } else {
+      mealEl.className = '';
+      mealEl.innerHTML = '<a href="sc302.html" style="display:block;text-align:center;color:var(--teal,#66D0BC);padding:8px;font-size:13px;">✨ AI 식단 추천 받기 →</a>';
+    }
+  }
+
+  if (workoutEl) {
+    if (workoutPlan) {
+      /* 준비운동 1개 + 메인 전체 + 마무리 1개 */
+      const sections = [];
+      (workoutPlan.warmup   || []).slice(0, 1).forEach(w => sections.push({ ...w, tag: '준비',  tagColor: 'var(--text-sec)' }));
+      (workoutPlan.main     || []).forEach(w =>            sections.push({ ...w, tag: '메인',  tagColor: 'var(--teal,#66D0BC)' }));
+      (workoutPlan.cooldown || []).slice(0, 1).forEach(w => sections.push({ ...w, tag: '마무리', tagColor: 'var(--text-sec)' }));
+
+      const rows = sections.map((item, i) => {
+        const detail = item.sets ? `${item.reps}회 × ${item.sets}세트` : (item.duration || '');
+        const border  = i < sections.length - 1 ? 'border-bottom:1px solid rgba(255,255,255,0.07);' : '';
+        return `
+          <div style="${border}display:flex;align-items:center;gap:10px;padding:8px 0;">
+            <span style="font-size:18px;flex-shrink:0;">${getWorkoutIcon(item.name)}</span>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</div>
+              <div style="font-size:11px;color:var(--text-sec);margin-top:2px;">${detail}</div>
+            </div>
+            <span style="font-size:10px;color:${item.tagColor};border:1px solid ${item.tagColor};border-radius:4px;padding:1px 6px;white-space:nowrap;flex-shrink:0;">${item.tag}</span>
+          </div>`;
+      }).join('');
+      workoutEl.className = '';
+      workoutEl.innerHTML = rows || '<div style="color:var(--text-mute)">운동 정보 없음</div>';
+    } else {
+      workoutEl.className = '';
+      workoutEl.innerHTML = '<a href="sc302.html" style="display:block;text-align:center;color:var(--teal,#66D0BC);padding:8px;font-size:13px;">✨ AI 운동 플랜 받기 →</a>';
+    }
+  }
+}
+
+/* ════════════════════════════════
+   6. 오늘 목표 체크
    ════════════════════════════════ */
 function getTodayKey() {
   const d = new Date();
-  return `check_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  return lsKey('check', dateStr);
 }
 
 function getTodayChecks(key) {
@@ -193,14 +311,20 @@ function renderTodayCheck() {
   const workoutChk = document.getElementById('checkWorkout');
   const statusEl   = document.getElementById('todayCheckStatus');
 
-  /* 체크박스는 sc311(식단 인증 3개 완료 / 운동 전체 완료)에서 자동 설정 — 수동 조작 불가 */
+  /* sc311에서 저장한 check_ 키 기반으로 자동 반영 (읽기전용) */
   if (mealChk) {
     mealChk.checked  = checks.meal;
-    mealChk.disabled = true;
+    mealChk.disabled = true;   /* 사용자가 직접 체크 불가 */
+    mealChk.style.opacity = '0.7';
+    mealChk.style.cursor  = 'default';
+    mealChk.title = '식단 인증 시 자동으로 체크됩니다';
   }
   if (workoutChk) {
     workoutChk.checked  = checks.workout;
     workoutChk.disabled = true;
+    workoutChk.style.opacity = '0.7';
+    workoutChk.style.cursor  = 'default';
+    workoutChk.title = '운동 완료 시 자동으로 체크됩니다';
   }
 
   updateCheckStatus(checks, statusEl);
@@ -212,7 +336,7 @@ function updateCheckStatus(checks, statusEl) {
     statusEl.textContent = '🎉 오늘 목표 달성!';
     statusEl.className   = 'today-check-status done';
   } else if (checks.meal || checks.workout) {
-    statusEl.textContent = '🔥 목표 달성 완료!';
+    statusEl.textContent = '🔥 절반 달성 중!';
     statusEl.className   = 'today-check-status half';
   } else {
     statusEl.textContent = '아직 체크하지 않았어요.';
@@ -224,7 +348,8 @@ function updateCheckStatus(checks, statusEl) {
    6. 물 섭취 트래커
    ════════════════════════════════ */
 function renderWater() {
-  const key      = `water_${getTodayKey()}`;
+  const _wd = new Date();
+  const key  = lsKey('water', `${_wd.getFullYear()}-${String(_wd.getMonth()+1).padStart(2,'0')}-${String(_wd.getDate()).padStart(2,'0')}`);
   let   count    = parseInt(localStorage.getItem(key) || '0', 10);
   const total    = 8;
   const cupsEl   = document.getElementById('waterCups');
@@ -271,7 +396,7 @@ function renderStreak() {
   for (let i = 6; i >= 0; i--) {
     const d   = new Date(today);
     d.setDate(today.getDate() - i);
-    const key = `check_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const key = lsKey('check', `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
     const chk = getTodayChecks(key);
     const done = chk.meal && chk.workout;
     weekStatus.push({ day: weekDays[d.getDay()], done, isToday: i === 0 });
@@ -315,52 +440,79 @@ function renderCalendar() {
   calYear  = today.getFullYear();
   calMonth = today.getMonth();
 
-  try { schedules = JSON.parse(localStorage.getItem('schedules')) || {}; }
-  catch { schedules = {}; }
-
   updateSelectedDateText(today);
   buildCalendar();
   bindCalendarNav();
-  bindSchedulePopup();
 }
 
-function buildCalendar() {
-  const titleEl     = document.getElementById('calendarTitle');
-  const daysEl      = document.getElementById('calendarDays');
+async function buildCalendar() {
+  const titleEl = document.getElementById('calendarTitle');
+  const daysEl  = document.getElementById('calendarDays');
   if (!titleEl || !daysEl) return;
 
   titleEl.textContent = `${calYear}년 ${calMonth + 1}월`;
-  daysEl.innerHTML    = '';
+  daysEl.innerHTML = '';
+
+  /* Firestore에서 이번 달 check 데이터 로드 */
+  if (typeof loadMonthChecksFromFirestore === 'function') {
+    await loadMonthChecksFromFirestore(calYear, calMonth);
+  }
 
   const firstDay    = new Date(calYear, calMonth, 1).getDay();
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
   const today       = new Date();
   const offset      = firstDay === 0 ? 6 : firstDay - 1;
 
+  /* ── 각 날짜의 달성 상태 미리 계산 ── */
+  const statusArr = [null]; // index 1부터 사용
+  for (let d = 1; d <= daysInMonth; d++) {
+    const chk = getTodayChecks(lsKey('check', dateKey(calYear, calMonth, d)));
+    if (chk.meal && chk.workout) statusArr.push('both');
+    else if (chk.meal)           statusArr.push('meal');
+    else if (chk.workout)        statusArr.push('workout');
+    else                         statusArr.push(null);
+  }
+
+  /* ── 빈 셀 ── */
   for (let i = 0; i < offset; i++) {
     const e = document.createElement('button');
     e.className = 'calendar-day empty';
     daysEl.appendChild(e);
   }
 
+  /* ── 날짜 셀 ── */
   for (let d = 1; d <= daysInMonth; d++) {
     const key     = dateKey(calYear, calMonth, d);
     const isToday = today.getFullYear() === calYear &&
                     today.getMonth()    === calMonth &&
                     today.getDate()     === d;
 
-    const btn       = document.createElement('button');
-    btn.className   = 'calendar-day' + (isToday ? ' today' : '');
+    const btn = document.createElement('button');
+    btn.className = 'calendar-day' + (isToday ? ' today' : '');
     btn.textContent = d;
     btn.dataset.key = key;
 
-    if (schedules[key]?.length > 0) btn.classList.add('has-schedule');
+    const status = statusArr[d];
+    if (status) {
+      btn.classList.add(`cal-done-${status}`);
 
-    /* 오늘 목표 완전 달성 날짜 민트 dot */
-    const chk = getTodayChecks(`check_${key}`);
-    if (chk.meal && chk.workout) btn.classList.add('check-done');
+      /* 연속 이어지기: 그리드 7열 기준 줄바꿈 체크 */
+      const col = (offset + d - 1) % 7;  // 0~6 (월~일)
+      const prev = statusArr[d - 1];
+      const next = statusArr[d + 1];
+      const samePrev = prev === status && col !== 0;   // 같은 줄의 전날
+      const sameNext = next === status && col !== 6;   // 같은 줄의 다음날
 
-    btn.addEventListener('click', () => openSchedulePopup(btn, key, d));
+      if (samePrev && sameNext)      btn.classList.add('streak-mid');
+      else if (samePrev)             btn.classList.add('streak-end');
+      else if (sameNext)             btn.classList.add('streak-start');
+      // else: 단독 → 기본 둥근 사각형
+    }
+
+    btn.addEventListener('click', () => {
+      location.href = `sc602.html?date=${key}`;
+    });
+
     daysEl.appendChild(btn);
   }
 }
@@ -385,80 +537,6 @@ function updateSelectedDateText(date) {
 
 let activeKey = null;
 
-function bindSchedulePopup() {
-  document.getElementById('closePopupBtn')?.addEventListener('click', closePopup);
-  document.getElementById('saveScheduleBtn')?.addEventListener('click', saveSchedule);
-  document.getElementById('scheduleInput')?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); saveSchedule(); }
-  });
-}
-
-function openSchedulePopup(btnEl, key, day) {
-  activeKey = key;
-  const popup  = document.getElementById('schedulePopup');
-  const label  = document.getElementById('popupDateLabel');
-  const input  = document.getElementById('scheduleInput');
-  const calBox = document.querySelector('.calendar-box');
-  if (!popup || !calBox) return;
-
-  label.textContent = `${calYear}년 ${calMonth + 1}월 ${day}일`;
-  input.value       = '';
-  updateSelectedDateText(new Date(calYear, calMonth, day));
-
-  const calRect = calBox.getBoundingClientRect();
-  const btnRect = btnEl.getBoundingClientRect();
-  popup.style.top  = `${btnRect.bottom - calRect.top + 4}px`;
-  popup.style.left = `${Math.min(btnRect.left - calRect.left, calRect.width - 220)}px`;
-
-  popup.classList.add('show');
-  renderScheduleList(key);
-  input.focus();
-}
-
-function closePopup() {
-  document.getElementById('schedulePopup')?.classList.remove('show');
-  activeKey = null;
-}
-
-function saveSchedule() {
-  if (!activeKey) return;
-  const input = document.getElementById('scheduleInput');
-  const text  = input?.value.trim();
-  if (!text) return;
-
-  if (!schedules[activeKey]) schedules[activeKey] = [];
-  schedules[activeKey].push(text);
-  localStorage.setItem('schedules', JSON.stringify(schedules));
-  input.value = '';
-  renderScheduleList(activeKey);
-  document.querySelector(`.calendar-day[data-key="${activeKey}"]`)
-    ?.classList.add('has-schedule');
-}
-
-function renderScheduleList(key) {
-  const list = document.getElementById('scheduleList');
-  if (!list) return;
-  list.innerHTML = '';
-  (schedules[key] || []).forEach((text, idx) => {
-    const li     = document.createElement('li');
-    li.textContent = text;
-    const del    = document.createElement('button');
-    del.textContent = '×';
-    del.style.cssText = 'float:right; background:none; border:none; color:var(--text-mute); cursor:pointer; font-size:14px;';
-    del.addEventListener('click', () => {
-      schedules[key].splice(idx, 1);
-      if (!schedules[key].length) {
-        delete schedules[key];
-        document.querySelector(`.calendar-day[data-key="${key}"]`)?.classList.remove('has-schedule');
-      }
-      localStorage.setItem('schedules', JSON.stringify(schedules));
-      renderScheduleList(key);
-    });
-    li.appendChild(del);
-    list.appendChild(li);
-  });
-}
-
 function dateKey(y, m, d) {
   return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 }
@@ -468,77 +546,10 @@ function dateKey(y, m, d) {
    ════════════════════════════════ */
 function bindLogout() {
   document.getElementById('logoutBtn')?.addEventListener('click', () => {
-    localStorage.removeItem('healthUserData');
+    if (typeof auth !== 'undefined') auth.signOut().catch(() => {});
+    Storage.clearAll();
     location.href = 'sc101.html';
   });
-}
-
-/* ════════════════════════════════
-   AI 식단 / 운동 플랜 카드 렌더링
-   sc302에서 localStorage에 저장한 aiMealPlan / aiWorkoutPlan을
-   대시보드 카드(#mealContent, #workoutContent)에 표시
-   ════════════════════════════════ */
-function renderAiPlan() {
-  const userData    = Storage.getUser();
-  const mealPlan    = userData.aiMealPlan;
-  const workoutPlan = userData.aiWorkoutPlan;
-
-  const mealEl    = document.getElementById('mealContent');
-  const workoutEl = document.getElementById('workoutContent');
-
-  /* ── 식단 카드 ── */
-  if (mealEl) {
-    if (mealPlan) {
-      const rows = [
-        { icon: '🌅', key: 'breakfast', label: '아침' },
-        { icon: '☀️', key: 'lunch',     label: '점심' },
-        { icon: '🌙', key: 'dinner',    label: '저녁' },
-      ].map(({ icon, key, label }) => {
-        const m = mealPlan[key];
-        if (!m) return '';
-        const menu = Array.isArray(m.menu) ? m.menu.join(', ') : m.menu;
-        return `
-          <div class="plan-row">
-            <span class="plan-row-label">${icon} ${label}</span>
-            <span class="plan-row-value">${menu}</span>
-            <span class="plan-row-kcal">${m.calories} kcal</span>
-          </div>`;
-      }).join('');
-
-      mealEl.innerHTML = `
-        <div class="plan-list">${rows}</div>
-        <div class="plan-total">하루 총 ${(mealPlan.total_calories || 0).toLocaleString()} kcal</div>
-        ${mealPlan.tip ? `<div class="plan-tip">💡 ${mealPlan.tip}</div>` : ''}
-      `;
-    } else {
-      mealEl.innerHTML = `<div class="plan-empty">sc302에서 AI 플랜을 먼저 생성해주세요.</div>`;
-    }
-  }
-
-  /* ── 운동 카드 ── */
-  if (workoutEl) {
-    if (workoutPlan) {
-      const mainItems = (workoutPlan.main || []).map(item => {
-        const detail = item.sets && item.reps
-          ? `${item.reps}회 × ${item.sets}세트`
-          : (item.duration || '');
-        return `
-          <div class="plan-row workout-row">
-            <span class="plan-row-name">💪 ${item.name}</span>
-            <span class="plan-row-detail">${detail}</span>
-            <span class="plan-row-kcal">${item.calories || 0} kcal</span>
-          </div>`;
-      }).join('');
-
-      workoutEl.innerHTML = `
-        <div class="plan-list">${mainItems}</div>
-        <div class="plan-total">${workoutPlan.total_duration || 0}분 · ${workoutPlan.total_calories || 0} kcal 소모</div>
-        ${workoutPlan.tip ? `<div class="plan-tip">💡 ${workoutPlan.tip}</div>` : ''}
-      `;
-    } else {
-      workoutEl.innerHTML = `<div class="plan-empty">sc302에서 AI 플랜을 먼저 생성해주세요.</div>`;
-    }
-  }
 }
 
 /* ════════════════════════════════

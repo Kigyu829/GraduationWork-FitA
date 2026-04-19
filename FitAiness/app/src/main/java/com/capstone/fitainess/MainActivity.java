@@ -43,7 +43,8 @@ public class MainActivity extends AppCompatActivity
             if (id == R.id.splashFragment ||
                     id == R.id.loginFragment ||
                     id == R.id.signUpFragment ||
-                    id == R.id.bodyInfoFragment)
+                    id == R.id.bodyInfoFragment ||
+                    id == R.id.chatFragment)
             {
                 // 온보딩 및 로그인 과정에서는 하단바 숨김
                 bottomNavigationView.setVisibility(View.GONE);

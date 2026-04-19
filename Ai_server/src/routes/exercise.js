@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const { recommendExercise, adjustExercise } = require('../services/exerciseService');
+const { cacheMiddleware } = require('../middleware/cache');
 
 const router = Router();
 
@@ -7,7 +8,7 @@ const router = Router();
 // POST /api/exercise/recommend — 운동 추천
 // Body: { height, weight, bmi, gender, targetWeight, targetWeeks }
 // ──────────────────────────────────────────
-router.post('/recommend', (req, res) => {
+router.post('/recommend', cacheMiddleware('exercise_recommend'), (req, res) => {
     const { height, weight, bmi, gender, targetWeight, targetWeeks } = req.body;
 
     if (!height || !weight || !targetWeight || !targetWeeks) {

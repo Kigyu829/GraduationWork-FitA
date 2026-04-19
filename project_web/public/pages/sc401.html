@@ -5,8 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>식단 사진 업로드</title>
   <link rel="stylesheet" href="../css/common.css" />
-  <link rel="stylesheet" href="../css/sc301.css" />
+  <link rel="stylesheet" href="../css/sc101.css" />
+  <link rel="stylesheet" href="../css/drawer.css" />
   <link rel="stylesheet" href="../css/sc401.css" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
 
@@ -14,7 +20,7 @@
   <nav class="navbar">
     <div class="nav-inner">
       <button class="drawer-toggle-nav" id="drawerToggle">☰</button>
-      <a href="sc301.html" class="site-logo">
+      <a href="sc301.html" class="site-logo" id="navLogo">
         <div class="site-logo-icon">🏃</div>
         <span class="site-logo-text">HealthDash</span>
       </a>
@@ -24,7 +30,7 @@
   <!-- 사이드바 드로어 -->
   <aside class="drawer" id="drawer">
     <div class="drawer-header">
-      <div class="drawer-logo">
+      <div class="drawer-logo" id="drawerLogo" style="cursor:pointer;">
         <div class="drawer-logo-icon">🏃</div>
         <span class="drawer-logo-text">HealthDash</span>
       </div>
@@ -35,15 +41,16 @@
       <button class="drawer-menu-btn" data-href="sc302.html"><span>🤖</span>AI 식단 추천</button>
       <button class="drawer-menu-btn" data-href="sc311.html"><span>💪</span>오늘의 식단/운동</button>
       <button class="drawer-menu-btn active" data-href="sc401.html"><span>🥗</span>식단 인증</button>
-      <button class="drawer-menu-btn" data-href="sc601.html"><span>⚙️</span>설정</button>
+      <button class="drawer-menu-btn" data-href="sc602.html"><span>📅</span>히스토리</button>
+      <button class="drawer-menu-btn" data-href="sc701.html"><span>⚙️</span>마이페이지</button>
     </nav>
     <button class="drawer-logout" id="drawerLogout">로그아웃</button>
   </aside>
 
-  <!-- 오버레이 -->
   <div class="drawer-overlay" id="drawerOverlay"></div>
 
   <main class="upload-main">
+
     <div class="upload-header">
       <div class="upload-header-inner">
         <button class="header-close-btn" id="backToMain" title="돌아가기">✕</button>
@@ -54,6 +61,31 @@
       </div>
     </div>
 
+    <!-- ══════════════════════════════
+         끼니 선택 (직접 진입 시만 표시)
+         sc401.js에서 display 제어
+         ══════════════════════════════ -->
+    <div class="meal-selector" id="mealSelector" style="display:none;">
+      <div class="meal-selector-inner">
+        <div class="selector-label">🍽️ 어느 끼니를 인증할까요?</div>
+        <div class="meal-select-btns">
+          <button class="meal-select-btn" data-meal="breakfast">
+            <span class="msb-icon">🌅</span>
+            <span class="msb-label">아침</span>
+          </button>
+          <button class="meal-select-btn" data-meal="lunch">
+            <span class="msb-icon">☀️</span>
+            <span class="msb-label">점심</span>
+          </button>
+          <button class="meal-select-btn" data-meal="dinner">
+            <span class="msb-icon">🌙</span>
+            <span class="msb-label">저녁</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 업로드 카드 -->
     <div class="upload-card">
       <div class="upload-zone" id="uploadZone">
         <input type="file" id="fileInput" accept="image/*" style="display:none;" />
@@ -79,9 +111,15 @@
         </div>
       </div>
     </div>
+
   </main>
 
-  <script src="../js/common.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+<script src="../js/common.js"></script>
+  <script src="../js/drawer.js"></script>
   <script src="../js/sc401.js"></script>
 </body>
 </html>

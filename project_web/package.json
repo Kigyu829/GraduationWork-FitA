@@ -13,8 +13,8 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "express": "^5.2.1"
-  },
-  "devDependencies": {}
-  
+    "express": "^5.2.1",
+    "firebase": "^12.12.0",
+    "http-proxy-middleware": "^3.0.5"
+  }
 }

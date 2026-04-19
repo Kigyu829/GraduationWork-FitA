@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -23,7 +25,9 @@ import java.util.Deque;
 import java.util.List;
 
 /**
- * AI 건강 상담 화면
+ * AI 건강 상담 화면 (Socket.io 스트리밍)
+ *
+ * - socket.io 연결을 통해 Ollama 응답을 토큰 단위로 실시간 표시
  * - meal_sp / workout_sp SharedPreferences에서 플랜 정보를 읽어 AI에게 전달
  * - action이 "meal_adjust"이면 식단 플랜 재조정 자동 실행
  * - action이 "exercise_adjust"이면 운동 플랜 재조정 자동 실행
@@ -33,26 +37,30 @@ public class ChatFragment extends Fragment
 {
     private static final int MAX_HISTORY = 6;
 
-    // 채팅 자체 저장용
     private static final String CHAT_PREFS   = "chat_sp";
     private static final String KEY_CHAT_LOG = "chat_log";
     private static final String KEY_HISTORY  = "recent_history";
 
-    // MealFragment / WorkoutFragment와 동일한 SharedPreferences 이름
     private static final String MEAL_PREFS    = "meal_sp";
     private static final String WORKOUT_PREFS = "workout_sp";
 
     private EditText etMessage;
     private TextView tvChatLog;
     private Button btnSend;
+    private ImageButton btnBack;
     private ProgressBar progressBar;
     private ScrollView scrollChat;
 
-    private GeminiHelper geminiHelper;
+    private SocketChatHelper socketChatHelper;
+    private GeminiHelper geminiHelper;          // meal/workout 재조정용 (HTTP)
     private SharedPreferences chatSp;
 
-    private StringBuilder chatLog = new StringBuilder();
+    private StringBuilder chatLog     = new StringBuilder();
     private Deque<String> recentHistory = new ArrayDeque<>();
+
+    // 스트리밍 상태
+    private String baseChatLog;     // 스트리밍 시작 전 채팅 로그 스냅샷
+    private StringBuilder streamBuf; // 현재 스트리밍 중인 토큰 버퍼
 
     public ChatFragment() { super(R.layout.fragment_chat); }
 
@@ -66,9 +74,13 @@ public class ChatFragment extends Fragment
         btnSend     = view.findViewById(R.id.btnSend);
         progressBar = view.findViewById(R.id.progressBar);
         scrollChat  = view.findViewById(R.id.scrollChat);
+        btnBack     = view.findViewById(R.id.btnBack);
 
-        geminiHelper = new GeminiHelper();
+        socketChatHelper = new SocketChatHelper();
+        geminiHelper     = new GeminiHelper();
         chatSp = requireContext().getSharedPreferences(CHAT_PREFS, Context.MODE_PRIVATE);
+
+        btnBack.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
 
         // 저장된 채팅 기록 복원
         String savedLog = chatSp.getString(KEY_CHAT_LOG, null);
@@ -89,6 +101,13 @@ public class ChatFragment extends Fragment
         }
 
         btnSend.setOnClickListener(v -> sendMessage());
+    }
+
+    @Override
+    public void onDestroyView()
+    {
+        super.onDestroyView();
+        if (socketChatHelper != null) socketChatHelper.disconnect();
     }
 
     // ──────────────────────────────────────
@@ -117,20 +136,13 @@ public class ChatFragment extends Fragment
                 + ", BMI " + bmi + ", 목표 " + targetWeight + "kg (" + targetWeeks + "주)";
     }
 
-    private String getMealPlan() {
-        return mealSp().getString("meal_plan_json", null);
-    }
+    private String getMealPlan()    { return mealSp().getString("meal_plan_json",    null); }
+    private String getWorkoutPlan() { return workoutSp().getString("workout_plan_json", null); }
 
-    private String getWorkoutPlan() {
-        return workoutSp().getString("workout_plan_json", null);
-    }
-
-    /** 식단 목표 칼로리 계산 (Mifflin-St Jeor BMR 기반) */
     private int calcTargetCalories() {
         int weight       = mealSp().getInt("user_weight", 70);
         int targetWeight = mealSp().getInt("user_target_weight", 65);
         int targetWeeks  = mealSp().getInt("user_target_weeks", 4);
-        // 간단 TDEE = 체중 * 28, 일일 적자 최대 1000kcal 제한
         int tdee         = weight * 28;
         int dailyDeficit = (int) ((weight - targetWeight) * 7700.0 / (targetWeeks * 7));
         return Math.max(1200, tdee - Math.min(dailyDeficit, 1000));
@@ -156,9 +168,7 @@ public class ChatFragment extends Fragment
         sp.edit().putString("adjust_reasons", new JSONArray(reasons).toString()).apply();
     }
 
-    private String buildHistoryText() {
-        return String.join("\n", recentHistory);
-    }
+    private String buildHistoryText() { return String.join("\n", recentHistory); }
 
     private String buildWelcomeMessage() {
         boolean hasMeal    = getMealPlan() != null;
@@ -172,7 +182,7 @@ public class ChatFragment extends Fragment
     }
 
     // ──────────────────────────────────────
-    // 메시지 전송
+    // 메시지 전송 (Socket.io 스트리밍)
     // ──────────────────────────────────────
 
     private void sendMessage() {
@@ -189,30 +199,26 @@ public class ChatFragment extends Fragment
         String workoutPlan = getWorkoutPlan();
         String historyText = buildHistoryText();
 
-        geminiHelper.chat(message, userInfo, mealPlan, workoutPlan, historyText,
-                new GeminiHelper.GeminiCallback() {
+        // 스트리밍 버블 시작
+        startStreaming();
+
+        socketChatHelper.streamChat(message, userInfo, mealPlan, workoutPlan, historyText,
+                new SocketChatHelper.StreamCallback() {
                     @Override
-                    public void onSuccess(String response) {
+                    public void onToken(String token) {
+                        if (!isAdded()) return;
+                        requireActivity().runOnUiThread(() -> appendStreamToken(token));
+                    }
+
+                    @Override
+                    public void onDone(String reply, String action, String reason) {
                         if (!isAdded()) return;
                         requireActivity().runOnUiThread(() -> {
-                            String reply  = response;
-                            String action = null;
-                            String reason = null;
-                            try {
-                                JSONObject json = new JSONObject(response);
-                                reply  = json.optString("reply", response);
-                                action = json.optString("action", null);
-                                reason = json.optString("reason", null);
-                                if ("null".equals(action)) action = null;
-                                if ("null".equals(reason)) reason = null;
-                            } catch (Exception ignored) {}
-
-                            appendChat("🤖 AI", reply);
+                            finalizeStream(reply);
                             addHistory("사용자: " + message, "AI: " + reply);
                             btnSend.setEnabled(true);
                             progressBar.setVisibility(View.GONE);
 
-                            // 재조정 액션 처리
                             if ("meal_adjust".equals(action) && reason != null) {
                                 handleMealAdjust(reason);
                             } else if ("exercise_adjust".equals(action) && reason != null) {
@@ -225,12 +231,52 @@ public class ChatFragment extends Fragment
                     public void onError(String error) {
                         if (!isAdded()) return;
                         requireActivity().runOnUiThread(() -> {
-                            appendChat("❌ 오류", error);
+                            finalizeStream("오류가 발생했어요: " + error);
                             btnSend.setEnabled(true);
                             progressBar.setVisibility(View.GONE);
                         });
                     }
                 });
+    }
+
+    // ──────────────────────────────────────
+    // 스트리밍 디스플레이 헬퍼
+    // ──────────────────────────────────────
+
+    /** 스트리밍 시작 — 빈 AI 버블을 미리 생성 */
+    private void startStreaming() {
+        baseChatLog = chatLog.toString();
+        streamBuf   = new StringBuilder();
+        updateStreamDisplay();
+    }
+
+    /** 토큰 추가 후 화면 업데이트 */
+    private void appendStreamToken(String token) {
+        streamBuf.append(token);
+        updateStreamDisplay();
+    }
+
+    /** 화면 갱신 (baseChatLog + "🤖 AI\n" + streamBuf + separator) */
+    private void updateStreamDisplay() {
+        String display = baseChatLog
+                + "🤖 AI\n"
+                + streamBuf.toString()
+                + "\n\n─────────────────────\n\n";
+        tvChatLog.setText(display);
+        scrollChat.post(() -> scrollChat.fullScroll(ScrollView.FOCUS_DOWN));
+    }
+
+    /** 스트리밍 완료 — chatLog에 확정 반영 후 저장 */
+    private void finalizeStream(String fullReply) {
+        chatLog = new StringBuilder(baseChatLog);
+        chatLog.append("🤖 AI\n")
+               .append(fullReply)
+               .append("\n\n─────────────────────\n\n");
+        tvChatLog.setText(chatLog.toString());
+        scrollChat.post(() -> scrollChat.fullScroll(ScrollView.FOCUS_DOWN));
+        chatSp.edit().putString(KEY_CHAT_LOG, chatLog.toString()).apply();
+        baseChatLog = null;
+        streamBuf   = null;
     }
 
     // ──────────────────────────────────────
@@ -244,13 +290,11 @@ public class ChatFragment extends Fragment
             return;
         }
 
-        // 기존 칼로리 기록 (비교용)
         int oldCalories = 0;
         try { oldCalories = new JSONObject(currentPlan).optInt("total_calories", 0); }
         catch (Exception ignored) {}
         final int prevCalories = oldCalories;
 
-        // 누적 이유 추가
         List<String> reasons = loadReasons(mealSp());
         reasons.add(reason);
         saveReasons(mealSp(), reasons);
@@ -267,24 +311,20 @@ public class ChatFragment extends Fragment
                             try {
                                 JSONObject newPlan = new JSONObject(response);
                                 int newCalories = newPlan.optInt("total_calories", targetCalories);
-
-                                // 새 식단 저장
                                 mealSp().edit().putString("meal_plan_json", response).apply();
 
                                 int diff = newCalories - prevCalories;
                                 String diffText = diff > 0 ? "+" + diff : String.valueOf(diff);
                                 appendChat("✅ 식단 재조정 완료",
-                                        "식단이 업데이트됐어요! (" + prevCalories + " → " + newCalories + "kcal, " + diffText + "kcal)\n"
-                                        + "식단 탭에서 확인할 수 있어요.");
+                                        "식단이 업데이트됐어요! (" + prevCalories + " → " + newCalories
+                                        + "kcal, " + diffText + "kcal)\n식단 탭에서 확인할 수 있어요.");
 
-                                // 칼로리 차이가 50kcal 이상이면 운동도 보완
                                 if (Math.abs(diff) >= 50) {
                                     String compensationReason = diff > 0
                                             ? "식단 칼로리가 " + diff + "kcal 증가했으므로 운동 소모 칼로리를 " + diff + "kcal 늘려주세요"
                                             : "식단 칼로리가 " + Math.abs(diff) + "kcal 감소했으므로 운동 소모 칼로리를 " + Math.abs(diff) + "kcal 줄여주세요";
                                     handleExerciseAdjust(compensationReason, diff);
                                 }
-
                             } catch (Exception e) {
                                 appendChat("❌ 오류", "식단 재조정 파싱 실패: " + e.getMessage());
                             }
@@ -300,15 +340,10 @@ public class ChatFragment extends Fragment
                 });
     }
 
-    // ──────────────────────────────────────
-    // 운동 재조정 (직접 요청 또는 칼로리 보완)
-    // calorieDiff: null이면 직접 요청, 값이 있으면 칼로리 보완
-    // ──────────────────────────────────────
-
     private void handleExerciseAdjust(String reason, Integer calorieDiff) {
         String currentPlan = getWorkoutPlan();
         if (currentPlan == null) {
-            if (calorieDiff == null) // 직접 요청인 경우에만 메시지 표시
+            if (calorieDiff == null)
                 appendChat("🤖 AI", "등록된 운동 플랜이 없어요. 운동 탭에서 먼저 플랜을 생성해주세요.");
             return;
         }

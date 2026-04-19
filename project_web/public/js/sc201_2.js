@@ -1,10 +1,6 @@
 /* ============================================================
-   sc201_2.js — 회원가입
-   의존: common.js
-
-   [흐름]
-   회원가입 완료 → 팝업(PPT4) → sc202(신체정보 첫 입력)
-   이미 가입된 사용자가 로그인 → sc201_1.js에서 sc301 분기
+   sc201_2.js — 회원가입 (Firebase Auth + Firestore)
+   의존: common.js, firebase-config.js
    ============================================================ */
 
 'use strict';
@@ -35,8 +31,8 @@ function setInputState(input, state) {
   if (state) input.classList.add(state);
 }
 
-/* ── 이메일 유효성 ── */
-emailEl.addEventListener('blur', () => {
+/* ── 이메일 유효성 (Firebase 중복 체크) ── */
+emailEl.addEventListener('blur', async () => {
   const val = emailEl.value.trim();
   if (!val) { setHint('emailHint', ''); return; }
 
@@ -45,13 +41,20 @@ emailEl.addEventListener('blur', () => {
     setInputState(emailEl, 'error');
     return;
   }
-  if (localStorage.getItem('registeredEmail') === val) {
-    setHint('emailHint', '이미 사용 중인 이메일입니다.', 'error');
-    setInputState(emailEl, 'error');
-    return;
+
+  try {
+    const methods = await auth.fetchSignInMethodsForEmail(val);
+    if (methods.length > 0) {
+      setHint('emailHint', '이미 사용 중인 이메일입니다.', 'error');
+      setInputState(emailEl, 'error');
+    } else {
+      setHint('emailHint', '사용 가능한 이메일입니다.', 'valid');
+      setInputState(emailEl, 'valid');
+    }
+  } catch {
+    setHint('emailHint', '사용 가능한 이메일입니다.', 'valid');
+    setInputState(emailEl, 'valid');
   }
-  setHint('emailHint', '사용 가능한 이메일입니다.', 'valid');
-  setInputState(emailEl, 'valid');
 });
 
 /* ── 비밀번호 유효성 ── */
@@ -129,7 +132,7 @@ verifyCodeEl.addEventListener('input', () => {
 
 /* ── 가입하기 제출 ── */
 if (signupForm) {
-  signupForm.addEventListener('submit', function (e) {
+  signupForm.addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const email     = emailEl.value.trim();
@@ -151,14 +154,45 @@ if (signupForm) {
       alert('전화번호 인증을 완료해주세요.'); return;
     }
 
-    /* 저장 후 신체정보 초기화 (회원가입 직후는 항상 sc202부터) */
-    Storage.setRegistered(email, password, nickname);
-    localStorage.setItem('registeredPhone', phone);
-    Storage.setUser({});  /* targetWeight 없음 → 로그인 시 sc202 분기 */
+    const submitBtn = signupForm.querySelector('button[type="submit"]');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '가입 중...'; }
 
-    /* 완료 팝업 표시 (PPT4) */
-    if (welcomeNameEl) welcomeNameEl.textContent = nickname;
-    if (successOverlay) successOverlay.classList.add('show');
+    try {
+      /* Firebase Auth 계정 생성 */
+      const cred = await auth.createUserWithEmailAndPassword(email, password);
+      const uid  = cred.user.uid;
+
+      sessionStorage.setItem('_fitUid',   uid);
+      sessionStorage.setItem('_fitEmail', email);
+      sessionStorage.setItem('_fitNick',  nickname);
+
+      /* Firestore 사용자 문서 생성 */
+      await db.collection('users').doc(uid).set({
+        email,
+        nickname,
+        phone,
+        userData:  {},
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+
+      /* localStorage 초기 캐시 */
+      localStorage.setItem(`hud_${uid}`, JSON.stringify({}));
+
+      /* 완료 팝업 */
+      if (welcomeNameEl) welcomeNameEl.textContent = nickname;
+      if (successOverlay) successOverlay.classList.add('show');
+
+    } catch (err) {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '가입하기'; }
+      if (err.code === 'auth/email-already-in-use') {
+        alert('이미 사용 중인 이메일입니다.');
+        setHint('emailHint', '이미 사용 중인 이메일입니다.', 'error');
+        setInputState(emailEl, 'error');
+      } else {
+        alert(`회원가입 실패: ${err.message}`);
+      }
+      console.error('회원가입 오류:', err.code);
+    }
   });
 }
 

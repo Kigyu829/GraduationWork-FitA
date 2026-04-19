@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.capstone.fitainess.app-mergeDebugResources-59:/values-large-v4/values-large-v4.xml",
+            "outputFile": "com.capstone.fitainess.app-mergeDebugResources-64:/values-large-v4/values-large-v4.xml",
             "map": [
                 {
                     "source": "C:\\Users\\김인규\\.gradle\\caches\\9.3.1\\transforms\\0b9334c773552aa1aaa897bb937e2aee\\workspace\\transformed\\appcompat-1.7.1\\res\\values-large-v4\\values-large-v4.xml",

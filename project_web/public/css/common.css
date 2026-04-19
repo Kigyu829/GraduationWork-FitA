@@ -495,3 +495,83 @@ label.field-label {
   width: 16px;
   text-align: center;
 }
+
+/* ── 사이드바 레이아웃 공통 ── */
+/* sc302, sc311, sc602, sc701이 공통으로 사용 */
+:root {
+  --sidebar-w: 230px;
+}
+
+html, body { height: 100%; }
+
+.dashboard {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+/* ── 모바일 햄버거 버튼 ── */
+.sidebar-toggle-btn {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 400;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 20px;
+  color: var(--text);
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  transition: background 0.18s;
+}
+.sidebar-toggle-btn:hover { background: var(--card); }
+
+/* ── 사이드바 열릴 때 뒤 어두운 막 ── */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 299;
+  cursor: pointer;
+}
+.sidebar-backdrop.show { display: block; }
+
+/* ── 768px 이하: 모바일 레이아웃 ── */
+@media (max-width: 768px) {
+  .dashboard {
+    grid-template-columns: 1fr !important;
+  }
+
+  .sidebar {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 260px !important;
+    height: 100vh;
+    z-index: 300;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-toggle-btn {
+    display: flex;
+  }
+
+  /* 콘텐츠 영역 상단에 햄버거 버튼 공간 확보 */
+  .main {
+    padding-top: 64px !important;
+  }
+}
+

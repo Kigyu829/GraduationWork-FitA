@@ -20,6 +20,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -34,7 +35,8 @@ import org.json.JSONObject;
  * - 플랜 재조정은 AI 상담(ChatFragment)을 통해서만 가능
  * - 운동 이름 클릭 시 YouTube에서 운동 방법 검색
  */
-public class WorkoutFragment extends Fragment {
+public class WorkoutFragment extends Fragment
+{
 
     // SharedPreferences 키 (ChatFragment와 동일한 이름 사용)
     private static final String PREFS_NAME        = "workout_sp";
@@ -49,6 +51,7 @@ public class WorkoutFragment extends Fragment {
     private ScrollView scrollResult;
     private LinearLayout resultContainer;
     private TextView tvError;
+    private android.widget.Button btnPoseAnalysis;
 
     private GeminiHelper geminiHelper;
     private SharedPreferences sp;
@@ -72,6 +75,11 @@ public class WorkoutFragment extends Fragment {
         scrollResult    = view.findViewById(R.id.scrollResult);
         resultContainer = view.findViewById(R.id.resultContainer);
         tvError         = view.findViewById(R.id.tvError);
+        btnPoseAnalysis = view.findViewById(R.id.btnPoseAnalysis);
+
+        btnPoseAnalysis.setOnClickListener(v ->
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_workout_to_pose));
 
         geminiHelper = new GeminiHelper();
         sp = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -222,6 +230,7 @@ public class WorkoutFragment extends Fragment {
         resultContainer.addView(totalCard);
 
         scrollResult.smoothScrollTo(0, 0);
+        btnPoseAnalysis.setVisibility(View.VISIBLE);
     }
 
     /** 운동 섹션(워밍업/메인/쿨다운) 카드 추가 */

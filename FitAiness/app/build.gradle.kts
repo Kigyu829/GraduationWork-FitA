@@ -20,6 +20,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters += listOf("arm64-v8a", "x86_64")
+        }
     }
 
     buildTypes {
@@ -34,6 +38,13 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    // MediaPipe 네이티브 라이브러리(.so) 압축 해제 후 설치 — UnsatisfiedLinkError 방지
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
 }
 
@@ -62,7 +73,15 @@ dependencies {
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:34.11.0"))
 
-    // TODO: Add the dependencies for Firebase products you want to use
-    // When using the BoM, don't specify versions in Firebase dependencies
-    // https://firebase.google.com/docs/android/setup#available-libraries
+    // socket.io-client — 소켓 기반 AI 채팅 스트리밍
+    implementation("io.socket:socket.io-client:2.1.0")
+
+    // MediaPipe Tasks Vision — 자세 추정 (PoseLandmarker)
+    implementation("com.google.mediapipe:tasks-vision:0.10.8")
+
+    // CameraX — MediaPipe 실시간 카메라 피드
+    implementation("androidx.camera:camera-core:1.3.4")
+    implementation("androidx.camera:camera-camera2:1.3.4")
+    implementation("androidx.camera:camera-lifecycle:1.3.4")
+    implementation("androidx.camera:camera-view:1.3.4")
 }
