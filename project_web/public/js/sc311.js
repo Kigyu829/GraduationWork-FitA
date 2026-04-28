@@ -27,6 +27,7 @@ window.addEventListener('DOMContentLoaded', () => {
   bindLogoClick();
   restoreTodayState();
   fetchMotivation();
+  checkPoseVerified();   /* 자세 인증 복귀 시 자동 체크 */
 });
 
 /* ════════════════════════════════
@@ -725,7 +726,7 @@ function calcTargetCalories(userData) {
     ? 10 * weight + 6.25 * height - 5 * age + 5
     : 10 * weight + 6.25 * height - 5 * age - 161;
 
-  const actMap = { '낮음': 1.2, '보통': 1.375, '높음': 1.55 };
+  const actMap = { '낮음': 1.2, '보통': 1.375, '높음': 1.55, '매우높음': 1.725, '선수': 1.9 };
   const tdee   = Math.round(bmr * (actMap[userData.activityLevel] || 1.375));
 
   const weightToLose = Math.max(0, weight - targetWeight);
@@ -805,6 +806,32 @@ async function handleExerciseAdjust(reason) {
     typingEl.remove();
     appendMessage('ai', `운동 수정 중 오류가 발생했어요: ${err.message}`);
   }
+}
+
+/* ════════════════════════════════
+   자세 인증 복귀 시 자동 체크
+   hc503 → sc311?tab=workout&poseVerified=운동명
+   ════════════════════════════════ */
+function checkPoseVerified() {
+  const params   = new URLSearchParams(location.search);
+  const verified = params.get('poseVerified');
+  if (!verified) return;
+
+  /* 운동명 일치하는 항목 찾아서 ✓ 자동 클릭 */
+  document.querySelectorAll('.workout-item').forEach(item => {
+    const nameEl = item.querySelector('.workout-name');
+    if (nameEl && nameEl.textContent.trim() === verified) {
+      const checkBtn = item.querySelector('.workout-check');
+      if (checkBtn && !checkBtn.classList.contains('done')) {
+        checkBtn.click();
+      }
+    }
+  });
+
+  /* URL에서 poseVerified 파라미터 제거 (새로고침 시 재실행 방지) */
+  const url = new URL(location.href);
+  url.searchParams.delete('poseVerified');
+  history.replaceState({}, '', url.toString());
 }
 
 /* ════════════════════════════════

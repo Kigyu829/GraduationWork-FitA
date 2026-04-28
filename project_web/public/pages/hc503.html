@@ -126,6 +126,10 @@
     .angle-label { color: #bbb; }
     .angle-value { font-weight: 700; color: #66D0BC; font-size: 15px; }
     .angle-value.ok { color: #00e096; }
+    .angle-fix {
+      font-size: 11px; color: #ff8855;
+      padding: 0 0 6px 0; line-height: 1.4;
+    }
 
     .landmark-count {
       font-size: 28px; font-weight: 800;
@@ -269,8 +273,8 @@ const POSE_RULES = {
       const lk = calcAngle(lms[23], lms[25], lms[27]);
       const rk = calcAngle(lms[24], lms[26], lms[28]);
       return { ok: lk < 120 && rk < 120, angles: [
-        { label: '왼쪽 무릎', value: lk, ok: lk < 120 },
-        { label: '오른쪽 무릎', value: rk, ok: rk < 120 },
+        { label: '왼쪽 무릎', value: lk, ok: lk < 120, fix: '왼쪽 무릎을 더 깊이 구부려 앉으세요' },
+        { label: '오른쪽 무릎', value: rk, ok: rk < 120, fix: '오른쪽 무릎을 더 깊이 구부려 앉으세요' },
       ]};
     },
     hint: '무릎을 구부려 앉는 자세를 취해주세요',
@@ -280,8 +284,8 @@ const POSE_RULES = {
       const lk = calcAngle(lms[23], lms[25], lms[27]);
       const rk = calcAngle(lms[24], lms[26], lms[28]);
       return { ok: lk < 120 && rk < 120, angles: [
-        { label: '왼쪽 무릎', value: lk, ok: lk < 120 },
-        { label: '오른쪽 무릎', value: rk, ok: rk < 120 },
+        { label: '왼쪽 무릎', value: lk, ok: lk < 120, fix: '왼쪽 무릎을 더 구부려 앉으세요' },
+        { label: '오른쪽 무릎', value: rk, ok: rk < 120, fix: '오른쪽 무릎을 더 구부려 앉으세요' },
       ]};
     },
     hint: '스쿼트 자세로 앉아주세요',
@@ -293,12 +297,24 @@ const POSE_RULES = {
       const flat = Math.abs(lms[11].y - lms[23].y) < 0.18;
       const ok = (le < 110 || re < 110) && flat;
       return { ok, angles: [
-        { label: '왼쪽 팔꿈치', value: le, ok: le < 110 },
-        { label: '오른쪽 팔꿈치', value: re, ok: re < 110 },
-        { label: '몸통 수평', value: null, ok: flat },
+        { label: '왼쪽 팔꿈치', value: le, ok: le < 110, fix: '왼팔을 더 구부려 가슴이 바닥에 가까워지게 하세요' },
+        { label: '오른쪽 팔꿈치', value: re, ok: re < 110, fix: '오른팔을 더 구부려 가슴이 바닥에 가까워지게 하세요' },
+        { label: '몸통 수평', value: null, ok: flat, fix: '엉덩이를 내려 머리·등·발이 일직선이 되게 하세요' },
       ]};
     },
     hint: '엎드려 팔을 구부리는 자세를 취해주세요',
+  },
+  '팔굽혀펴기 (무릎)': {
+    check: (lms) => {
+      const le = calcAngle(lms[11], lms[13], lms[15]);
+      const re = calcAngle(lms[12], lms[14], lms[16]);
+      const ok = le < 110 || re < 110;
+      return { ok, angles: [
+        { label: '왼쪽 팔꿈치', value: le, ok: le < 110, fix: '왼팔을 더 구부리세요' },
+        { label: '오른쪽 팔꿈치', value: re, ok: re < 110, fix: '오른팔을 더 구부리세요' },
+      ]};
+    },
+    hint: '무릎을 대고 엎드려 팔을 구부리세요',
   },
   '플랭크': {
     check: (lms) => {
@@ -308,9 +324,9 @@ const POSE_RULES = {
       const re = calcAngle(lms[12], lms[14], lms[16]);
       const armsOk = le > 140 && re > 140;
       return { ok: flat && armsOk, angles: [
-        { label: '왼쪽 팔꿈치', value: le, ok: le > 140 },
-        { label: '오른쪽 팔꿈치', value: re, ok: re > 140 },
-        { label: '몸통 수평', value: null, ok: flat },
+        { label: '왼쪽 팔꿈치', value: le, ok: le > 140, fix: '왼팔을 더 펴세요 (팔꿈치 잠금)' },
+        { label: '오른쪽 팔꿈치', value: re, ok: re > 140, fix: '오른팔을 더 펴세요 (팔꿈치 잠금)' },
+        { label: '몸통 수평', value: null, ok: flat, fix: '엉덩이를 올려 머리·등·발을 일직선으로 유지하세요' },
       ]};
     },
     hint: '엎드려 팔을 펴고 몸을 일직선으로 유지해주세요',
@@ -321,11 +337,23 @@ const POSE_RULES = {
       const rk = calcAngle(lms[24], lms[26], lms[28]);
       const ok = (lk < 110 && rk > 130) || (rk < 110 && lk > 130);
       return { ok, angles: [
-        { label: '앞쪽 무릎', value: Math.min(lk, rk), ok: Math.min(lk, rk) < 110 },
-        { label: '뒤쪽 무릎', value: Math.max(lk, rk), ok: Math.max(lk, rk) > 130 },
+        { label: '앞쪽 무릎', value: Math.min(lk, rk), ok: Math.min(lk, rk) < 110, fix: '앞 무릎을 90° 가깝게 더 구부리세요' },
+        { label: '뒤쪽 무릎', value: Math.max(lk, rk), ok: Math.max(lk, rk) > 130, fix: '뒷다리를 더 뒤로 뻗어 자세를 넓히세요' },
       ]};
     },
     hint: '한 발을 앞으로 내딛어 무릎을 구부려주세요',
+  },
+  '사이드 런지': {
+    check: (lms) => {
+      const lk = calcAngle(lms[23], lms[25], lms[27]);
+      const rk = calcAngle(lms[24], lms[26], lms[28]);
+      const ok = lk < 120 || rk < 120;
+      return { ok, angles: [
+        { label: '왼쪽 무릎', value: lk, ok: lk < 120, fix: '왼쪽으로 더 넓게 벌려 무릎을 구부리세요' },
+        { label: '오른쪽 무릎', value: rk, ok: rk < 120, fix: '오른쪽으로 더 넓게 벌려 무릎을 구부리세요' },
+      ]};
+    },
+    hint: '옆으로 발을 넓게 벌리며 한쪽 무릎을 구부리세요',
   },
   '마운틴 클라이머': {
     check: (lms) => {
@@ -334,9 +362,9 @@ const POSE_RULES = {
       const rk = calcAngle(lms[24], lms[26], lms[28]);
       const kneeUp = lk < 90 || rk < 90;
       return { ok: flat && kneeUp, angles: [
-        { label: '왼쪽 무릎', value: lk, ok: lk < 90 },
-        { label: '오른쪽 무릎', value: rk, ok: rk < 90 },
-        { label: '몸통 수평', value: null, ok: flat },
+        { label: '왼쪽 무릎', value: lk, ok: lk < 90, fix: '왼쪽 무릎을 가슴 쪽으로 더 당기세요' },
+        { label: '오른쪽 무릎', value: rk, ok: rk < 90, fix: '오른쪽 무릎을 가슴 쪽으로 더 당기세요' },
+        { label: '몸통 수평', value: null, ok: flat, fix: '엉덩이를 내려 플랭크 자세를 유지하세요' },
       ]};
     },
     hint: '플랭크 자세에서 무릎을 가슴 쪽으로 당겨주세요',
@@ -347,41 +375,171 @@ const POSE_RULES = {
       const rKneeUp = lms[26].y < lms[24].y - 0.1;
       const ok = lKneeUp || rKneeUp;
       return { ok, angles: [
-        { label: '왼쪽 무릎 들기', value: null, ok: lKneeUp },
-        { label: '오른쪽 무릎 들기', value: null, ok: rKneeUp },
+        { label: '왼쪽 무릎 들기', value: null, ok: lKneeUp, fix: '왼쪽 무릎을 엉덩이 높이 이상으로 들어올리세요' },
+        { label: '오른쪽 무릎 들기', value: null, ok: rKneeUp, fix: '오른쪽 무릎을 엉덩이 높이 이상으로 들어올리세요' },
       ]};
     },
     hint: '한쪽 무릎을 엉덩이 높이 이상으로 들어주세요',
+  },
+  '힙 브릿지': {
+    check: (lms) => {
+      const hipUp = lms[23].y < lms[27].y - 0.08 && lms[24].y < lms[28].y - 0.08;
+      const lh = calcAngle(lms[11], lms[23], lms[25]);
+      const rh = calcAngle(lms[12], lms[24], lms[26]);
+      const hipAngleOk = lh > 140 || rh > 140;
+      const ok = hipUp && hipAngleOk;
+      return { ok, angles: [
+        { label: '엉덩이 들기', value: null, ok: hipUp, fix: '엉덩이를 천장 방향으로 더 높이 들어올리세요' },
+        { label: '골반 각도', value: Math.max(lh, rh), ok: hipAngleOk, fix: '복근에 힘을 주며 골반을 더 올리세요' },
+      ]};
+    },
+    hint: '등을 바닥에 대고 누워 엉덩이를 들어올리세요',
+  },
+  '버드독': {
+    check: (lms) => {
+      const armUp  = lms[15].y < lms[11].y - 0.05 || lms[16].y < lms[12].y - 0.05;
+      const legUp  = lms[27].y < lms[23].y - 0.05 || lms[28].y < lms[24].y - 0.05;
+      const ok = armUp && legUp;
+      return { ok, angles: [
+        { label: '팔 들기', value: null, ok: armUp, fix: '한쪽 팔을 앞으로 수평이 되도록 들어올리세요' },
+        { label: '다리 들기', value: null, ok: legUp, fix: '반대쪽 다리를 뒤로 수평이 되도록 들어올리세요' },
+      ]};
+    },
+    hint: '네 발 자세에서 반대쪽 팔·다리를 동시에 들어올리세요',
+  },
+  '복부 크런치': {
+    check: (lms) => {
+      const shoulderMidY = (lms[11].y + lms[12].y) / 2;
+      const hipMidY      = (lms[23].y + lms[24].y) / 2;
+      const crunch = shoulderMidY < hipMidY - 0.05;
+      return { ok: crunch, angles: [
+        { label: '상체 들기', value: null, ok: crunch, fix: '복근에 힘을 주며 어깨를 바닥에서 더 들어올리세요' },
+      ]};
+    },
+    hint: '누운 자세에서 복근을 수축하며 상체를 들어올리세요',
+  },
+  '크로스 크런치': {
+    check: (lms) => {
+      const shoulderMidY = (lms[11].y + lms[12].y) / 2;
+      const hipMidY      = (lms[23].y + lms[24].y) / 2;
+      const tilt = Math.abs(lms[11].y - lms[12].y) > 0.04;
+      const up   = shoulderMidY < hipMidY - 0.04;
+      const ok   = up && tilt;
+      return { ok, angles: [
+        { label: '상체 들기', value: null, ok: up, fix: '복근에 힘을 주며 상체를 더 들어올리세요' },
+        { label: '대각선 비틀기', value: null, ok: tilt, fix: '반대쪽 팔꿈치를 무릎 방향으로 비틀어주세요' },
+      ]};
+    },
+    hint: '상체를 들면서 대각선으로 비틀어주세요',
+  },
+  '하이니': {
+    check: (lms) => {
+      const lKneeUp = lms[25].y < lms[23].y - 0.08;
+      const rKneeUp = lms[26].y < lms[24].y - 0.08;
+      const ok = lKneeUp || rKneeUp;
+      return { ok, angles: [
+        { label: '왼쪽 무릎', value: null, ok: lKneeUp, fix: '왼쪽 무릎을 허리 높이까지 더 들어올리세요' },
+        { label: '오른쪽 무릎', value: null, ok: rKneeUp, fix: '오른쪽 무릎을 허리 높이까지 더 들어올리세요' },
+      ]};
+    },
+    hint: '제자리에서 무릎을 허리 높이까지 높게 들어올리세요',
+  },
+  '트라이셉 딥': {
+    check: (lms) => {
+      const le = calcAngle(lms[11], lms[13], lms[15]);
+      const re = calcAngle(lms[12], lms[14], lms[16]);
+      const ok = le < 100 || re < 100;
+      return { ok, angles: [
+        { label: '왼쪽 팔꿈치', value: le, ok: le < 100, fix: '왼팔을 더 구부려 몸을 낮추세요' },
+        { label: '오른쪽 팔꿈치', value: re, ok: re < 100, fix: '오른팔을 더 구부려 몸을 낮추세요' },
+      ]};
+    },
+    hint: '의자 끝을 잡고 팔을 구부려 몸을 낮추세요',
+  },
+  '파워 런지': {
+    check: (lms) => {
+      const lk = calcAngle(lms[23], lms[25], lms[27]);
+      const rk = calcAngle(lms[24], lms[26], lms[28]);
+      const ok = (lk < 110 && rk > 130) || (rk < 110 && lk > 130);
+      return { ok, angles: [
+        { label: '앞쪽 무릎', value: Math.min(lk, rk), ok: Math.min(lk, rk) < 110, fix: '앞 무릎을 90° 가깝게 더 구부리세요' },
+        { label: '뒤쪽 무릎', value: Math.max(lk, rk), ok: Math.max(lk, rk) > 130, fix: '뒷다리를 더 뒤로 뻗으세요' },
+      ]};
+    },
+    hint: '큰 보폭으로 한 발을 내딛어 무릎을 깊게 구부리세요',
+  },
+  '스파이더맨 플랭크': {
+    check: (lms) => {
+      const flat = Math.abs(lms[11].y - lms[23].y) < 0.15;
+      const lKneeOut = lms[25].x < lms[23].x - 0.05 || lms[25].x > lms[23].x + 0.05;
+      const rKneeOut = lms[26].x < lms[24].x - 0.05 || lms[26].x > lms[24].x + 0.05;
+      const ok = flat && (lKneeOut || rKneeOut);
+      return { ok, angles: [
+        { label: '몸통 수평', value: null, ok: flat, fix: '엉덩이를 내려 몸통을 일직선으로 유지하세요' },
+        { label: '무릎 옆으로 당기기', value: null, ok: lKneeOut || rKneeOut, fix: '무릎을 팔꿈치 방향으로 옆으로 당기세요' },
+      ]};
+    },
+    hint: '플랭크 자세에서 무릎을 옆으로 팔꿈치 쪽으로 당기세요',
+  },
+  '버피': {
+    check: (lms) => {
+      const shoulderMidY = (lms[11].y + lms[12].y) / 2;
+      const hipMidY      = (lms[23].y + lms[24].y) / 2;
+      const standing = shoulderMidY < hipMidY - 0.2;
+      return { ok: standing, angles: [
+        { label: '직립 자세', value: null, ok: standing, fix: '완전히 일어서서 팔을 머리 위로 들어올리세요' },
+      ]};
+    },
+    hint: '점프 후 팔을 위로 들며 완전히 일어서는 자세를 취하세요',
+  },
+  '버피 (변형)': {
+    check: (lms) => {
+      const shoulderMidY = (lms[11].y + lms[12].y) / 2;
+      const hipMidY      = (lms[23].y + lms[24].y) / 2;
+      const standing = shoulderMidY < hipMidY - 0.2;
+      return { ok: standing, angles: [
+        { label: '직립 자세', value: null, ok: standing, fix: '완전히 일어서는 자세를 취해주세요' },
+      ]};
+    },
+    hint: '점프 없이 일어서는 자세를 취하세요',
+  },
+  '점핑잭': {
+    check: (lms) => {
+      const armsUp = lms[15].y < lms[11].y && lms[16].y < lms[12].y;
+      const legsOut = Math.abs(lms[27].x - lms[28].x) > 0.2;
+      const ok = armsUp && legsOut;
+      return { ok, angles: [
+        { label: '팔 올리기', value: null, ok: armsUp, fix: '양팔을 머리 위로 들어올리세요' },
+        { label: '다리 벌리기', value: null, ok: legsOut, fix: '양발을 어깨 너비 이상으로 넓게 벌리세요' },
+      ]};
+    },
+    hint: '팔을 위로 들며 동시에 다리를 넓게 벌리세요',
   },
 
   /* ── 준비/마무리 운동 ── */
   '허리 스트레칭': {
     check: (lms) => {
-      /* 좌우 어깨 높이 차이로 옆으로 구부리기 감지 */
       const shoulderTilt = Math.abs(lms[11].y - lms[12].y);
       const sideBend     = shoulderTilt > 0.06;
-      /* 또는 앞으로 숙이기: 어깨 중심이 엉덩이 높이에 가까워짐 */
       const shoulderMidY = (lms[11].y + lms[12].y) / 2;
       const hipMidY      = (lms[23].y + lms[24].y) / 2;
       const forwardBend  = shoulderMidY > hipMidY - 0.08;
       const ok = sideBend || forwardBend;
       return { ok, angles: [
-        { label: '옆으로 기울기',   value: null, ok: sideBend },
-        { label: '앞으로 숙이기',   value: null, ok: forwardBend },
+        { label: '옆으로 기울기', value: null, ok: sideBend, fix: '허리를 옆으로 더 기울여주세요' },
+        { label: '앞으로 숙이기', value: null, ok: forwardBend, fix: '상체를 앞으로 천천히 더 숙여주세요' },
       ]};
     },
     hint: '허리를 옆으로 기울이거나 앞으로 천천히 숙여주세요',
   },
-
   '제자리 걷기': {
     check: (lms) => {
-      /* 한쪽 무릎이 엉덩이보다 높이 올라오면 걷기 동작 */
       const lKneeUp = lms[25].y < lms[23].y - 0.05;
       const rKneeUp = lms[26].y < lms[24].y - 0.05;
       const ok = lKneeUp || rKneeUp;
       return { ok, angles: [
-        { label: '왼쪽 무릎 올리기', value: null, ok: lKneeUp },
-        { label: '오른쪽 무릎 올리기', value: null, ok: rKneeUp },
+        { label: '왼쪽 무릎 올리기', value: null, ok: lKneeUp, fix: '왼쪽 무릎을 더 높이 들어올리세요' },
+        { label: '오른쪽 무릎 올리기', value: null, ok: rKneeUp, fix: '오른쪽 무릎을 더 높이 들어올리세요' },
       ]};
     },
     hint: '제자리에서 무릎을 높이 들며 걸어주세요',
@@ -402,25 +560,23 @@ function renderAngles(angles) {
     angleDisplay.innerHTML = '<div style="color:#555;font-size:13px;text-align:center;padding:8px 0;">기본 자세 감지 모드</div>';
     return;
   }
-  angleDisplay.innerHTML = angles.map(({ label, value, ok }) => `
+  angleDisplay.innerHTML = angles.map(({ label, value, ok, fix }) => `
     <div class="angle-row">
       <span class="angle-label">${label}</span>
       <span class="angle-value ${ok ? 'ok' : ''}">${value !== null ? value + '°' : (ok ? '✓' : '✗')}</span>
-    </div>`
+    </div>
+    ${!ok && fix ? `<div class="angle-fix">→ ${fix}</div>` : ''}`
   ).join('');
 }
 
-/* ── 성공 표시 ── */
+/* ── 성공 표시 → sc311로 복귀 및 자동 체크 ── */
 function showSuccess() {
   successOverlay.classList.add('show');
-  statusBar.textContent = '✅ 자세가 정확합니다!';
+  statusBar.textContent = '✅ 자세가 정확합니다! 운동 화면으로 돌아갑니다...';
   statusBar.className = 'status-bar correct';
   progressWrap.style.display = 'none';
   setTimeout(() => {
-    successOverlay.classList.remove('show');
-    correctFrames = 0;
-    successShown  = false;
-    progressFill.style.width = '0%';
+    location.href = `sc311.html?tab=workout&poseVerified=${encodeURIComponent(exerciseName)}`;
   }, 2500);
 }
 
@@ -544,7 +700,8 @@ function detectLoop() {
     correctFrames = 0;
     progressFill.style.width   = '0%';
     progressWrap.style.display = 'none';
-    statusBar.textContent = currentRule.hint;
+    const failAngle = angles.find(a => !a.ok && a.fix);
+    statusBar.textContent = failAngle ? `💡 ${failAngle.fix}` : currentRule.hint;
     statusBar.className   = 'status-bar';
   }
 }

@@ -12,6 +12,7 @@
  */
 
 const { FOODS } = require('../data/foodDb');
+const { extractMealIntent } = require('./geminiExtract');
 
 // 재료 키워드 → 관련 음식 목록
 const INGREDIENT_MAP = {
@@ -112,12 +113,13 @@ function buildMeal(slot, targetCal, pool, preferredNames = new Set()) {
     ];
     if (mains.length === 0) {
         mains.push(FOODS.find(f => f.name === '잡곡밥') ||
-            { name: '잡곡밥', kcal: 300, meals: ['breakfast','lunch','dinner'], type: 'main' });
+            { name: '잡곡밥', kcal: 300, gram: 210, meals: ['breakfast','lunch','dinner'], type: 'main' });
     }
     const main = mains[0];
 
-    const menu = [main.name];
-    let   cal  = main.kcal;
+    const menu      = [main.name];
+    const menuFoods = [main];          // gram 추적용
+    let   cal       = main.kcal;
 
     // 국/찌개: preferred 우선, 칼로리 맞는 것 선택
     const soups = [
@@ -125,12 +127,13 @@ function buildMeal(slot, targetCal, pool, preferredNames = new Set()) {
         ...shuffle(available.filter(f => f.type === 'soup' && !preferredNames.has(f.name))),
     ];
     const soup = soups.find(s => cal + s.kcal <= targetCal * 1.1);
-    if (soup) { menu.push(soup.name); cal += soup.kcal; }
+    if (soup) { menu.push(soup.name); menuFoods.push(soup); cal += soup.kcal; }
 
     // 배추김치 기본 추가
     const kimchi = pool.find(f => f.name === '배추김치' && f.meals.includes(slot));
     if (kimchi && !menu.includes(kimchi.name) && cal + kimchi.kcal <= targetCal * 1.1) {
         menu.push(kimchi.name);
+        menuFoods.push(kimchi);
         cal += kimchi.kcal;
     }
 
@@ -141,14 +144,23 @@ function buildMeal(slot, targetCal, pool, preferredNames = new Set()) {
     ];
     for (const side of sides) {
         if (cal >= targetCal * 0.88) break;
-        if (cal + side.kcal <= targetCal * 1.10) { menu.push(side.name); cal += side.kcal; }
+        if (cal + side.kcal <= targetCal * 1.10) {
+            menu.push(side.name);
+            menuFoods.push(side);
+            cal += side.kcal;
+        }
     }
+
+    // desc: 각 음식별 섭취량(g) 표시
+    const desc = menuFoods
+        .map(f => `${f.name} ${f.gram ?? ''}g`.trim())
+        .join(' · ');
 
     return {
         menu,
         calories:  cal,
         main_food: main.name,
-        desc:      `${main.name} 중심의 ${cal}kcal 식단`,
+        desc,
     };
 }
 
@@ -169,12 +181,17 @@ function recommendMeal({ targetCalories, excludeFoods = [] }) {
     };
 }
 
-/** 식단 재조정 (감성 점수 기반) */
-function adjustMeal({ targetCalories, reasons = [] }) {
-    const { excluded, preferred } = parseReasons(reasons);
+/** 식단 재조정 (Gemini 의도 추출 기반) */
+async function adjustMeal({ targetCalories, reasons = [] }) {
+    const foodNames = FOODS.map(f => f.name);
+    const { excluded: excludedArr, preferred: preferredArr } =
+        await extractMealIntent(reasons, foodNames);
 
-    console.log(`  [감성 점수] excluded: [${[...excluded].join(', ')}]`);
-    console.log(`  [감성 점수] preferred: [${[...preferred].join(', ')}]`);
+    const excluded  = new Set(excludedArr);
+    const preferred = new Set(preferredArr);
+
+    console.log(`  [Gemini 추출] excluded: [${excludedArr.join(', ')}]`);
+    console.log(`  [Gemini 추출] preferred: [${preferredArr.join(', ')}]`);
 
     const pool   = FOODS.filter(f => !excluded.has(f.name));
     const bfCal  = Math.round(targetCalories * 0.25);

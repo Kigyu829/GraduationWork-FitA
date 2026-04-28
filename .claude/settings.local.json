@@ -29,7 +29,8 @@
       "Bash(for f:*)",
       "Bash(do echo:*)",
       "Read(//c/Users/김인규/Desktop/Graduation_Work/project_web/public/pages/**)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(sort echo:*)"
     ]
   }
 }

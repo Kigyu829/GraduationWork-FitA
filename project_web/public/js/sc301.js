@@ -16,7 +16,27 @@
 
 'use strict';
 
+/* ── 오늘 날짜 문자열 (YYYY-MM-DD) ── */
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* ── 프로필이 있고 오늘 플랜이 없으면 sc302로 자동 이동 ── */
+function autoRedirectIfNoPlan() {
+  const data = Storage.getUser();
+  const hasPlan    = data.planDate === todayStr() && !!(data.aiMealPlan && data.aiWorkoutPlan);
+  const hasProfile = !!(data.weight && data.height && data.targetWeight);
+  if (!hasPlan && hasProfile) {
+    location.replace('sc302.html');
+    return true;
+  }
+  return false;
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+  if (autoRedirectIfNoPlan()) return;   /* 플랜 없으면 sc302로 이동 */
+
   renderHeader();
   renderSidebar();
   renderProgress();
@@ -201,7 +221,7 @@ function renderBMIGauge() {
       ? 10 * weight + 6.25 * height - 5 * age + 5
       : 10 * weight + 6.25 * height - 5 * age - 161;
 
-    const actMap = { '낮음': 1.2, '보통': 1.375, '높음': 1.55 };
+    const actMap = { '낮음': 1.2, '보통': 1.375, '높음': 1.55, '매우높음': 1.725, '선수': 1.9 };
     const factor = actMap[data.activityLevel] || 1.375;
     const tdee   = Math.round(bmr * factor);
     bmr          = Math.round(bmr);

@@ -14,6 +14,7 @@
  */
 
 const { WARMUP, MAIN, COOLDOWN, EXERCISE_TIPS } = require('../data/exerciseDb');
+const { extractExerciseIntent } = require('./geminiExtract');
 
 // 부위 키워드 → 관련 운동 목록
 const BODY_PART_MAP = {
@@ -172,20 +173,28 @@ function recommendExercise({ bmi, targetWeeks }) {
     return buildPlan(intensity);
 }
 
-/** 운동 재조정 (강도 조정 + 감성 점수 기반) */
-function adjustExercise({ bmi, targetWeeks, reasons = [] }) {
-    const baseIntensity  = getIntensity(bmi, targetWeeks);
-    const intensityDelta = parseIntensityDelta(reasons);
-    const intensity      = shiftIntensity(baseIntensity, intensityDelta);
+/** 운동 재조정 (Gemini 의도 추출 기반) */
+async function adjustExercise({ bmi, targetWeeks, reasons = [] }) {
+    const allExerciseNames = [
+        ...WARMUP,
+        ...MAIN.low, ...MAIN.medium, ...MAIN.high,
+        ...COOLDOWN,
+    ].map(e => e.name);
+    const uniqueNames = [...new Set(allExerciseNames)];
 
-    // 강도 올리면 메인 운동 1개 추가, 낮추면 1개 감소
-    const mainCount = 4 + intensityDelta; // 3 / 4 / 5
+    const { excluded: excludedArr, preferred: preferredArr, intensityDelta } =
+        await extractExerciseIntent(reasons, uniqueNames);
 
-    const { excluded, preferred } = parseReasons(reasons);
+    const baseIntensity = getIntensity(bmi, targetWeeks);
+    const intensity     = shiftIntensity(baseIntensity, intensityDelta);
+    const mainCount     = 4 + intensityDelta; // 3 / 4 / 5
+
+    const excluded  = new Set(excludedArr);
+    const preferred = new Set(preferredArr);
 
     console.log(`  [강도 조정] ${baseIntensity} → ${intensity} (delta: ${intensityDelta}), 메인 ${mainCount}개`);
-    console.log(`  [감성 점수] excluded: [${[...excluded].join(', ')}]`);
-    console.log(`  [감성 점수] preferred: [${[...preferred].join(', ')}]`);
+    console.log(`  [Gemini 추출] excluded: [${excludedArr.join(', ')}]`);
+    console.log(`  [Gemini 추출] preferred: [${preferredArr.join(', ')}]`);
 
     return buildPlan(intensity, excluded, preferred, mainCount);
 }

@@ -75,16 +75,41 @@ const STEPS = [
   { id: 'step3', label: '최종 검토', duration: 800  },
 ];
 
+/* ── Mifflin-St Jeor 기반 목표 칼로리 계산 ── */
+function calcTargetCalories(userData) {
+  const weight       = Number(userData.weight);
+  const height       = Number(userData.height);
+  const targetWeight = Number(userData.targetWeight);
+  const goalWeeks    = Number(userData.goalWeeks) || 8;
+  const gender       = userData.gender;
+  const birth        = userData.birth || '';
+  const age          = birth ? new Date().getFullYear() - Number(birth.slice(0, 4)) : 25;
+
+  const bmr = gender === '남성'
+    ? 10 * weight + 6.25 * height - 5 * age + 5
+    : 10 * weight + 6.25 * height - 5 * age - 161;
+
+  const actMap = { '낮음': 1.2, '보통': 1.375, '높음': 1.55, '매우높음': 1.725, '선수': 1.9 };
+  const tdee   = Math.round(bmr * (actMap[userData.activityLevel] || 1.375));
+
+  const weightToLose = Math.max(0, weight - targetWeight);
+  const dailyDeficit = Math.min(Math.round((weightToLose * 7700) / (goalWeeks * 7)), 1000);
+  return Math.max(1200, tdee - dailyDeficit);
+}
+
 /* ── AI 플랜 API 호출 ── */
 async function fetchAiPlans() {
-  const userData = Storage.getUser();
+  const userData       = Storage.getUser();
+  const targetCalories = calcTargetCalories(userData);
   const body = {
-    height:       userData.height       || '',
-    weight:       userData.weight       || '',
-    bmi:          userData.bmi          || '',
-    gender:       userData.gender       || '',
-    targetWeight: userData.targetWeight || '',
-    targetWeeks:  userData.goalWeeks    || 8,
+    height:          userData.height        || '',
+    weight:          userData.weight        || '',
+    bmi:             userData.bmi           || '',
+    gender:          userData.gender        || '',
+    targetWeight:    userData.targetWeight  || '',
+    targetWeeks:     userData.goalWeeks     || 8,
+    activityLevel:   userData.activityLevel || '보통',
+    targetCalories,
   };
 
   const [mealRes, exRes] = await Promise.all([

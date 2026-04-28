@@ -189,7 +189,7 @@ if (bodyInfoForm2) {
       activityLevel,
     });
 
-    location.href = 'sc301.html';
+    location.href = 'sc302.html';
   });
 }
 
