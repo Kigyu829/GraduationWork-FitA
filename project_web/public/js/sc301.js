@@ -433,7 +433,6 @@ function initTodayWeight() {
   const saveBtn = document.getElementById('todayWeightSaveBtn');
   const hint    = document.getElementById('todayWeightHint');
 
-  /* 오늘 저장된 체중 복원 */
   const todayKey = `todayWeight_${getTodayKey()}`;
   const saved    = localStorage.getItem(todayKey);
   if (saved && input) input.value = saved;
@@ -444,60 +443,53 @@ function initTodayWeight() {
       if (hint) { hint.textContent = '올바른 체중을 입력해주세요.'; hint.style.color = 'var(--red)'; }
       return;
     }
-
-    /* localStorage에 오늘 체중 저장 + 사용자 데이터 업데이트 */
     localStorage.setItem(todayKey, val);
     Storage.mergeUser({ weight: String(val) });
-
-    if (hint) { hint.textContent = `✓ ${val}kg 저장됐어요!`; hint.style.color = 'var(--teal)'; }
-    setTimeout(() => { if (hint) hint.textContent = ''; }, 2500);
-
-    /* 대시보드 수치 갱신 */
+    if (hint) hint.textContent = '';
+    showWeightSavedPopup(val);
     renderProgress();
     renderSidebar();
     renderStreakBanner();
   });
 
-  /* Enter 키로도 저장 */
-  input?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') saveBtn?.click();
-  });
+  input?.addEventListener('keydown', e => { if (e.key === 'Enter') saveBtn?.click(); });
 }
 
-/* ════════════════════════════════
-   연속 달성 스트릭 배너
-   ════════════════════════════════ */
-function renderStreakBanner() {
-  const banner  = document.getElementById('streakBanner');
-  const textEl  = document.getElementById('streakBannerText');
-  if (!banner || !textEl) return;
+function showWeightSavedPopup(val) {
+  document.getElementById('weightSavedPopup')?.remove();
+  document.getElementById('weightPopupOverlay')?.remove();
 
-  /* 오늘부터 역순으로 연속 달성일 계산 */
+  const overlay = document.createElement('div');
+  overlay.id = 'weightPopupOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);z-index:9998;';
+
+  const popup = document.createElement('div');
+  popup.id = 'weightSavedPopup';
+  popup.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.9);background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px 36px;text-align:center;z-index:9999;box-shadow:0 24px 64px rgba(0,0,0,0.5);display:flex;flex-direction:column;align-items:center;gap:12px;opacity:0;transition:opacity 0.2s ease,transform 0.2s ease;min-width:260px;';
+  popup.innerHTML = `<div style="font-size:48px;line-height:1;">⚖️</div><div style="font-size:18px;font-weight:800;color:var(--text);letter-spacing:-0.02em;">체중이 저장됐어요!</div><div style="font-size:14px;color:var(--teal);font-weight:800;">오늘 체중: ${val}kg</div><div style="font-size:12px;color:var(--text-sec);line-height:1.6;">대시보드에 반영됐어요.</div><button onclick="document.getElementById('weightSavedPopup')?.remove();document.getElementById('weightPopupOverlay')?.remove();" style="margin-top:4px;padding:10px 28px;border:none;border-radius:10px;background:var(--teal);color:#09131a;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;">확인</button>`;
+
+  overlay.addEventListener('click', () => { popup.remove(); overlay.remove(); });
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
+  requestAnimationFrame(() => { requestAnimationFrame(() => { popup.style.opacity='1'; popup.style.transform='translate(-50%,-50%) scale(1)'; }); });
+  setTimeout(() => { popup.remove(); overlay.remove(); }, 3000);
+}
+
+function renderStreakBanner() {
+  const banner = document.getElementById('streakBanner');
+  const textEl = document.getElementById('streakBannerText');
+  if (!banner || !textEl) return;
   let streak = 0;
   const today = new Date();
-
   for (let i = 0; i < 365; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    const key    = `check_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    let   checks = {};
+    const d = new Date(today); d.setDate(today.getDate() - i);
+    const key = `check_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    let checks = {};
     try { checks = JSON.parse(localStorage.getItem(key)) || {}; } catch {}
-
-    if (checks.meal && checks.workout) {
-      streak++;
-    } else if (i === 0) {
-      /* 오늘 아직 미달성이면 어제부터 카운트 시작 */
-      continue;
-    } else {
-      break;
-    }
+    if (checks.meal && checks.workout) { streak++; }
+    else if (i === 0) { continue; }
+    else { break; }
   }
-
-  if (streak >= 1) {
-    banner.style.display = 'flex';
-    textEl.textContent   = `${streak}일째 연속 성공 중!`;
-  } else {
-    banner.style.display = 'none';
-  }
+  if (streak >= 1) { banner.style.display='flex'; textEl.textContent=`${streak}일째 연속 성공 중!`; }
+  else { banner.style.display='none'; }
 }
-

@@ -358,12 +358,13 @@ label.field-label {
   width: 32px;
   height: 32px;
   border-radius: 9px;
-  background: var(--teal);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 16px;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .site-logo-text {
@@ -426,12 +427,13 @@ label.field-label {
   width: 30px;
   height: 30px;
   border-radius: 8px;
-  background: var(--teal);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 15px;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .sidebar-logo-text {

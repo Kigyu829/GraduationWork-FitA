@@ -70,10 +70,11 @@
 .drawer-logo-icon {
   width: 34px; height: 34px;
   border-radius: 10px;
-  background: var(--teal);
+  background: transparent;
   display: flex; align-items: center; justify-content: center;
   font-size: 16px;
   flex-shrink: 0;
+  overflow: hidden;
 }
 .drawer-logo-text {
   font-size: 16px; font-weight: 800;
@@ -151,3 +152,34 @@
   opacity: 1;
   pointer-events: auto;
 }
+
+/* ── navbar 안 햄버거 버튼 ── */
+.drawer-toggle-nav {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+  padding: 0;
+}
+.drawer-toggle-nav:hover {
+  background: var(--card);
+  border-color: var(--teal);
+}
+.drawer-toggle-nav .bar {
+  width: 16px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: background 0.15s;
+}
+.drawer-toggle-nav:hover .bar { background: var(--teal); }
