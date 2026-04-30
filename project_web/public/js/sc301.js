@@ -100,11 +100,17 @@ function renderProgress() {
   const rawRemaining = currentWeight - targetWeight;
   const remaining    = Math.max(0, rawRemaining);
 
-  /* 목표 달성 축하 팝업 (처음 달성 시 1회만) */
+  /* 목표 달성 축하 팝업
+     - 달성 조건: rawRemaining <= 0
+     - 팝업이 이미 열려있으면 중복 안 띄움
+     - 세션당 1회: sessionStorage로 관리 (새로고침/재방문 시 다시 뜸)
+       → 목표 재설정 후 다시 달성하면 다시 표시됨 */
   if (currentWeight > 0 && targetWeight > 0 && rawRemaining <= 0) {
-    const celebKey = `celebrated_${data.targetWeight}kg`;
-    if (!localStorage.getItem(celebKey)) {
-      localStorage.setItem(celebKey, '1');
+    const celebKey = `goalCelebrated_${targetWeight}`;
+    const alreadyShown = sessionStorage.getItem(celebKey);
+    const popupOpen    = document.getElementById('goalAchievedPopup');
+    if (!alreadyShown && !popupOpen) {
+      sessionStorage.setItem(celebKey, '1');
       setTimeout(showGoalAchievedPopup, 600);
     }
   }
@@ -465,13 +471,57 @@ function initTodayWeight() {
       if (hint) { hint.textContent = '올바른 체중을 입력해주세요.'; hint.style.color = 'var(--red)'; }
       return;
     }
-    localStorage.setItem(todayKey, val);
-    Storage.mergeUser({ weight: String(val) });
-    if (hint) hint.textContent = '';
-    showWeightSavedPopup(val);
-    renderProgress();
-    renderSidebar();
-    renderStreakBanner();
+    /* ── 최저 권장 체중 + 급격한 변화를 순차 커스텀 confirm으로 검증 ── */
+    const userData301 = Storage.getUser();
+    const heightCm    = Number(userData301.height || 0);
+    const minSafe301  = heightCm > 0 ? Math.round(18.5 * (heightCm/100) ** 2 * 10) / 10 : 30;
+
+    const prevKey = `todayWeight_${(function(){
+      const y = new Date(); y.setDate(y.getDate()-1);
+      return y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+    })()}`;
+    const prevWeight = parseFloat(localStorage.getItem(prevKey) || userData301.weight || 0);
+
+    function doSaveWeight() {
+      localStorage.setItem(todayKey, val);
+      Storage.mergeUser({ weight: String(val) });
+      if (hint) hint.textContent = '';
+      showWeightSavedPopup(val);
+      renderProgress();
+      renderSidebar();
+      renderStreakBanner();
+    }
+
+    function checkSuddenChange(onPass) {
+      if (prevWeight > 0 && Math.abs(val - prevWeight) >= 5) {
+        const diff = (val - prevWeight).toFixed(1);
+        const sign = Number(diff) > 0 ? '+' : '';
+        showCustomConfirm({
+          icon: '📊',
+          title: '체중 변화가 커요',
+          desc: `어제 <strong>${prevWeight}kg</strong> → 오늘 <strong>${val}kg</strong><br>하루 차이가 <strong style="color:var(--red)">${sign}${diff}kg</strong>이에요.<br><br>정말 <strong>${val}kg</strong>으로 저장할까요?`,
+          okText: '그래도 저장',
+          cancelText: '다시 입력',
+          onOk: onPass
+        });
+      } else {
+        onPass();
+      }
+    }
+
+    if (val < minSafe301) {
+      showCustomConfirm({
+        icon: '⚖️',
+        title: '권장 체중 이하예요',
+        desc: `입력한 체중 <strong>${val}kg</strong>은 키 <strong>${heightCm}cm</strong> 기준<br>최저 권장 체중 <strong style="color:var(--teal)">${minSafe301}kg</strong>(BMI 18.5)보다 낮아요.<br><br>실수가 아닌지 확인해주세요.`,
+        okText: '그래도 저장',
+        cancelText: '다시 입력',
+        danger: true,
+        onOk: () => checkSuddenChange(doSaveWeight)
+      });
+    } else {
+      checkSuddenChange(doSaveWeight);
+    }
   });
 
   input?.addEventListener('keydown', e => { if (e.key === 'Enter') saveBtn?.click(); });
@@ -616,4 +666,15 @@ function showGoalAchievedPopup() {
       popup.style.transform = 'translate(-50%,-50%) scale(1)';
     });
   });
+}
+
+/* 체중 실제 저장 헬퍼 (커스텀 confirm 콜백에서 호출) */
+function _doSaveWeight(val, todayKey, hint) {
+  localStorage.setItem(todayKey, val);
+  Storage.mergeUser({ weight: String(val) });
+  if (hint) hint.textContent = '';
+  showWeightSavedPopup(val);
+  renderProgress();
+  renderSidebar();
+  renderStreakBanner();
 }

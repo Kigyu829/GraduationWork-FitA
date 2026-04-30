@@ -492,3 +492,131 @@ function bindLogoClick() {
     location.href = 'sc301.html';
   });
 }
+
+/* ════════════════════════════════
+   공통 커스텀 Confirm 모달
+   사용법:
+     showCustomConfirm({
+       icon: '⚠️',
+       title: '제목',
+       desc: 'HTML 문자열',
+       okText: '확인',       // 기본 '확인'
+       cancelText: '취소',   // 기본 '취소'
+       danger: false,        // true면 확인버튼 빨간색
+       onOk: () => {},
+       onCancel: () => {}
+     });
+   ════════════════════════════════ */
+function showCustomConfirm({ icon='⚠️', title='', desc='', okText='확인', cancelText='취소', danger=false, onOk=null, onCancel=null } = {}) {
+  document.getElementById('_customConfirmOverlay')?.remove();
+
+  /* ── 스타일 상수 ── */
+  const C = {
+    bg:      '#172530',
+    border:  '#243840',
+    teal:    '#66D0BC',
+    red:     '#FF0B55',
+    textSec: '#8faebb',
+    text:    '#ffffff',
+  };
+
+  const overlay = document.createElement('div');
+  overlay.id = '_customConfirmOverlay';
+  overlay.style.cssText = [
+    'position:fixed', 'inset:0', 'z-index:10500',
+    'display:flex', 'align-items:center', 'justify-content:center', 'padding:24px',
+    'background:rgba(0,0,0,0.65)', 'backdrop-filter:blur(6px)',
+    'opacity:0', 'pointer-events:none', 'transition:opacity 0.22s ease',
+  ].join(';');
+
+  /* ── 박스 ── */
+  const box = document.createElement('div');
+  box.style.cssText = [
+    `background:${C.bg}`, `border:1px solid ${C.border}`, 'border-radius:24px',
+    'padding:36px 32px 28px', 'width:100%', 'max-width:360px',
+    'display:flex', 'flex-direction:column', 'align-items:center',
+    'gap:14px', 'text-align:center',
+    'box-shadow:0 32px 80px rgba(0,0,0,0.6)',
+    'transform:scale(0.88) translateY(16px)',
+    'transition:transform 0.28s cubic-bezier(0.22,1,0.36,1)',
+    'font-family:Nanum Gothic,sans-serif',
+  ].join(';');
+
+  /* 아이콘 */
+  const iconEl = document.createElement('div');
+  iconEl.style.cssText = 'font-size:52px;line-height:1;';
+  iconEl.textContent = icon;
+
+  /* 제목 */
+  const titleEl = document.createElement('div');
+  titleEl.style.cssText = `font-size:18px;font-weight:800;color:${C.text};letter-spacing:-0.02em;`;
+  titleEl.textContent = title;
+
+  /* 설명 */
+  const descEl = document.createElement('div');
+  descEl.style.cssText = `font-size:13px;color:${C.textSec};line-height:1.7;word-break:keep-all;`;
+  descEl.innerHTML = desc || '';
+
+  /* 버튼 행 */
+  const actions = document.createElement('div');
+  actions.style.cssText = 'display:flex;gap:10px;width:100%;margin-top:6px;';
+
+  let cancelBtn = null;
+  if (cancelText) {
+    cancelBtn = document.createElement('button');
+    cancelBtn.id = '_ccCancel';
+    cancelBtn.textContent = cancelText;
+    cancelBtn.style.cssText = [
+      'flex:1', 'padding:12px', `border:1px solid ${C.border}`, 'border-radius:12px',
+      'background:transparent', `color:${C.textSec}`,
+      'font-size:13px', 'font-family:inherit', 'font-weight:700',
+      'cursor:pointer', 'transition:background 0.15s',
+    ].join(';');
+    cancelBtn.addEventListener('mouseenter', () => { cancelBtn.style.background = 'rgba(255,255,255,0.05)'; });
+    cancelBtn.addEventListener('mouseleave', () => { cancelBtn.style.background = 'transparent'; });
+    actions.appendChild(cancelBtn);
+  }
+
+  const okBtn = document.createElement('button');
+  okBtn.id = '_ccOk';
+  okBtn.textContent = okText;
+  okBtn.style.cssText = [
+    'flex:1', 'padding:12px', 'border:none', 'border-radius:12px',
+    `background:${danger ? C.red : C.teal}`,
+    `color:${danger ? '#fff' : '#09131a'}`,
+    'font-size:13px', 'font-family:inherit', 'font-weight:800',
+    'cursor:pointer', 'transition:opacity 0.15s',
+  ].join(';');
+  okBtn.addEventListener('mouseenter', () => { okBtn.style.opacity = '0.88'; });
+  okBtn.addEventListener('mouseleave', () => { okBtn.style.opacity = '1'; });
+  actions.appendChild(okBtn);
+
+  box.appendChild(iconEl);
+  box.appendChild(titleEl);
+  if (desc) box.appendChild(descEl);
+  box.appendChild(actions);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  /* 등장 애니메이션 */
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    overlay.style.opacity = '1';
+    overlay.style.pointerEvents = 'auto';
+    box.style.transform = 'scale(1) translateY(0)';
+  }));
+
+  function close() {
+    overlay.style.opacity = '0';
+    overlay.style.pointerEvents = 'none';
+    box.style.transform = 'scale(0.88) translateY(16px)';
+    setTimeout(() => overlay.remove(), 260);
+  }
+
+  okBtn.addEventListener('click', () => { close(); if (onOk) onOk(); });
+  if (cancelBtn) cancelBtn.addEventListener('click', () => { close(); if (onCancel) onCancel(); });
+  overlay.addEventListener('click', e => { if (e.target === overlay) { close(); if (onCancel) onCancel(); } });
+  document.addEventListener('keydown', function escHandler(e) {
+    if (e.key === 'Escape') { close(); if (onCancel) onCancel(); document.removeEventListener('keydown', escHandler); }
+    if (e.key === 'Enter')  { close(); if (onOk) onOk();     document.removeEventListener('keydown', escHandler); }
+  });
+}

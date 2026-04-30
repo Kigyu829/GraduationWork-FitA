@@ -234,6 +234,8 @@ function loadBodyForm(data) {
   setVal('inputWeight', data.weight);
   updateBmiMini();
 
+  document.getElementById('inputWeight')?.addEventListener('input', () => updateGoalPreview(Storage.getUser()));
+
   ['inputHeight', 'inputWeight'].forEach(id => {
     document.getElementById(id)?.addEventListener('input', updateBmiMini);
   });
@@ -266,6 +268,41 @@ function bindBodySave() {
 
     if (!height || !weight) { showToast('키와 체중은 필수 입력이에요.', 'error'); return; }
 
+    /* ── 체중 검증 1: 최저 권장 체중 ── */
+    const minSafeBody = calcMinSafeWeight(Number(height));
+    if (Number(weight) < minSafeBody) {
+      showCustomConfirm({
+        icon: '⚖️',
+        title: '권장 체중 이하예요',
+        desc: `입력한 체중 <strong>${weight}kg</strong>은 키 <strong>${height}cm</strong> 기준<br>최저 권장 체중 <strong style="color:var(--teal)">${minSafeBody}kg</strong>(BMI 18.5)보다 낮아요.<br><br>실수가 아닌지 확인해주세요.`,
+        okText: '그래도 저장',
+        cancelText: '다시 입력',
+        danger: true,
+        onOk: () => _doSaveBody(height, weight, gender, birth)
+      });
+      return;
+    }
+
+    /* ── 체중 검증 2: 이전 체중 대비 급격한 변화 ── */
+    const prevWeight = Number(Storage.getUser().weight || 0);
+    if (prevWeight > 0 && Math.abs(Number(weight) - prevWeight) >= 5) {
+      const diff = (Number(weight) - prevWeight).toFixed(1);
+      const sign = diff > 0 ? '+' : '';
+      showCustomConfirm({
+        icon: '📊',
+        title: '체중 변화가 커요',
+        desc: `기존 체중 <strong>${prevWeight}kg</strong> → 새 체중 <strong>${weight}kg</strong><br>차이가 <strong style="color:var(--red)">${sign}${diff}kg</strong>이에요.<br><br>정말 <strong>${weight}kg</strong>으로 저장할까요?`,
+        okText: '그래도 저장',
+        cancelText: '다시 입력',
+        onOk: () => _doSaveBody(height, weight, gender, birth)
+      });
+      return;
+    }
+
+    _doSaveBody(height, weight, gender, birth);
+  });
+
+  async function _doSaveBody(height, weight, gender, birth) {
     const bmi = calculateBMI(height, weight);
     try { await apiPost('/profile/update', { height, weight, gender, birth }); } catch { /* 폴백 */ }
 
@@ -275,7 +312,7 @@ function bindBodySave() {
     renderSidebar(fresh);
     renderBanner(fresh);
     showToast('✅ 신체 정보가 저장됐어요.', 'success');
-  });
+  }
 }
 
 /* ════════════════════════════════
@@ -322,7 +359,7 @@ function loadGoalForm(data) {
     updateGoalPreview(data);
   });
 
-  ['inputTargetLoss'].forEach(id => {
+  ['inputTargetLoss', 'inputGoalPeriod'].forEach(id => {
     document.getElementById(id)?.addEventListener('input',  () => updateGoalPreview(data));
     document.getElementById(id)?.addEventListener('change', () => updateGoalPreview(data));
   });
@@ -344,7 +381,9 @@ function getGoalPeriodLabel() {
 }
 
 function updateGoalPreview(data) {
-  const currentW    = Number(data?.weight || Storage.getUser().weight || 0);
+  /* inputWeight 필드가 있으면 실시간 값, 없으면 저장값 */
+  const inputWeightEl = document.getElementById('inputWeight');
+  const currentW    = Number(inputWeightEl?.value || data?.weight || Storage.getUser().weight || 0);
   const targetLoss  = Number(document.getElementById('inputTargetLoss')?.value || 0);
   const weeks       = getGoalWeeks();
   const periodLabel = getGoalPeriodLabel();
@@ -360,7 +399,7 @@ function updateGoalPreview(data) {
   }
 
   if (!previewEl) return;
-  if (!currentW || !targetLoss || !weeks || !activity) {
+  if (!currentW || !targetLoss || !weeks) {
     previewEl.textContent = '목표 감량과 기간을 입력하면 표시됩니다.';
     previewEl.classList.add('muted');
     return;
@@ -390,19 +429,46 @@ function bindGoalSave(userData) {
     const targetWeight = currentW - targetLoss;
     if (targetWeight <= 0) { showToast('목표 감량 무게를 다시 확인해주세요.', 'error'); return; }
 
-    if (targetLoss / weeks > 1.0) {
-      const ok = confirm(
-        `⚠️ 설정하신 목표가 권장 감량 범위를 초과합니다.\n` +
-        `(권장: 주 최대 1kg / 현재: 주 ${(targetLoss / weeks).toFixed(1)}kg)\n\n계속하시겠습니까?`
-      );
-      if (!ok) return;
+    /* 최저 권장 체중 검증 (BMI 18.5) */
+    const savedHeight = Storage.getUser().height;
+    const minSafe     = calcMinSafeWeight(Number(savedHeight));
+    if (targetWeight < minSafe) {
+      showCustomConfirm({
+        icon: '⚠️',
+        title: '목표 체중이 너무 낮아요',
+        desc: `목표 체중 <strong>${targetWeight}kg</strong>은 키 <strong>${savedHeight}cm</strong> 기준<br>최저 권장 체중 <span class="teal">${minSafe}kg</span>(BMI 18.5)보다 낮아요.<br><br>건강을 위해 <span class="teal">${minSafe}kg 이상</span>을 권장해요.`,
+        okText: '그래도 저장',
+        cancelText: '다시 설정',
+        danger: true,
+        onOk: () => _doSaveGoal(currentW, targetLoss, periodLabel, weeks, targetWeight)
+      });
+      return;
     }
 
-    const goalData = { initialWeight: currentW, targetLoss, goalPeriod: periodLabel, goalWeeks: weeks, targetWeight, activityLevel: '보통' }; /* 활동량 제거 — 기본값 고정 */
+    if (targetLoss / weeks > 1.0) {
+      showCustomConfirm({
+        icon: '🏃',
+        title: '감량 속도가 빠른 목표예요',
+        desc: `권장 감량 속도는 <span class="teal">주 최대 1kg</span>이에요.<br>현재 설정은 <span class="warn">주 ${(targetLoss / weeks).toFixed(1)}kg</span>으로 건강에 무리가 올 수 있어요.`,
+        okText: '이대로 저장',
+        cancelText: '다시 조정',
+        danger: true,
+        onOk: () => _doSaveGoal(currentW, targetLoss, periodLabel, weeks, targetWeight)
+      });
+      return;
+    }
+
+    _doSaveGoal(currentW, targetLoss, periodLabel, weeks, targetWeight);
+  });
+
+  async function _doSaveGoal(currentW, targetLoss, periodLabel, weeks, targetWeight) {
+    const goalData = { initialWeight: currentW, targetLoss, goalPeriod: periodLabel, goalWeeks: weeks, targetWeight, activityLevel: '보통' };
 
     try { await apiPost('/profile/goal', goalData); } catch { /* 폴백 */ }
 
     Storage.mergeUser(goalData);
+    /* 목표 재설정 시 축하 팝업 세션키 초기화 */
+    Object.keys(sessionStorage).filter(k => k.startsWith('goalCelebrated_')).forEach(k => sessionStorage.removeItem(k));
 
     setTextSafe('statInitialWeight', `${currentW}kg`);
     setTextSafe('statTargetWeight',  `${targetWeight}kg`);
@@ -413,7 +479,7 @@ function bindGoalSave(userData) {
     renderSidebar(fresh);
     renderBanner(fresh);
     showToast('✅ 목표가 재설정됐어요.', 'success');
-  });
+  }
 }
 
 /* ════════════════════════════════
@@ -554,4 +620,10 @@ function setVal(id, value) {
 function setTextSafe(id, text) {
   const el = document.getElementById(id);
   if (el) el.textContent = text;
+}
+/* 키 기반 최저 권장 체중 (BMI 18.5) */
+function calcMinSafeWeight(heightCm) {
+  if (!heightCm || heightCm < 100) return 40;
+  const h = heightCm / 100;
+  return Math.round(18.5 * h * h * 10) / 10;
 }
