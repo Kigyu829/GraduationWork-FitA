@@ -394,3 +394,17 @@
   margin: 0; font-size: 13px; line-height: 1.7;
   color: var(--text-sec, #aaa); white-space: pre-wrap;
 }
+
+/* ── sidebar-logo 이미지 강제 표시 ── */
+.sidebar-logo {
+  display: flex !important;
+  align-items: center !important;
+}
+.sidebar-logo img {
+  height: 28px !important;
+  width: auto !important;
+  object-fit: contain !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}

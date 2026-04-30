@@ -168,8 +168,6 @@ function applyIcons() {
   });
 }
 
-
-
 function renderPageSubtitle() {
   const el = document.getElementById('pageSubtitle');
   if (el) el.textContent = formatDate();

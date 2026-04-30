@@ -40,8 +40,6 @@ window.addEventListener('DOMContentLoaded', () => {
   bindLogoClick();
 });
 
-
-
 /* ── 날짜 초기화 ── */
 function initDate() {
   const params = new URLSearchParams(location.search);

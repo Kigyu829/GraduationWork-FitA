@@ -109,7 +109,7 @@ function renderSidebar(data) {
   if (twEl) twEl.textContent = data.targetWeight  ? `${data.targetWeight}kg` : '-';
 
   const saved = localStorage.getItem('profileAvatar');
-  if (saved && avatarEl) avatarEl.innerHTML = `<img src="${saved}" alt="프로필" />`;
+  if (saved && avatarEl) avatarEl.innerHTML = `<img src="${saved}" alt="프로필" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`;
 }
 
 /* ════════════════════════════════
@@ -138,7 +138,7 @@ function renderBanner(data) {
 
   const saved      = localStorage.getItem('profileAvatar');
   const heroAvatar = document.getElementById('heroAvatar');
-  if (saved && heroAvatar) heroAvatar.innerHTML = `<img src="${saved}" alt="프로필" />`;
+  if (saved && heroAvatar) heroAvatar.innerHTML = `<img src="${saved}" alt="프로필" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`;
 }
 
 /* ════════════════════════════════
@@ -156,7 +156,7 @@ function bindAvatarUpload() {
       const dataUrl = e.target.result;
       localStorage.setItem('profileAvatar', dataUrl);
 
-      const imgTag = `<img src="${dataUrl}" alt="프로필" />`;
+      const imgTag = `<img src="${dataUrl}" alt="프로필" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`;
       const el1 = document.getElementById('heroAvatar');
       const el2 = document.getElementById('sidebarAvatar');
       if (el1) el1.innerHTML = imgTag;

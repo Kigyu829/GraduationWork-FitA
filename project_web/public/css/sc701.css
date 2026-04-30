@@ -1,3 +1,25 @@
+/* ── sidebar-logo 이미지 강제 표시 ── */
+.sidebar-logo {
+  display: flex !important;
+  align-items: center !important;
+}
+.sidebar-logo img {
+  height: 28px !important;
+  width: auto !important;
+  object-fit: contain !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  max-width: 120px;
+}
+.sidebar {
+  width: var(--sidebar-w, 230px) !important;
+  min-width: var(--sidebar-w, 230px) !important;
+  flex-shrink: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
 /* ============================================================
    sc701.css — 마이페이지 전용 스타일
    의존: common.css, sc301.css (사이드바 스타일 재사용)
@@ -390,3 +412,14 @@ select.field-input               { width: 240px; cursor: pointer; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast.success { border-color: var(--teal, #66D0BC); color: var(--teal, #66D0BC); }
 .toast.error   { border-color: var(--red, #FF0B55);  color: var(--red, #FF0B55);  }
+/* ── 사이드바 프로필 아바타 이미지 크기 강제 ── */
+#sidebarAvatar {
+  overflow: hidden;
+}
+#sidebarAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}

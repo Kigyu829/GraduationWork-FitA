@@ -1,4 +1,4 @@
-/* sc402.css */
+/* sc401.css — 식단 사진 업로드 전용 스타일 */
 :root {
   --green: #7FD37A;
   --green-dim: rgba(127, 211, 122, 0.12);
@@ -142,7 +142,7 @@ body.page-exit {
    돌아가기 버튼 3가지 안
 ═══════════════════════════════════════ */
 
-/* A안: nav 오른쪽 ✕ */
+/* [미사용] A안: nav 오른쪽 ✕
 .nav-close-btn {
   margin-left: auto;
   width: 34px;
@@ -165,7 +165,7 @@ body.page-exit {
   color: var(--red);
 }
 
-/* B안: 카드 오른쪽 상단 ✕ */
+/* [미사용] B안: 카드 오른쪽 상단 ✕
 .card-close-btn {
   position: absolute;
   top: 16px;
@@ -189,6 +189,7 @@ body.page-exit {
   border-color: var(--red);
   color: var(--red);
 }
+*/
 
 /* C안: 헤더 오른쪽 ✕ */
 .header-close-btn {

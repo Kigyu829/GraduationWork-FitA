@@ -6,7 +6,7 @@
 }
 
 .scan-main {
-  min-height: 100vh;
+  min-height: calc(100vh - 56px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -137,47 +137,12 @@ body.page-exit {
   from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-/* ── navbar ── */
-.navbar {
-  position: sticky;
-  top: 0;
-  z-index: 200;
-  width: 100%;
-  background: rgba(9, 19, 26, 0.92);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-}
-.nav-inner {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 20px;
-  height: 56px;
-  max-width: 100%;
-  margin: 0;
-}
-.site-logo {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  text-decoration: none;
-}
-.site-logo-icon {
-  width: 30px; height: 30px;
-  border-radius: 8px;
-  background: var(--teal);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 15px; flex-shrink: 0;
-}
-.site-logo-text {
-  font-size: 15px; font-weight: 800;
-  color: var(--text); letter-spacing: -0.02em;
-}
-.scan-main { min-height: calc(100vh - 56px); }
 
-/* sc101.css nav-inner override — 왼쪽 정렬 */
+/* ── navbar nav-inner: sc401과 동일하게 왼쪽 정렬 ── */
 .nav-inner {
   justify-content: flex-start !important;
+  gap: 12px !important;
+  padding-left: 20px !important;
   max-width: 100% !important;
   margin: 0 !important;
 }

@@ -4,9 +4,6 @@
    의존: common.js (navigateTo 포함)
    ============================================================ */
 
-/* drawer.js — 슬라이드 사이드바 공통
-   의존: common.js
-*/
 'use strict';
 
 window.addEventListener('DOMContentLoaded', () => {

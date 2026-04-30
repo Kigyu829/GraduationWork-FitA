@@ -6,34 +6,6 @@
 /* ── 대시보드 레이아웃 (sc301과 동일 구조) ── */
 /* ── 사이드바 override (sc301.css와 동일) ── */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-.logout-btn {
-  width: 100%;
-  background: rgba(255,255,255,0.05);
-  color: rgba(255,255,255,0.8);
-  border: none;
-  border-radius: 16px;
-  padding: 12px 14px;
-  cursor: pointer;
-  font-size: 14px;
-  font-family: 'Nanum Gothic', sans-serif;
-  transition: background 0.18s;
-}
-
-.logout-btn:hover { background: rgba(255,255,255,0.08); }
-
 /* ── 메인 영역 ── */
 .main {
   display: flex;
@@ -185,8 +157,7 @@
 }
 
 /* ── 반응형 ── */
-@media (max-width: 768px) {
-  }
+
 
 /* ── 로그아웃 버튼 빨간색 ── */
 .logout-btn {
@@ -210,4 +181,18 @@
   background: rgba(255,11,85,0.2) !important;
   border-color: var(--red, #FF0B55) !important;
   color: var(--red, #FF0B55) !important;
+}
+
+/* ── sidebar-logo 이미지 강제 표시 ── */
+.sidebar-logo {
+  display: flex !important;
+  align-items: center !important;
+}
+.sidebar-logo img {
+  height: 28px !important;
+  width: auto !important;
+  object-fit: contain !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }

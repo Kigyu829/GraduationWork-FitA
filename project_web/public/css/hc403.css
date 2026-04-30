@@ -11,33 +11,7 @@
   --gold-dim:   rgba(245, 166, 35, 0.12);
 }
 
-/* ════════════════════════════════
-   드로어 (슬라이드 사이드바)
-   ════════════════════════════════ */
-/* ════════════════════════════════
-   내비게이션 바
-   ════════════════════════════════ */
-.navbar {
-  position: sticky; top: 0; z-index: 200;
-  width: 100%;
-  background: rgba(9, 19, 26, 0.92);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-}
-.nav-inner {
-  display: flex; align-items: center; gap: 12px;
-  padding: 0 20px; height: 56px;
-  max-width: 100%; margin: 0;
-  justify-content: flex-start !important;
-}
-.site-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
-.site-logo-icon {
-  width: 30px; height: 30px; border-radius: 8px;
-  background: var(--teal);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 15px; flex-shrink: 0;
-}
-.site-logo-text { font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+/* navbar/site-logo → common.css + sc101.css에서 처리 */
 /* ════════════════════════════════
    결과 메인 레이아웃
    ════════════════════════════════ */

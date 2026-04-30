@@ -210,20 +210,6 @@ function getWorkoutIcon(name) {
   return '🏃';
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ── 페이지 전환 헬퍼 (sc401, hc402, hc403 공통) ── */
 function navigateTo(url) {
   document.body.classList.add('page-exit');
@@ -474,6 +460,20 @@ function renderSidebar() {
   }
   if (cwEl) cwEl.textContent = data.weight      ? `${data.weight}kg`      : '-';
   if (twEl) twEl.textContent = data.targetWeight ? `${data.targetWeight}kg` : '-';
+
+  /* 프로필 사진 (sc701에서 저장한 profileAvatar) — id가 다른 경우도 처리 */
+  const saved = localStorage.getItem('profileAvatar');
+  const imgTag = saved
+    ? `<img src="${saved}" alt="프로필" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+    : '👤';
+
+  /* sc301/sc302/sc311/sc602 용 */
+  const avatarEl = document.getElementById('profileAvatar');
+  if (avatarEl) avatarEl.innerHTML = imgTag;
+
+  /* sc701 용 (sidebarAvatar) */
+  const sidebarAvatarEl = document.getElementById('sidebarAvatar');
+  if (sidebarAvatarEl) sidebarAvatarEl.innerHTML = imgTag;
 }
 
 /* 로그아웃 버튼 바인딩 */

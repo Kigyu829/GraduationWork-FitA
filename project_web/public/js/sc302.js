@@ -19,8 +19,6 @@ window.addEventListener('DOMContentLoaded', () => {
   startLoadingSequence();
 });
 
-
-
 /* ── 로딩 시퀀스 ── */
 const MESSAGES = [
   '식단 패턴을 분석하고 있어요...',
