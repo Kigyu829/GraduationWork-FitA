@@ -15,16 +15,17 @@
 
 const AI_SERVER = '';
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   renderSidebar();
   renderPageSubtitle();
   initTabs();
-  renderAiPlan();
   initAiChat();
   initCommonOverlays();  /* common.js — AI상담/히스토리 오버레이 */
   bindMenuBtns();
   bindLogout();
   bindLogoClick();
+  await loadTodayFromFirestore(); /* 새 기기 로그인 시 Firestore에서 오늘 데이터 복원 */
+  renderAiPlan();
   restoreTodayState();
   fetchMotivation();
   checkPoseVerified();   /* 자세 인증 복귀 시 자동 체크 */
@@ -58,12 +59,14 @@ function renderAiPlan() {
   initMealVerify();
   initMealSkip();    /* ← 안먹었어요 버튼 */
   initWorkoutCheck();
+  initRoutineButtons();
 }
 
 /* 식단 항목 업데이트 */
 function renderMealItems(mealPlan) {
   const MEAL_KEYS = ['breakfast', 'lunch', 'dinner'];
   let totalKcal = 0;
+  let planDirty = false;
 
   MEAL_KEYS.forEach(key => {
     const meal = mealPlan[key];
@@ -75,9 +78,22 @@ function renderMealItems(mealPlan) {
     const menuArr  = Array.isArray(meal.menu) ? meal.menu : [meal.menu];
     const menuText = menuArr.join(' + ');
 
+    /* 구버전 desc 자동 수정: "📷 ...인증하세요" 패턴이나 빈 값이면 메뉴명으로 대체 */
+    let desc = meal.desc || '';
+    if (!desc || desc.includes('인증하세요') || desc.includes('📷')) {
+      desc = menuArr.join(' · ');
+      meal.desc = desc;
+      planDirty = true;
+    }
+
     item.querySelector('.meal-name').textContent   = menuText;
-    item.querySelector('.meal-detail').textContent = meal.desc || '';
+    item.querySelector('.meal-detail').textContent = desc;
     item.querySelector('.meal-kcal').textContent   = `${meal.calories} kcal`;
+
+    const macroEl = item.querySelector('.meal-macro');
+    if (macroEl && (meal.protein != null || meal.carbs != null || meal.fat != null)) {
+      macroEl.textContent = `탄 ${meal.carbs ?? '-'}g · 단 ${meal.protein ?? '-'}g · 지 ${meal.fat ?? '-'}g`;
+    }
 
     /* 인증 버튼 */
     const btn = item.querySelector('.verify-btn');
@@ -98,6 +114,9 @@ function renderMealItems(mealPlan) {
   const totalKcalEl = document.getElementById('totalKcal');
   if (totalKcalEl) totalKcalEl.textContent = totalKcal.toLocaleString();
   TOTAL_MEAL_KCAL = totalKcal;
+
+  /* 구버전 desc 수정이 있었으면 localStorage/Firestore에 저장 */
+  if (planDirty) Storage.mergeUser({ aiMealPlan: mealPlan });
 
   if (mealPlan.tip) {
     const tipEl = document.getElementById('mealTip');
@@ -131,17 +150,15 @@ function renderWorkoutItems(workoutPlan) {
         ? `${item.reps}회 × ${item.sets}세트`
         : (item.duration || '');
       const kcal   = item.calories || 0;
+      const ytUrl  = `https://www.youtube.com/results?search_query=${encodeURIComponent(item.name + ' 운동 방법')}`;
       html += `
         <div class="workout-item" data-workout="${id}" data-kcal="${kcal}">
           <div class="workout-icon"></div>
           <div class="workout-info">
-            <div class="workout-name">${item.name}</div>
+            <a class="workout-name" href="${ytUrl}" target="_blank" rel="noopener noreferrer">${item.name}</a>
             <div class="workout-detail">${detail}</div>
           </div>
-          <a href="hc503.html?exercise=${encodeURIComponent(item.name)}"
-             class="pose-btn"
-             onclick="event.stopPropagation()"
-             title="자세 확인하기">자세 확인</a>
+          ${key === 'main' ? `<a href="hc503.html?exercise=${encodeURIComponent(item.name)}" class="pose-btn" onclick="event.stopPropagation()" title="자세 확인하기">자세 확인</a>` : ''}
           <div class="workout-kcal">${kcal} kcal</div>
           <div class="workout-check" data-workout="${id}" data-kcal="${kcal}">✓</div>
         </div>`;
@@ -153,10 +170,13 @@ function renderWorkoutItems(workoutPlan) {
     html += `<div class="ai-tip" style="margin-top:16px;padding:12px;background:var(--card);border-radius:10px;font-size:13px;color:var(--text-sec);">💡 ${workoutPlan.tip}</div>`;
   }
 
+  const routineBar = container.querySelector('#routineActionBar');
   Array.from(container.children).forEach(child => {
-    if (child !== summaryDiv) child.remove();
+    if (child !== summaryDiv && child !== routineBar) child.remove();
   });
   summaryDiv.insertAdjacentHTML('afterend', html);
+  /* 루틴 바를 항상 맨 끝으로 이동 */
+  if (routineBar) container.appendChild(routineBar);
 }
 
 /* 아이콘 매핑 */
@@ -235,9 +255,13 @@ let TOTAL_MEAL_KCAL = 1820;
 function initMealVerify() {
   document.querySelectorAll('.verify-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const meal = btn.dataset.meal;
-      const kcal = parseInt(btn.dataset.kcal, 10);
-      location.href = `sc401.html?${new URLSearchParams({ meal, kcal }).toString()}`;
+      const meal     = btn.dataset.meal;
+      const kcal     = parseInt(btn.dataset.kcal, 10);
+      const mainFood = btn.dataset.mainFood || '';
+
+      const params = new URLSearchParams({ meal, kcal });
+      if (mainFood) params.set('mainFood', mainFood);
+      location.href = `sc401.html?${params.toString()}`;
     });
   });
 }
@@ -527,6 +551,29 @@ function updateWorkoutSummary() {
 /* ════════════════════════════════
    오늘 상태 복원
    ════════════════════════════════ */
+/* ── Firestore에서 오늘 데이터 복원 (localStorage 캐시 없을 때) ── */
+async function loadTodayFromFirestore() {
+  const uid = getCurrentUid();
+  if (!uid || typeof db === 'undefined') return;
+
+  const _d    = new Date();
+  const today = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
+
+  /* sc311 캐시가 이미 있으면 스킵 */
+  if (localStorage.getItem(lsKey('sc311', today))) return;
+
+  try {
+    const doc = await db.collection('users').doc(uid).collection('daily').doc(today).get();
+    if (!doc.exists) return;
+    const data = doc.data();
+    if (data.check) localStorage.setItem(lsKey('check', today), JSON.stringify(data.check));
+    if (data.sc311) localStorage.setItem(lsKey('sc311', today), JSON.stringify(data.sc311));
+    if (data.plan)  localStorage.setItem(lsKey('plan',  today), JSON.stringify(data.plan));
+  } catch(err) {
+    console.error('Firestore 오늘 데이터 로드 실패:', err);
+  }
+}
+
 function restoreTodayState() {
   const state = loadTodayState();
   restoreMealState(state);
@@ -787,7 +834,7 @@ async function handleExerciseAdjust(reason) {
     const res = await fetch(`${AI_SERVER}/api/exercise/adjust`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ currentPlan, reasons: [reason], targetWeeks, bmi: userData.bmi }),
+      body: JSON.stringify({ currentPlan, reasons: [reason], targetWeeks, bmi: userData.bmi, activityLevel: userData.activityLevel }),
     });
     if (!res.ok) throw new Error(`서버 오류 (${res.status})`);
     const json = await res.json();
@@ -893,4 +940,153 @@ async function fetchMotivation() {
     textEl.textContent = '오늘도 건강한 하루 보내세요! 💪';
     console.warn('동기부여 메시지 로드 실패:', err.message);
   }
+}
+
+/* ════════════════════════════════
+   운동 루틴 저장 / 불러오기
+   ════════════════════════════════ */
+function routineStorageKey() {
+  const uid = getCurrentUid() || 'anon';
+  return `savedRoutines_${uid}`;
+}
+
+function getSavedRoutines() {
+  try { return JSON.parse(localStorage.getItem(routineStorageKey())) || []; }
+  catch { return []; }
+}
+
+function initRoutineButtons() {
+  const bar     = document.getElementById('routineActionBar');
+  const saveBtn = document.getElementById('routineSaveBtn');
+  const loadBtn = document.getElementById('routineLoadBtn');
+  if (!bar) return;
+
+  const data = Storage.getUser();
+  if (data.aiWorkoutPlan) bar.style.display = 'flex';
+
+  saveBtn?.addEventListener('click', saveWorkoutRoutine);
+  loadBtn?.addEventListener('click', showRoutineModal);
+}
+
+function saveWorkoutRoutine() {
+  const data = Storage.getUser();
+  const plan = data.aiWorkoutPlan;
+  if (!plan) { showToast('저장할 운동 플랜이 없어요'); return; }
+
+  const today        = new Date();
+  const defaultLabel = `${today.getMonth()+1}/${today.getDate()} 루틴`;
+  showRoutineNameModal(defaultLabel, (label) => {
+    const saved = getSavedRoutines();
+    saved.unshift({ label, plan, savedAt: Date.now() });
+    if (saved.length > 5) saved.pop();
+    localStorage.setItem(routineStorageKey(), JSON.stringify(saved));
+    showToast('루틴이 저장됐어요! 📂');
+  });
+}
+
+function showRoutineNameModal(defaultLabel, onConfirm) {
+  const overlay = document.createElement('div');
+  overlay.className = 'routine-modal-overlay';
+  overlay.innerHTML = `
+    <div class="routine-modal" style="padding-bottom:24px;">
+      <div class="routine-modal-header">
+        <span class="routine-modal-title">💾 루틴 이름 지정</span>
+        <button class="routine-modal-close" id="routineNameClose">✕</button>
+      </div>
+      <input id="routineNameInput" class="routine-name-input"
+        type="text" maxlength="20" value="${defaultLabel}" placeholder="루틴 이름 입력" />
+      <button class="routine-name-save-btn" id="routineNameSave">저장</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('show')));
+
+  const input = overlay.querySelector('#routineNameInput');
+  setTimeout(() => { input.focus(); input.select(); }, 280);
+
+  const close = () => {
+    overlay.classList.remove('show');
+    setTimeout(() => overlay.remove(), 260);
+  };
+
+  overlay.querySelector('#routineNameClose').addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+  const doSave = () => {
+    const label = input.value.trim() || defaultLabel;
+    close();
+    onConfirm(label);
+  };
+  overlay.querySelector('#routineNameSave').addEventListener('click', doSave);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') doSave(); });
+}
+
+function showRoutineModal() {
+  const saved = getSavedRoutines();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'routine-modal-overlay';
+  overlay.innerHTML = `
+    <div class="routine-modal">
+      <div class="routine-modal-header">
+        <span class="routine-modal-title">📂 저장된 루틴</span>
+        <button class="routine-modal-close" id="routineModalClose">✕</button>
+      </div>
+      ${saved.length === 0
+        ? '<div class="routine-empty">저장된 루틴이 없어요.<br>"이 루틴 저장" 버튼으로 저장해보세요.</div>'
+        : saved.map((r, i) => `
+          <div class="routine-item">
+            <div class="routine-item-info">
+              <div class="routine-item-name">${r.label}</div>
+              <div class="routine-item-date">${new Date(r.savedAt).toLocaleDateString('ko-KR')}</div>
+            </div>
+            <button class="routine-item-load-btn" data-idx="${i}">불러오기</button>
+          </div>`).join('')
+      }
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('show')));
+
+  const close = () => {
+    overlay.classList.remove('show');
+    setTimeout(() => overlay.remove(), 260);
+  };
+  overlay.querySelector('#routineModalClose')?.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+  overlay.querySelectorAll('.routine-item-load-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx     = parseInt(btn.dataset.idx, 10);
+      const routine = saved[idx];
+      if (!routine) return;
+      close();
+      clearAdjustState('workouts');
+      Storage.mergeUser({ aiWorkoutPlan: routine.plan });
+      renderWorkoutItems(routine.plan);
+      applyIcons();
+      initWorkoutCheck();
+      updateWorkoutSummary();
+      showToast(`"${routine.label}" 루틴을 불러왔어요!`);
+    });
+  });
+}
+
+function showToast(msg) {
+  let el = document.getElementById('sc311Toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'sc311Toast';
+    el.style.cssText = [
+      'position:fixed','bottom:80px','left:50%','transform:translateX(-50%)',
+      'background:rgba(0,0,0,0.78)','color:#fff','font-size:13px','font-weight:700',
+      'padding:10px 20px','border-radius:24px','z-index:9999',
+      'pointer-events:none','white-space:nowrap','transition:opacity 0.3s',
+    ].join(';');
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => { el.style.opacity = '0'; }, 2200);
 }

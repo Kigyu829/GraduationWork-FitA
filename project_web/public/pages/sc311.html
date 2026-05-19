@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>오늘의 식단/운동 – HealthDash</title>
+  <title>오늘의 식단/운동 – FitA</title>
   <link rel="stylesheet" href="../css/common.css" />
   <link rel="stylesheet" href="../css/sc301.css" />
   <link rel="stylesheet" href="../css/sc311.css" />
@@ -21,11 +21,11 @@
     <div class="sidebar-top">
       <div class="sidebar-logo" id="sidebarLogo" style="cursor:pointer;">
         <div class="sidebar-logo-icon">🏃</div>
-        <span class="sidebar-logo-text">HealthDash</span>
+        <img src="../img/FitALogo.png" alt="FitA" style="height:26px;width:auto;object-fit:contain;" />
       </div>
 
       <div class="sidebar-card profile-card">
-        <div class="profile-avatar">👤</div>
+        <div class="profile-avatar" id="profileAvatar">👤</div>
         <div id="userName">내 정보</div>
         <div id="userBasicInfo">불러오는 중...</div>
         <div class="profile-weights">
@@ -44,11 +44,8 @@
         <div class="menu-card-title">메뉴</div>
         <div class="menu-list">
           <button class="menu-btn" data-href="sc301.html"><span class="menu-btn-icon">🏠</span>대시보드</button>
-          <button class="menu-btn" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
           <button class="menu-btn active" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
-          <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
           
-            <button class="menu-btn" id="menuAiChat"><span class="menu-btn-icon">💬</span>AI 상담</button>
             <button class="menu-btn" id="menuHistory"><span class="menu-btn-icon">📅</span>히스토리</button>
             <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">⚙️</span>마이페이지</button>
         </div>
@@ -167,6 +164,12 @@
             </div>
           </div>
           <div style="font-size:24px; font-weight:800; color:var(--teal);" id="workoutBurnKcal">0 kcal</div>
+        </div>
+
+        <!-- 루틴 저장/불러오기 버튼 -->
+        <div class="routine-action-bar" id="routineActionBar" style="display:none;">
+          <button class="routine-save-btn" id="routineSaveBtn">💾 이 루틴 저장</button>
+          <button class="routine-load-btn" id="routineLoadBtn">📂 저장된 루틴</button>
         </div>
 
         <!-- 운동 목록 -->

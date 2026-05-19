@@ -19,10 +19,14 @@
   <!-- ── 네비게이션 바 ── -->
   <nav class="navbar">
     <div class="nav-inner">
-      <button class="drawer-toggle-nav" id="drawerToggle">☰</button>
+      <button class="drawer-toggle-nav" id="drawerToggle" title="메뉴">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
       <a href="sc301.html" class="site-logo" id="navLogo">
         <div class="site-logo-icon">🏃</div>
-        <span class="site-logo-text">HealthDash</span>
+        <img src="../img/FitALogo.png" alt="FitA" style="height:28px;width:auto;object-fit:contain;" />
       </a>
     </div>
   </nav>
@@ -30,16 +34,13 @@
   <aside class="drawer" id="drawer">
     <div class="drawer-header">
       <div class="drawer-logo" id="drawerLogo" style="cursor:pointer;">
-        <div class="drawer-logo-icon">🏃</div>
-        <span class="drawer-logo-text">HealthDash</span>
+        <img src="../img/FitALogo.png" alt="FitA" style="height:26px;width:auto;object-fit:contain;" />
       </div>
       <button class="drawer-close" id="drawerClose">✕</button>
     </div>
     <nav class="drawer-nav">
       <button class="drawer-menu-btn" data-href="sc301.html"><span>🏠</span>대시보드</button>
-      <button class="drawer-menu-btn" data-href="sc302.html"><span>🤖</span>AI 식단 추천</button>
       <button class="drawer-menu-btn" data-href="sc311.html"><span>💪</span>오늘의 식단/운동</button>
-      <button class="drawer-menu-btn active" data-href="sc401.html"><span>🥗</span>식단 인증</button>
       <button class="drawer-menu-btn" data-href="sc602.html"><span>📅</span>히스토리</button>
       <button class="drawer-menu-btn" data-href="sc701.html"><span>⚙️</span>마이페이지</button>
     </nav>
@@ -73,13 +74,13 @@
       <!-- ── 우측: 결과 패널 ── -->
       <div class="result-panel" id="resultPanel">
         <div class="result-card">
-
-          <!-- 인식 결과 -->
           <div class="result-card-header">
             <span class="result-match-badge" id="matchBadge">분석 중...</span>
           </div>
           <div class="result-food-name" id="foodName">—</div>
           <div class="result-divider"></div>
+
+          <!-- 인식 결과 -->
           <div class="result-nutrients" id="resultNutrients">
             <div class="nutrient-row skeleton"></div>
             <div class="nutrient-row skeleton"></div>
@@ -150,6 +151,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
   <script src="../js/firebase-config.js"></script>
 <script src="../js/common.js"></script>
   <script src="../js/drawer.js"></script>

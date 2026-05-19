@@ -1,0 +1,84 @@
+/* ===================================================
+   FitA Mobile PWA — sc203.css (Goal Setting)
+   =================================================== */
+
+.bmi-preview {
+  margin-top: 4px;
+}
+
+.bmi-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bmi-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 56px;
+}
+
+.bmi-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.bmi-left strong {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--teal);
+}
+
+.bmi-divider {
+  width: 1px;
+  height: 36px;
+  background: var(--border);
+}
+
+.bmi-right {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-sec);
+  line-height: 1.5;
+}
+
+.bmi-right p {
+  margin: 0;
+}
+
+.goal-preview {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+
+.info-text {
+  font-size: 13px;
+  color: var(--text-sec);
+  margin: 0;
+  line-height: 1.55;
+}
+
+.goal-warning {
+  font-size: 13px;
+  color: var(--red);
+  background: var(--red-dim);
+  border: 1px solid rgba(255, 11, 85, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  display: none;
+  line-height: 1.5;
+}
+
+.goal-warning:not(:empty) {
+  display: block;
+}

@@ -16,10 +16,9 @@ const registerChatSocket = require('./src/socket/chatSocket');
 const app    = express();
 const server = http.createServer(app);
 
-// localhost(프록시)에서만 접근 허용
-const ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000'];
+// 로컬 네트워크 접근 허용 (Android WebView는 PC IP로 접속)
 const io     = new Server(server, {
-    cors: { origin: ALLOWED_ORIGINS, methods: ['GET', 'POST'] },
+    cors: { origin: true, methods: ['GET', 'POST'] },
 });
 const PORT   = process.env.PORT || 5000;
 
@@ -41,7 +40,7 @@ function aiRateLimit(req, res, next) {
 }
 
 // ── 미들웨어 ──
-app.use(cors({ origin: ALLOWED_ORIGINS }));
+app.use(cors());
 app.use(express.json());
 app.use(aiRateLimit);
 
@@ -108,8 +107,8 @@ server.listen(PORT, () => {
     console.log('  ws://localhost:' + PORT + '  (socket.io)');
     console.log('==============================');
     console.log(`  식단/운동:  규칙 기반 + 감성 점수 알고리즘`);
-    console.log(`  채팅(HTTP): Ollama (qwen2.5:14b) + RAG`);
-    console.log(`  채팅(WS):   Ollama 스트리밍 + RAG`);
+    console.log(`  채팅(HTTP): Gemini (gemini-2.5-flash) + RAG`);
+    console.log(`  채팅(WS):   Gemini 스트리밍 + RAG`);
     console.log(`  캐시:       인메모리 TTL 5분`);
     console.log('');
     console.log('  POST /api/meal/recommend     - 식단 추천');

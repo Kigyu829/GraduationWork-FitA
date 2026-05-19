@@ -13,20 +13,6 @@ const MEAL_LABELS = {
   snack:     '🍎 간식',
 };
 
-const MEAL_DATA = {
-  breakfast: { name: '그릭요거트 + 견과류 + 바나나', kcal: 340 },
-  lunch:     { name: '현미밥 + 닭가슴살 샐러드 + 된장국', kcal: 580 },
-  dinner:    { name: '연어구이 + 구운 채소 + 두부', kcal: 620 },
-  snack:     { name: '사과 1개 + 아몬드 10알', kcal: 280 },
-};
-
-const WORKOUT_DATA = [
-  { id: 'cardio1',   name: '빠르게 걷기',   detail: '30분 · 중간 강도', kcal: 200 },
-  { id: 'strength1', name: '스쿼트',         detail: '15회 × 3세트',     kcal: 80  },
-  { id: 'strength2', name: '푸시업',         detail: '10회 × 3세트',     kcal: 60  },
-  { id: 'strength3', name: '플랭크',         detail: '30초 × 3세트',     kcal: 50  },
-  { id: 'stretch1',  name: '전신 스트레칭',  detail: '10분',             kcal: 30  },
-];
 
 let currentDate;
 
@@ -50,7 +36,10 @@ function initDate() {
   renderPage(currentDate);
 
   document.getElementById('prevDayBtn')?.addEventListener('click', () => {
-    currentDate = offsetDate(currentDate, -1);
+    const prev    = offsetDate(currentDate, -1);
+    const regDate = localStorage.getItem(`reg_${getCurrentUid()}`) || '';
+    if (regDate && prev < regDate) return;
+    currentDate = prev;
     updateURL(currentDate);
     renderPage(currentDate);
   });
@@ -85,9 +74,27 @@ function updateURL(dateStr) {
   history.replaceState({}, '', url);
 }
 
+/* ── Firestore에서 일별 데이터 복원 (localStorage 캐시 없을 때) ── */
+async function loadDayFromFirestore(dateStr) {
+  const uid = getCurrentUid();
+  if (!uid || typeof db === 'undefined') return;
+
+  try {
+    const doc = await db.collection('users').doc(uid).collection('daily').doc(dateStr).get();
+    if (!doc.exists) return;
+    const data = doc.data();
+    if (data.check) localStorage.setItem(lsKey('check', dateStr), JSON.stringify(data.check));
+    if (data.sc311) localStorage.setItem(lsKey('sc311', dateStr), JSON.stringify(data.sc311));
+    if (data.plan)  localStorage.setItem(lsKey('plan',  dateStr), JSON.stringify(data.plan));
+  } catch(err) {
+    console.error('Firestore 일별 데이터 로드 실패:', err);
+  }
+}
+
 /* ── 페이지 렌더 ── */
-function renderPage(dateStr) {
+async function renderPage(dateStr) {
   renderDateHeader(dateStr);
+  await loadDayFromFirestore(dateStr);
   renderBadge(dateStr);
   renderMealTab(dateStr);
   renderWorkoutTab(dateStr);
@@ -152,7 +159,7 @@ function renderMealTab(dateStr) {
     }
   }
 
-  /* 식단 목록 — AI 플랜 우선, 없으면 하드코딩 폴백 */
+  /* 식단 목록 — AI 플랜 우선, 없으면 빈 상태 */
   const mealList = document.getElementById('detailMealList');
   if (mealList) {
     const mealSource = mealPlan
@@ -162,23 +169,30 @@ function renderMealTab(dateStr) {
             name: Array.isArray(m.menu) ? m.menu.join(' + ') : (m.menu || ''),
             kcal: m.calories || 0,
           }])
-      : Object.entries(MEAL_DATA);
+      : [];
 
-    const items = mealSource.map(([type, info]) => {
-      const verified = meals[type]?.verified || false;
-      const icon     = getFoodIcon(info.name);
-      return `
-        <div class="detail-meal-item${verified ? ' verified' : ''}">
-          <div class="detail-meal-emoji">${icon}</div>
-          <div class="detail-meal-info">
-            <div class="detail-meal-name">${info.name}</div>
-            <div class="detail-meal-tag">${MEAL_LABELS[type] || type}</div>
-          </div>
-          <div class="detail-meal-kcal">${info.kcal} kcal</div>
-          <div class="detail-meal-check">${verified ? '✅' : '○'}</div>
-        </div>`;
-    }).join('');
-    mealList.innerHTML = items;
+    if (!mealSource.length) {
+      mealList.innerHTML = '<div class="detail-empty-msg">이 날의 플랜 기록이 없어요</div>';
+    } else {
+      const items = mealSource.map(([type, info]) => {
+        const verifiedMeal = meals[type];
+        const verified     = verifiedMeal?.verified || false;
+        const displayName  = verified && verifiedMeal.food ? verifiedMeal.food : info.name;
+        const displayKcal  = verified && verifiedMeal.kcal != null ? verifiedMeal.kcal : info.kcal;
+        const icon         = getFoodIcon(displayName);
+        return `
+          <div class="detail-meal-item${verified ? ' verified' : ''}">
+            <div class="detail-meal-emoji">${icon}</div>
+            <div class="detail-meal-info">
+              <div class="detail-meal-name">${displayName}</div>
+              <div class="detail-meal-tag">${MEAL_LABELS[type] || type}</div>
+            </div>
+            <div class="detail-meal-kcal">${displayKcal} kcal</div>
+            <div class="detail-meal-check">${verified ? '✅' : '○'}</div>
+          </div>`;
+      }).join('');
+      mealList.innerHTML = items;
+    }
   }
 }
 
@@ -193,32 +207,37 @@ function renderWorkoutTab(dateStr) {
   const workouts    = state.workouts || {};
   const workoutPlan = planData.workoutPlan; // AI 생성 플랜
 
-  /* 운동 목록 — AI 플랜 우선, 없으면 하드코딩 폴백 */
+  /* 운동 목록 — AI 플랜 우선, 없으면 빈 상태 */
   const workoutSource = workoutPlan
     ? [
         ...(workoutPlan.warmup   || []).map((w, i) => ({ id: `warmup_${i}`,   ...w, detail: w.sets ? `${w.reps}회 × ${w.sets}세트` : (w.duration || '') })),
         ...(workoutPlan.main     || []).map((w, i) => ({ id: `main_${i}`,     ...w, detail: w.sets ? `${w.reps}회 × ${w.sets}세트` : (w.duration || '') })),
         ...(workoutPlan.cooldown || []).map((w, i) => ({ id: `cooldown_${i}`, ...w, detail: w.sets ? `${w.reps}회 × ${w.sets}세트` : (w.duration || '') })),
       ]
-    : WORKOUT_DATA;
+    : [];
 
   const list = document.getElementById('detailWorkoutList');
   if (list) {
-    const items = workoutSource.map(w => {
-      const done = workouts[w.id]?.done || false;
-      const icon = getWorkoutIcon(w.name);
-      return `
-        <div class="detail-workout-item${done ? ' done' : ''}">
-          <div class="detail-workout-icon">${icon}</div>
-          <div class="detail-workout-info">
-            <div class="detail-workout-name">${w.name}</div>
-            <div class="detail-workout-detail">${w.detail || ''}</div>
-          </div>
-          <div class="detail-workout-kcal">${w.calories || w.kcal || 0} kcal</div>
-          <div class="detail-workout-status">${done ? '✅' : '○'}</div>
-        </div>`;
-    }).join('');
-    list.innerHTML = items;
+    if (!workoutSource.length) {
+      list.innerHTML = '<div class="detail-empty-msg">이 날의 플랜 기록이 없어요</div>';
+    } else {
+      const items = workoutSource.map(w => {
+        const done   = workouts[w.id]?.done || false;
+        const icon   = getWorkoutIcon(w.name);
+        const ytUrl  = `https://www.youtube.com/results?search_query=${encodeURIComponent(w.name + ' 운동 방법')}`;
+        return `
+          <div class="detail-workout-item${done ? ' done' : ''}">
+            <div class="detail-workout-icon">${icon}</div>
+            <div class="detail-workout-info">
+              <a class="detail-workout-name" href="${ytUrl}" target="_blank" rel="noopener noreferrer">${w.name}</a>
+              <div class="detail-workout-detail">${w.detail || ''}</div>
+            </div>
+            <div class="detail-workout-kcal">${w.calories || w.kcal || 0} kcal</div>
+            <div class="detail-workout-status">${done ? '✅' : '○'}</div>
+          </div>`;
+      }).join('');
+      list.innerHTML = items;
+    }
   }
 
   /* 요약 */
@@ -296,6 +315,7 @@ function buildSc602Cal() {
   titleEl.textContent = `${sc602CalYear}년 ${sc602CalMonth + 1}월`;
   daysEl.innerHTML = '';
 
+  const regDate     = localStorage.getItem(`reg_${getCurrentUid()}`) || '';
   const firstDay    = new Date(sc602CalYear, sc602CalMonth, 1).getDay();
   const daysInMonth = new Date(sc602CalYear, sc602CalMonth + 1, 0).getDate();
   const offset      = firstDay === 0 ? 6 : firstDay - 1;
@@ -329,12 +349,17 @@ function buildSc602Cal() {
     const icon = hasMeal && hasWorkout ? '🌟' : hasMeal ? '🥗' : hasWorkout ? '💪' : '';
     btn.innerHTML = `<span class="hist-day-num">${d}</span>${icon ? `<span class="hist-day-icon">${icon}</span>` : ''}`;
 
-    btn.addEventListener('click', () => {
-      currentDate = dateStr;
-      updateURL(dateStr);
-      renderPage(dateStr);
-      document.getElementById('sc602HistOverlay')?.classList.remove('show');
-    });
+    if (regDate && dateStr < regDate) {
+      btn.disabled = true;
+      btn.classList.add('before-reg');
+    } else {
+      btn.addEventListener('click', () => {
+        currentDate = dateStr;
+        updateURL(dateStr);
+        renderPage(dateStr);
+        document.getElementById('sc602HistOverlay')?.classList.remove('show');
+      });
+    }
 
     daysEl.appendChild(btn);
   }

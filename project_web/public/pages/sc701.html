@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>마이페이지 – HealthDash</title>
+  <title>마이페이지 – FitA</title>
   <link rel="stylesheet" href="../css/common.css" />
   <link rel="stylesheet" href="../css/sc301.css" />
   <link rel="stylesheet" href="../css/sc701.css" />
@@ -21,7 +21,7 @@
     <div class="sidebar-top">
       <div class="sidebar-logo" id="sidebarLogo" style="cursor:pointer;">
         <div class="sidebar-logo-icon">🏃</div>
-        <span class="sidebar-logo-text">HealthDash</span>
+        <img src="../img/FitALogo.png" alt="FitA" style="height:26px;width:auto;object-fit:contain;" />
       </div>
 
       <div class="sidebar-card profile-card">
@@ -44,10 +44,7 @@
         <div class="menu-card-title">메뉴</div>
         <div class="menu-list">
           <button class="menu-btn" data-href="sc301.html"><span class="menu-btn-icon">🏠</span>대시보드</button>
-          <button class="menu-btn" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
           <button class="menu-btn" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
-          <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
-          <button class="menu-btn" id="menuAiChat"><span class="menu-btn-icon">💬</span>AI 상담</button>
           <button class="menu-btn" id="menuHistory"><span class="menu-btn-icon">📅</span>히스토리</button>
           <button class="menu-btn active" data-href="sc701.html"><span class="menu-btn-icon">⚙️</span>마이페이지</button>
         </div>
@@ -109,6 +106,7 @@
           <div class="nav-group-title">기본정보</div>
           <button class="nav-item active" data-section="secProfile">프로필 수정</button>
           <button class="nav-item" data-section="secBody">신체 정보</button>
+          <button class="nav-item" data-section="secWeightGraph">체중 변화</button>
         </div>
         <div class="nav-group">
           <div class="nav-group-title">목표 관리</div>
@@ -415,6 +413,22 @@
           </div>
         </section>
 
+        <!-- ── 체중 변화 그래프 ── -->
+        <section class="form-section" id="secWeightGraph">
+          <div class="section-header">
+            <h2 class="section-title">체중 변화</h2>
+            <p class="section-desc">최근 30일간의 체중 변화를 확인해요.</p>
+          </div>
+          <div class="section-divider"></div>
+          <div class="weight-graph-wrap">
+            <svg class="weight-graph-svg" id="weightGraphSvg" viewBox="0 0 300 120" preserveAspectRatio="none"></svg>
+            <div class="weight-graph-labels" id="weightGraphLabels"></div>
+            <div class="weight-graph-empty" id="weightGraphEmpty" style="display:none;">
+              체중 기록이 없어요.<br>매일 앱을 열면 체중을 기록할 수 있어요.
+            </div>
+          </div>
+        </section>
+
       </div><!-- /mypage-form-area -->
     </div><!-- /mypage-body -->
 
@@ -450,6 +464,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
   <script src="../js/firebase-config.js"></script>
 <script src="../js/common.js"></script>
 <script src="../js/sc701.js"></script>

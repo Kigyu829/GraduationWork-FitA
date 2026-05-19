@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#09131a">
+  <title>오늘 – FitA</title>
+  <link rel="manifest" href="../../manifest.json">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/sc311.css">
+</head>
+<body>
+  <header class="mob-header">
+    <img src="../img/FitALogo.png" alt="FitA" class="mob-header-logo">
+    <span class="mob-header-title">오늘의 플랜</span>
+    <div class="mob-header-right"><button class="mob-header-btn" id="aiChatBtn">💬</button></div>
+  </header>
+
+  <main class="mob-main">
+    <div class="mob-inner">
+      <!-- 날짜 + AI 상담 버튼 -->
+      <div class="today-header">
+        <span class="today-date" id="todayDateLabel"></span>
+        <button class="ai-consult-btn" id="menuAiChat">🤖 AI 상담</button>
+      </div>
+
+      <!-- 탭 바 -->
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="meal">🥗 식단</button>
+        <button class="tab-btn" data-tab="workout">💪 운동</button>
+      </div>
+
+      <!-- 식단 탭 -->
+      <div class="tab-content active" id="tabContentMeal">
+        <div class="daily-summary">
+          <div class="summary-pill"><span class="pill-label">총칼로리</span><span class="pill-val" id="totalKcal">-</span></div>
+          <div class="summary-pill"><span class="pill-label">인증 kcal</span><span class="pill-val" id="verifiedKcal">0</span></div>
+          <div class="summary-pill"><span class="pill-label">남은칼로리</span><span class="pill-val" id="remainKcal">-</span></div>
+          <div class="summary-pill"><span class="pill-label">인증현황</span><span class="pill-val" id="verifiedCount">0/3</span></div>
+        </div>
+
+        <!-- 칼로리 섭취 진행 바 -->
+        <div class="kcal-bar-wrap">
+          <div class="kcal-bar-track">
+            <div class="kcal-bar-fill" id="kcalBarFill"></div>
+          </div>
+          <div class="kcal-bar-labels">
+            <span id="kcalBarConsumed">0 kcal 섭취</span>
+            <span id="kcalBarTarget">목표 - kcal</span>
+          </div>
+        </div>
+
+        <div class="motivation-card" id="motivationCard">
+          <span class="motivation-icon">&#x1F916;</span>
+          <p id="motivationText"></p>
+        </div>
+
+        <div class="meal-section-title">&#x1F305; 아침</div>
+        <div class="meal-item" id="meal-breakfast">
+          <div class="meal-top">
+            <div class="meal-emoji"></div>
+            <div class="meal-info">
+              <div class="meal-name">-</div>
+              <div class="meal-detail"></div>
+              <div class="meal-kcal">- kcal</div>
+              <div class="meal-macro"></div>
+            </div>
+          </div>
+          <div class="meal-btns">
+            <button class="verify-btn" data-meal="breakfast" data-kcal="0">&#x1F4F7; 인증</button>
+            <button class="skip-btn" data-meal="breakfast" data-kcal="0" data-menu-json="[]">&#x1F6AB; 안먹었어요</button>
+          </div>
+        </div>
+
+        <div class="meal-section-title">&#x2600;&#xFE0F; 점심</div>
+        <div class="meal-item" id="meal-lunch">
+          <div class="meal-top">
+            <div class="meal-emoji"></div>
+            <div class="meal-info">
+              <div class="meal-name">-</div>
+              <div class="meal-detail"></div>
+              <div class="meal-kcal">- kcal</div>
+              <div class="meal-macro"></div>
+            </div>
+          </div>
+          <div class="meal-btns">
+            <button class="verify-btn" data-meal="lunch" data-kcal="0">&#x1F4F7; 인증</button>
+            <button class="skip-btn" data-meal="lunch" data-kcal="0" data-menu-json="[]">&#x1F6AB; 안먹었어요</button>
+          </div>
+        </div>
+
+        <div class="meal-section-title">&#x1F319; 저녁</div>
+        <div class="meal-item" id="meal-dinner">
+          <div class="meal-top">
+            <div class="meal-emoji"></div>
+            <div class="meal-info">
+              <div class="meal-name">-</div>
+              <div class="meal-detail"></div>
+              <div class="meal-kcal">- kcal</div>
+              <div class="meal-macro"></div>
+            </div>
+          </div>
+          <div class="meal-btns">
+            <button class="verify-btn" data-meal="dinner" data-kcal="0">&#x1F4F7; 인증</button>
+            <button class="skip-btn" data-meal="dinner" data-kcal="0" data-menu-json="[]">&#x1F6AB; 안먹었어요</button>
+          </div>
+        </div>
+
+        <div id="mealTip" style="margin-top:8px;font-size:12px;color:var(--text-mute);"></div>
+      </div>
+
+      <!-- 운동 탭 -->
+      <div class="tab-content" id="tabContentWorkout">
+        <div class="workout-summary">
+          <div class="workout-progress">
+            <div class="workout-progress-bar">
+              <div class="workout-progress-fill" id="workoutProgressFill"></div>
+            </div>
+            <span class="workout-pct" id="workoutPct">0%</span>
+          </div>
+          <div class="workout-burn-kcal" id="workoutBurnKcal">소모 칼로리 0 kcal</div>
+        </div>
+        <!-- 운동 아이템은 sc311.js가 렌더 -->
+        <!-- 루틴 저장/불러오기 버튼 -->
+        <div class="routine-action-bar" id="routineActionBar" style="display:none;">
+          <button class="routine-save-btn" id="routineSaveBtn">💾 이 루틴 저장</button>
+          <button class="routine-load-btn" id="routineLoadBtn">📂 저장된 루틴</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="sc301.html" class="bnav-item"><span class="bnav-icon">🏠</span><span class="bnav-label">홈</span></a>
+    <a href="sc311.html" class="bnav-item active"><span class="bnav-icon">📋</span><span class="bnav-label">오늘</span></a>
+    <a href="sc602.html" class="bnav-item"><span class="bnav-icon">📅</span><span class="bnav-label">기록</span></a>
+    <a href="sc701.html" class="bnav-item"><span class="bnav-icon">👤</span><span class="bnav-label">나</span></a>
+  </nav>
+
+  <!-- AI Overlay -->
+  <div class="ai-overlay" id="aiOverlay">
+    <div class="ai-overlay-panel" id="aiOverlayPanel">
+      <div class="ai-overlay-header">
+        <div class="ai-overlay-title">🤖 AI 상담</div>
+        <button class="ai-overlay-close" id="aiOverlayClose">×</button>
+      </div>
+      <div class="ai-overlay-messages" id="aiOverlayMessages">
+        <div class="chat-msg ai">
+          <div class="chat-avatar">🤖</div>
+          <div><div class="chat-bubble">안녕하세요! FitA AI 상담사입니다. 건강 관련 질문이나 식단/운동 조언이 필요하시면 언제든 물어보세요! 💪<br><br><span style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.5;">※ AI 상담은 의학적 진단·처방을 대체하지 않습니다. 건강 이상 증상이 있거나 기저 질환이 있으신 경우 반드시 전문의와 상담하세요.</span></div><div class="chat-time">AI 상담사</div></div>
+        </div>
+      </div>
+      <div class="ai-overlay-input-wrap">
+        <textarea class="ai-overlay-input" id="aiOverlayInput" placeholder="메시지를 입력하세요..." rows="1"></textarea>
+        <button class="ai-overlay-send" id="aiOverlaySend">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div class="hist-modal-overlay" id="histModalOverlay">
+    <div class="hist-modal" id="histModal">
+      <div class="hist-modal-header">
+        <div class="hist-modal-title">📅 히스토리</div>
+        <button class="hist-modal-close" id="histModalClose">×</button>
+      </div>
+      <div class="hist-modal-body">
+        <div class="hist-cal-nav">
+          <button class="hist-cal-arrow" id="histPrevMonth">&#8249;</button>
+          <span class="hist-cal-title" id="histCalTitle">-</span>
+          <button class="hist-cal-arrow" id="histNextMonth">&#8250;</button>
+        </div>
+        <div class="hist-legend">
+          <span class="hist-legend-item"><span class="hist-dot dot-both"></span>식단+운동</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-meal"></span>식단</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-workout"></span>운동</span>
+        </div>
+        <div class="hist-weekdays"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+        <div class="hist-days" id="histDays"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/sc311.js"></script>
+  <script src="../js/notifications.js"></script>
+  <script>
+    document.getElementById('aiChatBtn')?.addEventListener('click', () => document.getElementById('aiOverlay')?.classList.add('show'));
+    document.getElementById('menuAiChat')?.addEventListener('click', () => document.getElementById('aiOverlay')?.classList.add('show'));
+    // date label
+    const dl = document.getElementById('todayDateLabel');
+    if (dl) { const d = new Date(); dl.textContent = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`; }
+  </script>
+</body>
+</html>

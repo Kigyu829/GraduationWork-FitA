@@ -20,11 +20,11 @@
         <!-- 로고: id="sidebarLogo" → 클릭 시 sc101로 이동 (sc301.js) -->
         <div class="sidebar-logo" id="sidebarLogo" style="cursor:pointer;">
           <div class="sidebar-logo-icon">🏃</div>
-          <span class="sidebar-logo-text">HealthDash</span>
+          <img src="../img/FitALogo.png" alt="FitA" style="height:26px;width:auto;object-fit:contain;" />
         </div>
 
         <div class="sidebar-card profile-card">
-          <div class="profile-avatar">👤</div>
+          <div class="profile-avatar" id="profileAvatar">👤</div>
           <div id="userName">내 정보</div>
           <div id="userBasicInfo">기본 정보 불러오는 중...</div>
           <div class="profile-weights">
@@ -43,10 +43,7 @@
           <div class="menu-card-title">메뉴</div>
           <div class="menu-list">
             <button class="menu-btn active" data-href="sc301.html"><span class="menu-btn-icon">🏠</span>대시보드</button>
-            <button class="menu-btn" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
             <button class="menu-btn" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
-            <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
-            <button class="menu-btn" id="menuAiChat"><span class="menu-btn-icon">💬</span>AI 상담</button>
             <button class="menu-btn" id="menuHistory"><span class="menu-btn-icon">📅</span>히스토리</button>
             <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">⚙️</span>마이페이지</button>
           </div>
@@ -80,6 +77,14 @@
             <div class="hero-pill accent-pill">
               <span class="hero-pill-label">남은 감량</span>
               <strong id="remainingWeight">-</strong>
+            </div>
+          </div>
+
+          <!-- 히어로 하단: 연속 달성 스트릭 -->
+          <div class="hero-bottom-row">
+            <div class="streak-banner" id="streakBanner" style="display:none;">
+              <span class="streak-fire">🔥</span>
+              <span class="streak-text" id="streakBannerText">N일째 연속 성공 중!</span>
             </div>
           </div>
         </section>
@@ -176,13 +181,6 @@
                   <div>
                     <div class="metric-label">기초 대사량</div>
                     <div class="metric-value" id="bmrValue">-</div>
-                  </div>
-                </div>
-                <div class="metric-item">
-                  <span class="metric-icon">⚡</span>
-                  <div>
-                    <div class="metric-label">유지 칼로리</div>
-                    <div class="metric-value" id="tdeeValue">-</div>
                   </div>
                 </div>
                 <div class="metric-item">

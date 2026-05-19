@@ -53,11 +53,9 @@ function bindMealSelector() {
       const selectedMeal = btn.dataset.meal;
       const userData     = Storage.getUser();
       const mealPlan     = userData.aiMealPlan;
-      const kcal         = mealPlan?.[selectedMeal]?.calories || 0;
-      const mainFood     = mealPlan?.[selectedMeal]?.main_food || '';
+      const kcal = mealPlan?.[selectedMeal]?.calories || 0;
 
       const params = new URLSearchParams({ meal: selectedMeal, kcal });
-      if (mainFood) params.set('mainFood', mainFood);
       sessionStorage.setItem('uploadParams', params.toString());
     });
   });

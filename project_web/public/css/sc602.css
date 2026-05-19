@@ -183,10 +183,14 @@
 .detail-workout-item.done { border-color: rgba(102,208,188,0.35); background: rgba(102,208,188,0.05); }
 .detail-workout-icon { width:40px; height:40px; border-radius:12px; background:rgba(127,211,122,0.12); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
 .detail-workout-info { flex:1; min-width:0; }
-.detail-workout-name   { font-size:13px; font-weight:800; color:var(--text); }
+.detail-workout-name   { font-size:13px; font-weight:800; color:var(--text); text-decoration:none; }
+.detail-workout-name:hover { text-decoration:underline; color:var(--teal,#66D0BC); }
 .detail-workout-detail { font-size:11px; color:var(--text-sec); margin-top:2px; }
 .detail-workout-kcal   { font-size:12px; font-weight:800; color:var(--green,#7FD37A); flex-shrink:0; }
 .detail-workout-status { font-size:14px; flex-shrink:0; }
+
+/* 빈 상태 메시지 */
+.detail-empty-msg { text-align:center; padding:28px 16px; color:var(--text-sec); font-size:13px; }
 
 /* 운동 요약 */
 .detail-workout-summary {
@@ -261,6 +265,11 @@
 #sc602HistOverlay .hist-day {
   aspect-ratio: unset;  /* 고정 높이 그리드에서 aspect-ratio 해제 */
   height: 100%;
+}
+#sc602HistOverlay .hist-day.before-reg {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 #sc602HistOverlay .hist-cal-nav {

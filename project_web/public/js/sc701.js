@@ -29,6 +29,18 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   renderSidebar(userData);
   renderBanner(userData);
+
+  /* Firebase auth가 비동기라 currentUser가 아직 null일 수 있음 → auth 확정 후 그래프 렌더 */
+  if (typeof auth !== 'undefined') {
+    const unsub = auth.onAuthStateChanged(user => {
+      unsub();
+      if (user) sessionStorage.setItem('_fitUid', user.uid);
+      renderWeightGraph();
+    });
+  } else {
+    renderWeightGraph();
+  }
+
   loadProfileForm(userData);
   loadBodyForm(userData);
   loadGoalForm(userData);
@@ -108,8 +120,8 @@ function renderSidebar(data) {
   if (cwEl) cwEl.textContent = data.weight       ? `${data.weight}kg`       : '-';
   if (twEl) twEl.textContent = data.targetWeight  ? `${data.targetWeight}kg` : '-';
 
-  const saved = localStorage.getItem('profileAvatar');
-  if (saved && avatarEl) avatarEl.innerHTML = `<img src="${saved}" alt="프로필" />`;
+  const saved = localStorage.getItem('profileAvatar') || Storage.getUser().avatarUrl || null;
+  if (saved && avatarEl) avatarEl.innerHTML = `<img src="${saved}" alt="프로필" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`;
 }
 
 /* ════════════════════════════════
@@ -136,7 +148,7 @@ function renderBanner(data) {
   setTextSafe('bannerTargetWeight',  data.targetWeight  ? `${data.targetWeight}kg` : '—');
   setTextSafe('bannerTargetLoss',    data.targetLoss    ? `${data.targetLoss}kg`   : '—');
 
-  const saved      = localStorage.getItem('profileAvatar');
+  const saved      = localStorage.getItem('profileAvatar') || Storage.getUser().avatarUrl || null;
   const heroAvatar = document.getElementById('heroAvatar');
   if (saved && heroAvatar) heroAvatar.innerHTML = `<img src="${saved}" alt="프로필" />`;
 }
@@ -152,17 +164,30 @@ function bindAvatarUpload() {
     const file = this.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = function (e) {
+    reader.onload = async function (e) {
       const dataUrl = e.target.result;
       localStorage.setItem('profileAvatar', dataUrl);
 
-      const imgTag = `<img src="${dataUrl}" alt="프로필" />`;
+      const imgTag = `<img src="${dataUrl}" alt="프로필" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`;
       const el1 = document.getElementById('heroAvatar');
       const el2 = document.getElementById('sidebarAvatar');
       if (el1) el1.innerHTML = imgTag;
       if (el2) el2.innerHTML = imgTag;
 
       showToast('✅ 프로필 사진이 변경됐어요.', 'success');
+
+      /* Firebase Storage 업로드 → Firestore에 URL 저장 */
+      const uid = getCurrentUid();
+      if (uid && typeof storage !== 'undefined') {
+        try {
+          const ref = storage.ref(`avatarImages/${uid}/profile.jpg`);
+          await ref.putString(dataUrl, 'data_url');
+          const downloadUrl = await ref.getDownloadURL();
+          Storage.mergeUser({ avatarUrl: downloadUrl });
+        } catch (err) {
+          console.error('아바타 Storage 업로드 실패:', err);
+        }
+      }
     };
     reader.readAsDataURL(file);
   });
@@ -237,6 +262,7 @@ function loadBodyForm(data) {
   ['inputHeight', 'inputWeight'].forEach(id => {
     document.getElementById(id)?.addEventListener('input', updateBmiMini);
   });
+  document.getElementById('inputWeight')?.addEventListener('input', () => updateGoalPreview(Storage.getUser()));
 }
 
 function updateBmiMini() {
@@ -266,6 +292,41 @@ function bindBodySave() {
 
     if (!height || !weight) { showToast('키와 체중은 필수 입력이에요.', 'error'); return; }
 
+    /* ── 체중 검증 1: 최저 권장 체중 ── */
+    const minSafeBody = calcMinSafeWeight(Number(height));
+    if (Number(weight) < minSafeBody) {
+      showCustomConfirm({
+        icon: '⚖️',
+        title: '권장 체중 이하예요',
+        desc: `입력한 체중 <strong>${weight}kg</strong>은 키 <strong>${height}cm</strong> 기준<br>최저 권장 체중 <strong style="color:var(--teal)">${minSafeBody}kg</strong>(BMI 18.5)보다 낮아요.<br><br>실수가 아닌지 확인해주세요.`,
+        okText: '그래도 저장',
+        cancelText: '다시 입력',
+        danger: true,
+        onOk: () => _doSaveBody(height, weight, gender, birth)
+      });
+      return;
+    }
+
+    /* ── 체중 검증 2: 이전 체중 대비 급격한 변화 ── */
+    const prevWeight = Number(Storage.getUser().weight || 0);
+    if (prevWeight > 0 && Math.abs(Number(weight) - prevWeight) >= 5) {
+      const diff = (Number(weight) - prevWeight).toFixed(1);
+      const sign = diff > 0 ? '+' : '';
+      showCustomConfirm({
+        icon: '📊',
+        title: '체중 변화가 커요',
+        desc: `기존 체중 <strong>${prevWeight}kg</strong> → 새 체중 <strong>${weight}kg</strong><br>차이가 <strong style="color:var(--red)">${sign}${diff}kg</strong>이에요.<br><br>정말 <strong>${weight}kg</strong>으로 저장할까요?`,
+        okText: '그래도 저장',
+        cancelText: '다시 입력',
+        onOk: () => _doSaveBody(height, weight, gender, birth)
+      });
+      return;
+    }
+
+    _doSaveBody(height, weight, gender, birth);
+  });
+
+  async function _doSaveBody(height, weight, gender, birth) {
     const bmi = calculateBMI(height, weight);
     try { await apiPost('/profile/update', { height, weight, gender, birth }); } catch { /* 폴백 */ }
 
@@ -275,7 +336,7 @@ function bindBodySave() {
     renderSidebar(fresh);
     renderBanner(fresh);
     showToast('✅ 신체 정보가 저장됐어요.', 'success');
-  });
+  }
 }
 
 /* ════════════════════════════════
@@ -394,14 +455,39 @@ function bindGoalSave(userData) {
     const targetWeight = currentW - targetLoss;
     if (targetWeight <= 0) { showToast('목표 감량 무게를 다시 확인해주세요.', 'error'); return; }
 
-    if (targetLoss / weeks > 1.0) {
-      const ok = confirm(
-        `⚠️ 설정하신 목표가 권장 감량 범위를 초과합니다.\n` +
-        `(권장: 주 최대 1kg / 현재: 주 ${(targetLoss / weeks).toFixed(1)}kg)\n\n계속하시겠습니까?`
-      );
-      if (!ok) return;
+    /* ── 최저 권장 체중 검증 (BMI 18.5) ── */
+    const savedHeight = Storage.getUser().height;
+    const minSafe     = calcMinSafeWeight(Number(savedHeight));
+    if (targetWeight < minSafe) {
+      showCustomConfirm({
+        icon: '⚠️',
+        title: '목표 체중이 너무 낮아요',
+        desc: `목표 체중 <strong>${targetWeight}kg</strong>은 키 <strong>${savedHeight}cm</strong> 기준<br>최저 권장 체중 <span class="teal">${minSafe}kg</span>(BMI 18.5)보다 낮아요.<br><br>건강을 위해 <span class="teal">${minSafe}kg 이상</span>을 권장해요.`,
+        okText: '그래도 저장',
+        cancelText: '다시 설정',
+        danger: true,
+        onOk: () => _doSaveGoal(currentW, targetLoss, periodLabel, weeks, targetWeight, activity)
+      });
+      return;
     }
 
+    if (targetLoss / weeks > 1.0) {
+      showCustomConfirm({
+        icon: '🏃',
+        title: '감량 속도가 빠른 목표예요',
+        desc: `권장 감량 속도는 <span class="teal">주 최대 1kg</span>이에요.<br>현재 설정은 <span class="warn">주 ${(targetLoss / weeks).toFixed(1)}kg</span>으로 건강에 무리가 올 수 있어요.`,
+        okText: '이대로 저장',
+        cancelText: '다시 조정',
+        danger: true,
+        onOk: () => _doSaveGoal(currentW, targetLoss, periodLabel, weeks, targetWeight, activity)
+      });
+      return;
+    }
+
+    _doSaveGoal(currentW, targetLoss, periodLabel, weeks, targetWeight, activity);
+  });
+
+  async function _doSaveGoal(currentW, targetLoss, periodLabel, weeks, targetWeight, activity) {
     const goalData = { initialWeight: currentW, targetLoss, goalPeriod: periodLabel, goalWeeks: weeks, targetWeight, activityLevel: activity };
 
     try { await apiPost('/profile/goal', goalData); } catch { /* 폴백 */ }
@@ -418,7 +504,7 @@ function bindGoalSave(userData) {
     renderSidebar(fresh);
     renderBanner(fresh);
     showToast('✅ 목표가 재설정됐어요.', 'success');
-  });
+  }
 }
 
 /* ════════════════════════════════
@@ -568,4 +654,117 @@ function setVal(id, value) {
 function setTextSafe(id, text) {
   const el = document.getElementById(id);
   if (el) el.textContent = text;
+}
+
+/* ════════════════════════════════
+   체중 변화 그래프 (최근 30일)
+   ════════════════════════════════ */
+function renderWeightGraph() {
+  const svg      = document.getElementById('weightGraphSvg');
+  const labelsEl = document.getElementById('weightGraphLabels');
+  const emptyEl  = document.getElementById('weightGraphEmpty');
+  if (!svg) return;
+
+  const uid = getCurrentUid();
+  if (!uid) return;
+
+  const points = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const key     = `todayWeight_check_${uid}_${dateStr}`;
+    const val     = parseFloat(localStorage.getItem(key));
+    points.push({ dateStr, weight: isNaN(val) ? null : val, dayLabel: `${d.getMonth()+1}/${d.getDate()}` });
+  }
+
+  const valid = points.filter(p => p.weight !== null);
+  if (valid.length < 2) {
+    svg.style.display     = 'none';
+    if (labelsEl) labelsEl.style.display = 'none';
+    if (emptyEl)  emptyEl.style.display  = 'block';
+    return;
+  }
+
+  svg.style.display     = 'block';
+  if (labelsEl) labelsEl.style.display = 'block';
+  if (emptyEl)  emptyEl.style.display  = 'none';
+
+  const weights = valid.map(p => p.weight);
+  const rawMin  = Math.min(...weights);
+  const rawMax  = Math.max(...weights);
+  /* Y축 패딩 ±0.5kg — 범위가 좁아 변화가 뚜렷하게 보임 */
+  const minW    = Math.round((rawMin - 0.5) * 10) / 10;
+  const maxW    = Math.round((rawMax + 0.5) * 10) / 10;
+  const rangeW  = maxW - minW || 1;
+
+  const W = 600, H = 180, padL = 36, padR = 12, padT = 14, padB = 14;
+  const gW = W - padL - padR;
+  const gH = H - padT - padB;
+
+  function xOf(idx)    { return padL + (idx / (points.length - 1)) * gW; }
+  function yOf(weight) { return padT + (1 - (weight - minW) / rangeW) * gH; }
+
+  /* Y축 격자선 5개 (균등 분할) */
+  const yLines = Array.from({ length: 5 }, (_, i) => {
+    const w = minW + (rangeW / 4) * i;
+    return { val: w.toFixed(1), y: yOf(w) };
+  }).reverse();
+
+  let svgHtml = '';
+  yLines.forEach(({ y, val }) => {
+    svgHtml += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>`;
+    svgHtml += `<text x="${padL - 4}" y="${y + 3.5}" text-anchor="end" font-size="9" fill="rgba(255,255,255,0.4)">${val}</text>`;
+  });
+
+  const firstValid = valid[0];
+  const lastValid  = valid[valid.length - 1];
+  const pathD = valid.map((p, i) => {
+    const allIdx = points.findIndex(q => q.dateStr === p.dateStr);
+    return `${i === 0 ? 'M' : 'L'}${xOf(allIdx)},${yOf(p.weight)}`;
+  }).join(' ');
+  const fillD = `${pathD} L${xOf(points.findIndex(q => q.dateStr === lastValid.dateStr))},${H - padB} L${xOf(points.findIndex(q => q.dateStr === firstValid.dateStr))},${H - padB} Z`;
+
+  svgHtml += `<defs>
+    <linearGradient id="wgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(102,208,188,0.35)"/>
+      <stop offset="100%" stop-color="rgba(102,208,188,0)"/>
+    </linearGradient>
+  </defs>`;
+  svgHtml += `<path d="${fillD}" fill="url(#wgGrad)" stroke="none"/>`;
+  svgHtml += `<path d="${pathD}" fill="none" stroke="var(--teal,#66D0BC)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+  /* 점 + 값 레이블 */
+  valid.forEach(p => {
+    const allIdx = points.findIndex(q => q.dateStr === p.dateStr);
+    const cx = xOf(allIdx), cy = yOf(p.weight);
+    svgHtml += `<circle cx="${cx}" cy="${cy}" r="3.5" fill="var(--teal,#66D0BC)" stroke="var(--card,#1a2632)" stroke-width="1.5"/>`;
+    svgHtml += `<title>${p.dayLabel}: ${p.weight}kg</title>`;
+  });
+
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML = svgHtml;
+
+  /* X축 라벨 — 5일 간격 */
+  if (labelsEl) {
+    const labelPoints = points.filter((_, i) => i % 5 === 0 || i === points.length - 1);
+    labelsEl.innerHTML = '';
+    labelPoints.forEach(p => {
+      const allIdx = points.findIndex(q => q.dateStr === p.dateStr);
+      const span   = document.createElement('span');
+      span.textContent   = p.dayLabel;
+      span.style.cssText = `position:absolute;left:${(padL + (allIdx / (points.length-1)) * gW) / W * 100}%;transform:translateX(-50%);font-size:10px;color:rgba(255,255,255,0.45);`;
+      labelsEl.appendChild(span);
+    });
+    labelsEl.style.cssText = 'position:relative;height:16px;';
+  }
+}
+
+/* ════════════════════════════════
+   키 기반 최저 권장 체중 계산 (BMI 18.5)
+   ════════════════════════════════ */
+function calcMinSafeWeight(heightCm) {
+  if (!heightCm || heightCm < 100) return 40;
+  const h = heightCm / 100;
+  return Math.round(18.5 * h * h * 10) / 10;
 }

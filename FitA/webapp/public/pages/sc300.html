@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#09131a">
+  <title>오늘의 체중 – FitA</title>
+  <link rel="manifest" href="../../manifest.json">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/sc300.css">
+</head>
+<body>
+  <div class="wc-page">
+    <!-- 로고 -->
+    <img src="../img/FitALogo.png" alt="FitA" class="wc-logo">
+
+    <!-- 날짜 -->
+    <div class="wc-date" id="wcDate"></div>
+
+    <!-- 인사 -->
+    <h1 class="wc-greeting" id="wcGreeting">오신 걸 환영합니다 👋</h1>
+    <p class="wc-sub">오늘의 체중을 입력해주세요<br>매일 기록하면 목표 달성이 빨라져요 💪</p>
+
+    <!-- 체중 입력 -->
+    <div class="wc-input-wrap">
+      <div class="wc-prev-weight" id="wcPrev"></div>
+      <div class="wc-input-box">
+        <input
+          type="number"
+          id="wcInput"
+          class="wc-input"
+          placeholder="00.0"
+          step="0.1"
+          min="20"
+          max="300"
+          inputmode="decimal"
+          autocomplete="off"
+        >
+        <span class="wc-unit">kg</span>
+      </div>
+      <div class="wc-bmi-preview" id="wcBmiPreview"></div>
+      <div class="wc-hint" id="wcHint"></div>
+    </div>
+
+    <!-- 목표까지 진행 바 -->
+    <div class="wc-goal-bar-wrap" id="wcGoalBarWrap" style="display:none;">
+      <div class="wc-goal-labels">
+        <span id="wcGoalStartLabel"></span>
+        <span id="wcGoalEndLabel"></span>
+      </div>
+      <div class="wc-goal-track">
+        <div class="wc-goal-fill" id="wcGoalFill"></div>
+      </div>
+    </div>
+
+    <!-- 저장 / 스킵 -->
+    <button class="primary-btn wc-save-btn" id="wcSaveBtn">저장하기</button>
+    <button class="wc-skip-btn" id="wcSkipBtn">나중에 입력할게요</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/sc300.js"></script>
+</body>
+</html>

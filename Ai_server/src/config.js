@@ -1,23 +1,40 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-// 개발 중 쿼터 초과 시 새 Google 계정 API 키로 교체해서 사용
-const geminiModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+// ── 다중 API 키 로테이터 ─────────────────────────────────────
+// .env에서 GEMINI_API_KEY=키1,키2,키3 형태로 여러 키 지원
+// 429 쿼터 초과 시 자동으로 다음 키로 교체해서 재시도
+const API_KEYS = (process.env.GEMINI_API_KEY || '')
+    .split(',')
+    .map(k => k.trim())
+    .filter(Boolean);
+
+let keyIndex = 0;
+
+function getModel(modelName) {
+    return new GoogleGenerativeAI(API_KEYS[keyIndex])
+        .getGenerativeModel({ model: modelName });
+}
+
+function rotateKey() {
+    if (API_KEYS.length <= 1) return false;
+    keyIndex = (keyIndex + 1) % API_KEYS.length;
+    console.warn(`  [키 교체] → 키 ${keyIndex + 1}/${API_KEYS.length}`);
+    return true;
+}
 
 // Gemini 호출 공통 함수
-// - 429 쿼터 초과: retryDelay 파싱 후 1회 재시도
+// - 429 쿼터 초과: 다음 키로 교체 후 재시도 (키가 여러 개인 경우), 1개면 대기 후 재시도
 // - 503 과부하:    5초 간격으로 최대 3회 재시도
-async function callGemini(prompt) {
+async function callGemini(prompt, modelName = 'gemini-2.5-flash') {
     const start = Date.now();
 
     const attempt = async () => {
-        const result = await geminiModel.generateContent(prompt);
+        const result = await getModel(modelName).generateContent(prompt);
         const text = result.response.text();
-        console.log(`  Gemini 응답 완료 (${Date.now() - start}ms, ${text.length}자)`);
+        console.log(`  Gemini 응답 완료 (${Date.now() - start}ms, ${text.length}자, 키 ${keyIndex + 1})`);
         return text;
     };
 
-    // 429 처리 (1회 재시도)
     try {
         return await attempt();
     } catch (err) {
@@ -25,6 +42,11 @@ async function callGemini(prompt) {
         const is503 = err.message?.includes('503') || err.status === 503;
 
         if (is429) {
+            if (rotateKey()) {
+                console.warn(`  [쿼터 초과] 다음 키로 즉시 재시도...`);
+                return await attempt();
+            }
+            // 키가 1개뿐이면 대기 후 재시도
             const delayMatch = err.message?.match(/retry in (\d+)/i);
             const waitSec = delayMatch ? Math.min(parseInt(delayMatch[1]) + 2, 60) : 35;
             console.warn(`  [쿼터 초과] ${waitSec}초 후 재시도...`);
@@ -33,7 +55,6 @@ async function callGemini(prompt) {
         }
 
         if (is503) {
-            // 503 과부하: 5초 간격으로 최대 3회 재시도
             for (let i = 1; i <= 3; i++) {
                 console.warn(`  [503 과부하] ${i}/3 재시도 (5초 대기)...`);
                 await new Promise(r => setTimeout(r, 5000));

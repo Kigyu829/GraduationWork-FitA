@@ -1,5 +1,6 @@
 const express = require('express');
 const http    = require('http');
+const path    = require('path');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const fs = require('fs');
 const app = express();
@@ -18,6 +19,9 @@ app.use((req, res, next) => {
 
 /* ── 정적 파일 — extensions 옵션으로 확장자 없이도 서빙 ── */
 app.use(express.static('public', { extensions: ['html'] }));
+
+/* ── FitA 모바일 웹앱 (포트 3000/fita/) ── */
+app.use('/fita', express.static(path.join(__dirname, '..', 'FitA', 'webapp'), { extensions: ['html'] }));
 
 /* 루트 접속 시 시작 페이지로 리다이렉트 */
 app.get('/', (req, res) => {

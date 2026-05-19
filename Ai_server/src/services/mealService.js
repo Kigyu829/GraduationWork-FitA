@@ -113,7 +113,7 @@ function buildMeal(slot, targetCal, pool, preferredNames = new Set()) {
     ];
     if (mains.length === 0) {
         mains.push(FOODS.find(f => f.name === '잡곡밥') ||
-            { name: '잡곡밥', kcal: 300, gram: 210, meals: ['breakfast','lunch','dinner'], type: 'main' });
+            { name: '잡곡밥', kcal: 300, gram: 210, protein: 6, carbs: 65, fat: 1, meals: ['breakfast','lunch','dinner'], type: 'main' });
     }
     const main = mains[0];
 
@@ -126,12 +126,12 @@ function buildMeal(slot, targetCal, pool, preferredNames = new Set()) {
         ...shuffle(available.filter(f => f.type === 'soup' && preferredNames.has(f.name))),
         ...shuffle(available.filter(f => f.type === 'soup' && !preferredNames.has(f.name))),
     ];
-    const soup = soups.find(s => cal + s.kcal <= targetCal * 1.1);
+    const soup = soups.find(s => cal + s.kcal <= targetCal * 1.05);
     if (soup) { menu.push(soup.name); menuFoods.push(soup); cal += soup.kcal; }
 
     // 배추김치 기본 추가
     const kimchi = pool.find(f => f.name === '배추김치' && f.meals.includes(slot));
-    if (kimchi && !menu.includes(kimchi.name) && cal + kimchi.kcal <= targetCal * 1.1) {
+    if (kimchi && !menu.includes(kimchi.name) && cal + kimchi.kcal <= targetCal * 1.05) {
         menu.push(kimchi.name);
         menuFoods.push(kimchi);
         cal += kimchi.kcal;
@@ -144,7 +144,7 @@ function buildMeal(slot, targetCal, pool, preferredNames = new Set()) {
     ];
     for (const side of sides) {
         if (cal >= targetCal * 0.88) break;
-        if (cal + side.kcal <= targetCal * 1.10) {
+        if (cal + side.kcal <= targetCal * 1.05) {
             menu.push(side.name);
             menuFoods.push(side);
             cal += side.kcal;
@@ -159,7 +159,9 @@ function buildMeal(slot, targetCal, pool, preferredNames = new Set()) {
     return {
         menu,
         calories:  cal,
-        main_food: main.name,
+        protein:   Math.round(menuFoods.reduce((s, f) => s + (f.protein || 0), 0)),
+        carbs:     Math.round(menuFoods.reduce((s, f) => s + (f.carbs   || 0), 0)),
+        fat:       Math.round(menuFoods.reduce((s, f) => s + (f.fat     || 0), 0)),
         desc,
     };
 }

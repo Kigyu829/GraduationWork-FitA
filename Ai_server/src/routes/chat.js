@@ -1,5 +1,5 @@
 const { Router }         = require('express');
-const { callOllama }     = require('../config');
+const { callGemini }     = require('../config');
 const { retrieveContext } = require('../services/ragService');
 
 const router = Router();
@@ -57,20 +57,13 @@ function hasChinese(text) {
 }
 
 function buildChatPrompt(message, userInfo, mealPlan, workoutPlan, recentHistory, ragContext) {
-    let p = '';
-    p += '당신은 한국어 전용 다이어트 코칭 AI입니다.\n';
-    p += '【언어 규칙】 반드시 한국어로만 답변하세요. 중국어(汉字/漢字), 영어, 일본어는 절대 사용 금지입니다.\n\n';
-    if (userInfo)      p += '사용자 정보: ' + userInfo + '\n\n';
-    if (mealPlan)      p += '【현재 식단 플랜】\n' + JSON.stringify(mealPlan) + '\n\n';
-    if (workoutPlan)   p += '【현재 운동 플랜】\n' + JSON.stringify(workoutPlan) + '\n\n';
-    if (recentHistory) p += '【최근 대화 기록】\n' + recentHistory + '\n\n';
-    if (ragContext)    p += ragContext + '\n\n';
-    p += '사용자 질문: ' + message + '\n\n';
-    p += '위의 정보를 참고하여 친절하고 전문적으로 답변하세요.\n';
-    p += '의학적 진단은 하지 않고, 심각한 건강 문제는 병원 방문을 권유하세요.\n';
-    p += '답변은 3~5문장으로 간결하게 작성하세요.\n\n';
-    p += '【출력 형식】 백틱이나 설명 없이 순수 JSON 하나만 출력하세요.\n';
-    p += '{"reply": "한국어로 3~5문장 답변"}';
+    let p = '당신은 한국어 전용 다이어트 코칭 AI입니다. 친절하고 전문적으로 3~5문장으로 답변하세요. 의학적 진단은 하지 않고, 심각한 건강 문제는 병원 방문을 권유하세요.\n\n';
+    if (userInfo)      p += '사용자 정보: ' + userInfo + '\n';
+    if (mealPlan)      p += '현재 식단 플랜: ' + JSON.stringify(mealPlan) + '\n';
+    if (workoutPlan)   p += '현재 운동 플랜: ' + JSON.stringify(workoutPlan) + '\n';
+    if (recentHistory) p += '최근 대화: ' + recentHistory + '\n';
+    if (ragContext)    p += ragContext + '\n';
+    p += '\n사용자: ' + message;
     return p;
 }
 
@@ -89,31 +82,16 @@ router.post('/', async (req, res) => {
     try {
         console.log(`  메시지: "${message}"`);
         if (ragContext) console.log(`  [RAG] ${ragContext.split('\n')[0]}`);
-        console.log('  Ollama 요청 중...');
+        console.log('  Gemini 요청 중...');
 
-        let text = await callOllama(prompt);
-
-        // 중국어 감지 시 1회 재시도
-        if (hasChinese(text)) {
-            console.warn('  [경고] 중국어 감지 → 재시도');
-            const retryPrompt = prompt + '\n\n[이전 답변에 중국어가 포함되었습니다. 반드시 한국어로만 다시 작성하세요.]';
-            text = await callOllama(retryPrompt);
-        }
-
-        let reply;
-        try {
-            const parsed = extractJson(text);
-            reply = parsed.reply || text.trim();
-        } catch {
-            reply = text.trim();
-        }
+        const reply = await callGemini(prompt);
 
         const action = detectAction(message, hasMealPlan, hasWorkoutPlan);
         const reason = action ? message : null;
 
         console.log(`  응답: "${reply?.slice(0, 60)}..."`);
         if (action) console.log(`  액션 감지: ${action}`);
-        res.json({ success: true, reply, action, reason });
+        res.json({ success: true, reply: reply.trim(), action, reason });
 
     } catch (err) {
         console.error('  [오류] 채팅 실패:', err.message);

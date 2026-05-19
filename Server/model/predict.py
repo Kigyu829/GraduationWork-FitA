@@ -27,6 +27,57 @@ _CNN_SRC_V2  = os.path.abspath(os.path.join(_CNN_SRC, 'v2_backup'))
 sys.path.insert(0, _HERE)
 import config
 
+# ── 영어 라벨 → 한국어 변환 테이블 ────────────────────────
+_LABEL_KR = {
+    'bibimbap':         '비빔밥',
+    'bossam':           '보쌈',
+    'braised_potato':   '감자조림',
+    'braised_tofu':     '두부조림',
+    'bulgogi':          '불고기',
+    'chueotang':        '추어탕',
+    'dak_bokkeum':      '닭볶음탕',
+    'dakgalbi':         '닭갈비',
+    'doenjang_jjigae':  '된장찌개',
+    'eomuk_bokkeum':    '어묵볶음',
+    'fried_shrimp':     '새우튀김',
+    'galbitang':        '갈비탕',
+    'gamja_jeon':       '감자전',
+    'gamjatang':        '감자탕',
+    'gimbap':           '김밥',
+    'grilled_clam':     '조개구이',
+    'gyeran_jjim':      '계란찜',
+    'gyeran_mari':      '계란말이',
+    'janchi_guksu':     '잔치국수',
+    'japchae':          '잡채',
+    'jeyuk_bokkeum':    '제육볶음',
+    'jjamppong':        '짬뽕',
+    'jokbal':           '족발',
+    'kalguksu':         '칼국수',
+    'kimchi_fried_rice':'김치볶음밥',
+    'kimchi_jeon':      '김치전',
+    'kimchi_jjigae':    '김치찌개',
+    'kongnamul_guk':    '콩나물국',
+    'kongnamul_muchim': '콩나물무침',
+    'maeuntang':        '매운탕',
+    'mandu':            '만두',
+    'miyeok_guk':       '미역국',
+    'myeolchi_bokkeum': '멸치볶음',
+    'pizza':            '피자',
+    'ramyeon':          '라면',
+    'rice_ball':        '주먹밥',
+    'samgyeopsal':      '삼겹살',
+    'samgyetang':       '삼계탕',
+    'spinach_namul':    '시금치나물',
+    'sundae':           '순대',
+    'sundubu_jjigae':   '순두부찌개',
+    'tteokbokki':       '떡볶이',
+    'yukgaejang':       '육개장',
+}
+
+def to_kr(name):
+    """영어 라벨이면 한국어로 변환, 이미 한국어면 그대로 반환"""
+    return _LABEL_KR.get(name, name)
+
 # ── 하이퍼파라미터 ──────────────────────────────────────
 SCORE_THRESHOLD   = 0.15  # FoodScouterCNN 분류 신뢰도 최소값
 NMS_IOU_THRESHOLD = 0.45  # NMS IoU 임계값
@@ -35,23 +86,20 @@ MIN_AREA_RATIO    = 0.005 # 이미지 전체 대비 최소 면적 비율 (0.5%)
 MAX_AREA_RATIO    = 0.6   # 이미지 전체 대비 최대 면적 비율 (60%)
 TOP_K_PER_REGION  = 3     # 각 SAM 영역에서 상위 K개 후보 포함
 CROP_PADDING      = 0.08  # Crop 주변 패딩 비율 (8%)
-SAM_POINTS        = 32    # SAM points_per_side (많을수록 세밀, 느려짐)
+SAM_POINTS        = 32 if torch.cuda.is_available() else 16  # CPU에서 자동 축소
 
-# TTA (Test Time Augmentation) 변환 목록 - 5가지
+# TTA (Test Time Augmentation) 변환 목록
+# GPU: 5가지 / CPU: 2가지 (속도 우선)
 _MEAN = [0.485, 0.456, 0.406]
 _STD  = [0.229, 0.224, 0.225]
-_TTA_TRANSFORMS = [
-    # 기본
+_TTA_ALL = [
     T.Compose([T.Resize((CNN_IMG_SIZE, CNN_IMG_SIZE)), T.ToTensor(), T.Normalize(_MEAN, _STD)]),
-    # 좌우 반전
     T.Compose([T.Resize((CNN_IMG_SIZE, CNN_IMG_SIZE)), T.RandomHorizontalFlip(p=1.0), T.ToTensor(), T.Normalize(_MEAN, _STD)]),
-    # 상하 반전
     T.Compose([T.Resize((CNN_IMG_SIZE, CNN_IMG_SIZE)), T.RandomVerticalFlip(p=1.0), T.ToTensor(), T.Normalize(_MEAN, _STD)]),
-    # 약간 확대 후 중앙 크롭 (1.1x)
     T.Compose([T.Resize((int(CNN_IMG_SIZE*1.1), int(CNN_IMG_SIZE*1.1))), T.CenterCrop(CNN_IMG_SIZE), T.ToTensor(), T.Normalize(_MEAN, _STD)]),
-    # 더 크게 확대 후 중앙 크롭 (1.2x)
     T.Compose([T.Resize((int(CNN_IMG_SIZE*1.2), int(CNN_IMG_SIZE*1.2))), T.CenterCrop(CNN_IMG_SIZE), T.ToTensor(), T.Normalize(_MEAN, _STD)]),
 ]
+_TTA_TRANSFORMS = _TTA_ALL if torch.cuda.is_available() else _TTA_ALL[:2]
 
 
 # ── 모델 로드 ────────────────────────────────────────────
@@ -92,7 +140,7 @@ def load_cnn(model_path, device):
 
     ckpt = torch.load(model_path, map_location=device)
     num_classes = ckpt.get('num_classes', 150)
-    classes     = ckpt.get('classes', [])
+    classes     = [to_kr(c) for c in ckpt.get('classes', [])]  # 영어 라벨 한국어 변환
     model = cnn_module.FoodScouterCNN(num_classes=num_classes)
     model.load_state_dict(ckpt['model_state_dict'])
     model.to(device).eval()

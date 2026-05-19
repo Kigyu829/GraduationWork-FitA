@@ -478,3 +478,31 @@ select.field-input               { width: 240px; cursor: pointer; }
   .goal-warning-inline { max-width: 100%; }
   .field-desc-text { max-width: 100%; }
 }
+
+/* ── 체중 변화 그래프 ── */
+.weight-graph-wrap {
+  padding: 8px 0 24px;
+  position: relative;
+}
+
+.weight-graph-svg {
+  width: 100%;
+  height: 220px;
+  display: block;
+  overflow: visible;
+}
+
+.weight-graph-labels {
+  position: relative;
+  height: 14px;
+  margin-top: 4px;
+}
+
+.weight-graph-empty {
+  text-align: center;
+  color: var(--text-mute, rgba(255,255,255,0.4));
+  font-size: 13px;
+  padding: 32px 0;
+  line-height: 1.7;
+}
+}

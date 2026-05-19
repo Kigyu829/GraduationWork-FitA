@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#09131a">
+  <title>분석 결과 – FitA</title>
+  <link rel="manifest" href="../../manifest.json">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/hc403.css">
+</head>
+<body>
+  <header class="mob-header">
+    <button class="mob-header-back" onclick="history.back()">‹</button>
+    <span class="mob-header-title">분석 결과</span>
+    <div class="mob-header-right"></div>
+  </header>
+
+  <main class="mob-main-sub">
+    <div id="resultContainer">
+      <!-- 사진 패널 -->
+      <div class="photo-panel" id="photoPanel">
+        <div class="photo-scan-badge"><span class="photo-scan-dot"></span><span>스캔 완료</span></div>
+        <div class="photo-frame">
+          <img class="result-photo" id="resultPhoto" src="" alt="판독 사진">
+        </div>
+      </div>
+
+      <!-- 결과 패널 -->
+      <div class="result-panel" id="resultPanel">
+        <div class="mob-inner">
+          <div class="result-card">
+            <div class="result-card-header">
+              <span class="result-match-badge" id="matchBadge">분석 중...</span>
+            </div>
+            <div class="result-food-name" id="foodName">—</div>
+            <div class="result-divider"></div>
+            <div class="result-nutrients" id="resultNutrients">
+              <div class="nutrient-row skeleton"></div>
+              <div class="nutrient-row skeleton"></div>
+              <div class="nutrient-row skeleton"></div>
+            </div>
+            <div class="result-memo" id="resultMemo"></div>
+
+            <!-- 칼로리 수동 수정 -->
+            <div id="kcalEditRow" style="display:none;margin:12px 0 4px;">
+              <div style="font-size:12px;color:var(--text-mute,rgba(255,255,255,0.4));margin-bottom:6px;">
+                인증 칼로리 <span style="font-size:11px;">(AI 플랜 기준 · 직접 수정 가능)</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <input type="number" id="certKcalInput" min="0" max="5000" step="1" placeholder="0"
+                  style="flex:1;background:var(--surface,#1e2d3a);border:1px solid var(--border,rgba(255,255,255,0.12));border-radius:8px;padding:9px 12px;color:var(--text,#fff);font-size:14px;">
+                <span style="font-size:14px;color:var(--text-sec,rgba(255,255,255,0.6));white-space:nowrap;">kcal</span>
+              </div>
+            </div>
+
+            <div class="result-actions" id="resultActions">
+              <button class="secondary-btn" id="retakeBtn" style="flex:1;">재업로드</button>
+              <button class="primary-btn cert-btn" id="certBtn" style="flex:1;">✅ 인증하기</button>
+            </div>
+
+            <!-- 플랜 외 음식 사유 선택 패널 -->
+            <div class="reason-panel" id="reasonPanel" style="display:none;">
+              <div class="reason-header">
+                <span class="reason-icon">⚠️</span>
+                <div>
+                  <div class="reason-title">플랜에 없는 음식이에요</div>
+                  <div class="reason-sub">사유를 선택하거나 직접 입력해주세요.</div>
+                </div>
+              </div>
+              <div class="reason-btns">
+                <button class="reason-btn" id="reasonCheating">
+                  <span class="reason-btn-icon">🍔</span>
+                  <div><div class="reason-btn-label">치팅으로 기록</div><div class="reason-btn-desc">인식된 음식으로 저장</div></div>
+                </button>
+                <button class="reason-btn" id="reasonRetry">
+                  <span class="reason-btn-icon">📷</span>
+                  <div><div class="reason-btn-label">이미지 재인식</div><div class="reason-btn-desc">다시 촬영하고 인증</div></div>
+                </button>
+              </div>
+              <div class="reason-divider"><span>직접 입력</span></div>
+              <div class="reason-chat-wrap">
+                <textarea id="reasonChatInput" class="reason-chat-input" placeholder="기타 사유를 입력하세요..." rows="3"></textarea>
+                <button class="primary-btn reason-chat-submit" id="reasonChatSubmit" style="width:100%;margin-top:8px;">입력하고 인증</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/hc403.js"></script>
+</body>
+</html>

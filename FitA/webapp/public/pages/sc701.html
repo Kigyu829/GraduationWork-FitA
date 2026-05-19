@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#09131a">
+  <title>프로필 – FitA</title>
+  <link rel="manifest" href="../../manifest.json">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/sc701.css">
+</head>
+<body>
+  <header class="mob-header">
+    <img src="../img/FitALogo.png" alt="FitA" class="mob-header-logo">
+    <span class="mob-header-title">마이페이지</span>
+    <div class="mob-header-right"></div>
+  </header>
+
+  <main class="mob-main">
+    <div class="mob-inner">
+      <!-- 프로필 카드 -->
+      <div class="mypage-profile-card">
+        <div class="mypage-avatar-wrap">
+          <div class="mypage-avatar" id="profileAvatar">👤</div>
+          <button class="avatar-camera-btn" id="avatarCameraBtn">📷</button>
+          <input type="file" id="avatarInput" accept="image/*" style="display:none;">
+        </div>
+        <div class="mypage-profile-info">
+          <div class="mypage-name" id="userName">사용자</div>
+          <div class="mypage-sub" id="userBasicInfo">정보 불러오는 중...</div>
+          <div class="mypage-weights">
+            <div class="mypage-weight-chip"><span class="wc-label">현재 체중</span><span class="wc-val" id="currentWeightText">-</span></div>
+            <div class="mypage-weight-chip"><span class="wc-label">목표 체중</span><span class="wc-val" id="targetWeightText">-</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 체중 변화 그래프 -->
+      <div class="mypage-section" id="sectionWeightGraph">
+        <div class="section-header"><h3 class="section-title">체중 변화</h3><span class="weight-graph-range">최근 30일</span></div>
+        <div class="weight-graph-wrap" id="weightGraphWrap">
+          <svg class="weight-graph-svg" id="weightGraphSvg" viewBox="0 0 300 120" preserveAspectRatio="none"></svg>
+          <div class="weight-graph-labels" id="weightGraphLabels"></div>
+          <div class="weight-graph-empty" id="weightGraphEmpty" style="display:none;">체중 기록이 없어요.<br>매일 체중을 입력하면 그래프가 나타나요.</div>
+        </div>
+      </div>
+
+      <!-- 신체 정보 섹션 -->
+      <div class="mypage-section" id="sectionBodyInfo">
+        <div class="section-header"><h3 class="section-title">신체 정보</h3></div>
+        <form class="form-section" id="bodyInfoForm">
+          <div class="input-row">
+            <div class="input-group"><label for="mpHeight">키 (cm)</label><input type="number" id="mpHeight" placeholder="170"></div>
+            <div class="input-group"><label for="mpWeight">체중 (kg)</label><input type="number" id="mpWeight" placeholder="65" step="0.1"></div>
+          </div>
+          <div class="input-group" style="margin-top:12px;">
+            <label for="mpTargetWeight">목표 체중 (kg)</label>
+            <input type="number" id="mpTargetWeight" placeholder="60" step="0.1">
+          </div>
+          <div class="bmi-display" id="mpBmiDisplay"></div>
+          <button type="submit" class="primary-btn" style="width:100%;margin-top:12px;" id="saveBodyBtn">저장</button>
+        </form>
+      </div>
+
+      <!-- 활동량 섹션 -->
+      <div class="mypage-section" id="sectionActivity">
+        <div class="section-header"><h3 class="section-title">활동량 설정</h3></div>
+        <form class="form-section" id="activityForm">
+          <div class="input-group">
+            <label for="mpActivityLevel">평소 활동량</label>
+            <select id="mpActivityLevel">
+              <option value="낮음">낮음 — 주로 앉아서 생활</option>
+              <option value="보통">보통 — 주 1~3회 가벼운 운동</option>
+              <option value="높음">높음 — 주 3~5회 규칙적 운동</option>
+              <option value="매우높음">매우 높음 — 주 6~7회 고강도</option>
+              <option value="선수">운동 선수</option>
+            </select>
+          </div>
+          <button type="submit" class="primary-btn" style="width:100%;margin-top:12px;" id="saveActivityBtn">저장</button>
+        </form>
+      </div>
+
+      <!-- 계정 섹션 -->
+      <div class="mypage-section">
+        <div class="section-header"><h3 class="section-title">계정</h3></div>
+        <div class="mypage-info-row"><span class="info-label">이메일</span><span class="info-val" id="mpEmail">-</span></div>
+        <div class="mypage-info-row"><span class="info-label">닉네임</span><span class="info-val" id="mpNickname">-</span></div>
+      </div>
+
+      <!-- 로그아웃 / 탈퇴 -->
+      <div class="mypage-section">
+        <button class="logout-btn" id="logoutBtn" style="margin-bottom:10px;">로그아웃</button>
+        <button class="withdraw-btn" id="withdrawBtn">회원 탈퇴</button>
+      </div>
+      <div style="height:8px;"></div>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="sc301.html" class="bnav-item"><span class="bnav-icon">🏠</span><span class="bnav-label">홈</span></a>
+    <a href="sc311.html" class="bnav-item"><span class="bnav-icon">📋</span><span class="bnav-label">오늘</span></a>
+    <a href="sc602.html" class="bnav-item"><span class="bnav-icon">📅</span><span class="bnav-label">기록</span></a>
+    <a href="sc701.html" class="bnav-item active"><span class="bnav-icon">👤</span><span class="bnav-label">나</span></a>
+  </nav>
+
+  <div class="toast" id="toastMsg"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/sc701.js"></script>
+  <script>
+    document.getElementById('avatarCameraBtn')?.addEventListener('click', () => document.getElementById('avatarInput')?.click());
+  </script>
+</body>
+</html>

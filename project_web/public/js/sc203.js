@@ -157,27 +157,68 @@ if (bodyInfoForm2) {
       : goalPeriodInput.value;
 
     if (!currentWeight || !targetLoss || !weeks || !activityLevel) {
-      alert('모든 항목을 입력해주세요.');
+      showCustomConfirm({
+        icon: '✏️', title: '입력을 확인해주세요',
+        desc: '모든 항목을 입력해주세요.',
+        okText: '확인', cancelText: null,
+        onOk: () => {}
+      });
       return;
     }
     if (weeks < 1 || weeks > 52) {
-      alert('달성 기간은 1~52주 사이로 입력해주세요.');
+      showCustomConfirm({
+        icon: '📅', title: '달성 기간을 확인해주세요',
+        desc: '달성 기간은 <strong>1~52주</strong> 사이로 입력해주세요.',
+        okText: '확인', cancelText: null,
+        onOk: () => {}
+      });
       return;
     }
 
     const targetWeight = currentWeight - targetLoss;
     if (targetWeight <= 0) {
-      alert('목표 감량 무게를 다시 확인해주세요.');
+      showCustomConfirm({
+        icon: '⚠️', title: '목표 감량을 확인해주세요',
+        desc: '목표 감량이 현재 체중보다 크거나 같아요.<br>다시 확인해주세요.',
+        okText: '확인', cancelText: null,
+        onOk: () => {}
+      });
+      return;
+    }
+
+    /* ── 최저 권장 체중 검증 (BMI 18.5 기준) ── */
+    const { height: savedHeight } = Storage.getUser();
+    const minSafe = calcMinSafeWeight(Number(savedHeight));
+    if (targetWeight < minSafe) {
+      showCustomConfirm({
+        icon: '⚖️',
+        title: '권장 체중 이하예요',
+        desc: `목표 체중 <strong>${targetWeight}kg</strong>은 키 <strong>${savedHeight}cm</strong> 기준<br>최저 권장 체중 <strong style="color:var(--teal)">${minSafe}kg</strong>(BMI 18.5)보다 낮아요.<br><br>건강을 위해 <strong>${minSafe}kg 이상</strong>을 권장해요.`,
+        okText: '그래도 저장',
+        cancelText: '다시 설정',
+        danger: true,
+        onOk: () => {
+          Storage.mergeUser({ initialWeight: currentWeight, targetLoss, goalPeriod: periodLabel, goalWeeks: weeks, targetWeight, activityLevel });
+          location.href = 'sc302.html';
+        }
+      });
       return;
     }
 
     if (isExcessive(targetLoss, weeks)) {
-      const ok = confirm(
-        `⚠️ 설정하신 목표가 권장 감량 범위를 초과합니다.\n` +
-        `(권장: 주 최대 1kg / 현재 설정: 주 ${(targetLoss / weeks).toFixed(1)}kg)\n\n` +
-        `그래도 계속하시겠습니까?`
-      );
-      if (!ok) return;
+      showCustomConfirm({
+        icon: '🏃',
+        title: '감량 속도가 빠른 목표예요',
+        desc: `권장 감량 속도는 <span class="teal">주 최대 1kg</span>이에요.<br>현재 설정은 <span class="warn">주 ${(targetLoss / weeks).toFixed(1)}kg</span>으로 건강에 무리가 올 수 있어요.<br><br>그래도 이 목표로 설정하시겠습니까?`,
+        okText: '이대로 설정',
+        cancelText: '다시 조정',
+        danger: true,
+        onOk: () => {
+          Storage.mergeUser({ initialWeight: currentWeight, targetLoss, goalPeriod: periodLabel, goalWeeks: weeks, targetWeight, activityLevel });
+          location.href = 'sc302.html';
+        }
+      });
+      return;
     }
 
     Storage.mergeUser({
@@ -195,3 +236,13 @@ if (bodyInfoForm2) {
 
 /* ── 초기 렌더 ── */
 renderBMI();
+
+/* ════════════════════════════════
+   키 기반 최저 권장 체중 계산
+   BMI 18.5 기준
+   ════════════════════════════════ */
+function calcMinSafeWeight(heightCm) {
+  if (!heightCm || heightCm < 100) return 40;
+  const h = heightCm / 100;
+  return Math.round(18.5 * h * h * 10) / 10;
+}

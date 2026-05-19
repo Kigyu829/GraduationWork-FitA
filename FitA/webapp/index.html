@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#09131a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>FitA</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body { margin:0; background:#09131a; display:flex; align-items:center; justify-content:center; height:100vh; }
+    img { height:48px; animation: pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+  </style>
+</head>
+<body>
+  <img src="./public/img/FitALogo.png" alt="FitA">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="./public/js/firebase-config.js"></script>
+  <script>
+    auth.onAuthStateChanged(async user => {
+      if (user) {
+        const uid = user.uid;
+        sessionStorage.setItem('_fitUid', uid);
+        localStorage.setItem('_fitUid', uid);
+        let local = (() => { try { return JSON.parse(localStorage.getItem('hud_' + uid)) || {}; } catch { return {}; } })();
+        /* 항상 Firestore에서 최신 userData 동기화 (플랜 변경 등 타 기기 반영) */
+        try {
+          const doc = await db.collection('users').doc(uid).get();
+          if (doc.exists) {
+            const data = doc.data();
+            if (data.nickname) sessionStorage.setItem('_fitNick', data.nickname);
+            sessionStorage.setItem('_fitEmail', data.email || user.email || '');
+            if (data.userData) {
+              localStorage.setItem('hud_' + uid, JSON.stringify(data.userData));
+              local = data.userData;
+            }
+          }
+        } catch (e) { /* 네트워크 오류 시 캐시 사용 */ }
+        location.replace(local.targetWeight ? './public/pages/sc301.html' : './public/pages/sc202.html');
+      } else {
+        location.replace('./public/pages/sc101.html');
+      }
+    });
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+  </script>
+</body>
+</html>

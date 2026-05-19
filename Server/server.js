@@ -97,7 +97,7 @@ app.post('/api/analyze', upload.single('image'), async (req, res) => {
         const best = prediction.best;
         const detections = prediction.detections || [];
 
-        const top5 = detections.slice(0, 5).map(d => ({
+        const top5 = detections.map(d => ({
             class_name_kr: d.class_name,
             class_name:    d.class_name,
             confidence:    d.confidence,

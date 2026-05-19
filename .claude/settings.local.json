@@ -30,7 +30,30 @@
       "Bash(do echo:*)",
       "Read(//c/Users/김인규/Desktop/Graduation_Work/project_web/public/pages/**)",
       "Bash(done)",
-      "Bash(sort echo:*)"
+      "Bash(sort echo:*)",
+      "Bash(head -20 grep -n \"activity\\\\|actMap\\\\|활동\\\\|낮음\\\\|보통\\\\|높음\\\\|매우\\\\|선수\" C:/Users/B2b/Desktop/BackCommit/project_web/public/js/sc311.js)",
+      "Bash(head -20 grep -n \"activity\\\\|actMap\\\\|활동\\\\|낮음\\\\|보통\\\\|높음\\\\|매우\\\\|선수\" C:/Users/B2b/Desktop/BackCommit/project_web/public/js/sc701.js)",
+      "Bash(do p=C:/Users/B2b/Desktop/Graduation_Work/project_web/public/pages/$f.html grep -n \"site-logo-text\\\\|sidebar-logo-text\\\\|drawer-logo-text\" $p)",
+      "Bash(python3 -c \":*)",
+      "Bash(python3:*)",
+      "Bash(\"/c/Users/B2b/Desktop/cloudflared.exe\" --version)",
+      "Bash(kill %1)",
+      "Bash(find C:/Users/B2b/Desktop/Graduation_Work -maxdepth 3 -name *.md)",
+      "Bash(find C:/Users/B2b/Desktop/Graduation_Work/Ai_server -name *.js -o -name *.env -o -name .env)",
+      "Bash(find C:/Users/B2b/Desktop/Graduation_Work/FitA/webapp -name *.js -o -name *.html)",
+      "Bash(python:*)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(echo \"exit=$?\")",
+      "Bash(grep \"\\\\.html$\")",
+      "Bash(grep -rn routineName C:/Users/B2b/Desktop/Graduation_Work --include=*.js -l)",
+      "Bash(grep -rn routineName C:/Users/B2b/Desktop/Graduation_Work --include=*.html -l)",
+      "Bash(grep -rn 루틴 C:/Users/B2b/Desktop/Graduation_Work --include=*.js -l)",
+      "Bash(grep -rn 루틴 C:/Users/B2b/Desktop/Graduation_Work --include=*.html -l)",
+      "Bash(grep -rn \"routine_name\\\\|routineTitle\\\\|workoutRoutine\" C:/Users/B2b/Desktop/Graduation_Work --include=*.js -l)",
+      "Bash(grep -rn \"routine_name\\\\|routineTitle\\\\|workoutRoutine\" C:/Users/B2b/Desktop/Graduation_Work --include=*.html -l)",
+      "Bash(awk:*)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(node -e \"const r = require\\(''./src/services/ragService''\\); console.log\\(typeof r.retrieveContext\\);\")"
     ]
   }
 }

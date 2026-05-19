@@ -1,0 +1,297 @@
+/* sc301.css — Dashboard / Home */
+
+.dash-profile-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.profile-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.dash-profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-profile-name {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+
+.dash-profile-sub {
+  font-size: 12px;
+  color: var(--text-sec);
+  margin-bottom: 6px;
+}
+
+.dash-profile-weights {
+  display: flex;
+  gap: 10px;
+}
+
+.weight-chip-sm {
+  font-size: 12px;
+  color: var(--text-sec);
+}
+
+.weight-chip-sm strong {
+  color: var(--teal);
+}
+
+
+/* Streak */
+.streak-days {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  justify-content: space-between;
+}
+
+.streak-day {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+}
+
+.streak-day.done {
+  background: var(--teal);
+}
+
+/* Progress Ring */
+.progress-ring-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 16px auto;
+}
+
+.progress-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.ring-bg {
+  stroke: var(--border);
+}
+
+.ring-fill {
+  stroke: var(--teal);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s ease;
+}
+
+.ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring-pct {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.ring-label {
+  font-size: 11px;
+  color: var(--text-sec);
+}
+
+/* Metrics */
+.dash-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.dash-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.dash-metric-label {
+  font-size: 10px;
+  color: var(--text-mute);
+  text-transform: uppercase;
+}
+
+.dash-metric-val {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+/* AI Plan text */
+.ai-plan-text {
+  font-size: 13px;
+  color: var(--text-sec);
+  line-height: 1.6;
+}
+
+/* 완료 태그 */
+.plan-done-tag {
+  margin-top: 12px;
+  padding: 8px 14px;
+  background: rgba(102, 208, 188, 0.12);
+  border: 1px solid rgba(102, 208, 188, 0.25);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--teal);
+  text-align: center;
+}
+
+.plan-done-tag.workout {
+  background: rgba(127, 211, 122, 0.12);
+  border-color: rgba(127, 211, 122, 0.25);
+  color: #7FD37A;
+}
+
+/* Tinted cards */
+.tint-pink {
+  border-color: rgba(255, 11, 85, 0.2);
+  background: linear-gradient(135deg, var(--card) 0%, rgba(255, 11, 85, 0.04) 100%);
+}
+
+.tint-green {
+  border-color: rgba(127, 211, 122, 0.2);
+  background: linear-gradient(135deg, var(--card) 0%, rgba(127, 211, 122, 0.04) 100%);
+}
+
+/* Toggle checkbox */
+.toggle-check {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.toggle-check input {
+  display: none;
+}
+
+.toggle-check-box {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--border);
+  position: relative;
+  transition: background 0.2s;
+}
+
+.toggle-check input:checked + .toggle-check-box {
+  background: var(--teal);
+}
+
+.toggle-check-box::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+}
+
+.toggle-check input:checked + .toggle-check-box::after {
+  transform: translateX(16px);
+}
+
+/* Calendar */
+.cal-nav-btn {
+  background: none;
+  border: none;
+  color: var(--text-sec);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.calendar-day {
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-sec);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-day:hover {
+  background: var(--teal-dim);
+}
+
+.calendar-day.empty {
+  visibility: hidden;
+}
+
+.calendar-day.today {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  color: var(--text);
+}
+
+.calendar-day.cal-done-both {
+  background: rgba(102, 208, 188, 0.25);
+  color: var(--teal);
+}
+
+.calendar-day.cal-done-meal {
+  background: rgba(255, 11, 85, 0.15);
+  color: var(--red);
+}
+
+.calendar-day.cal-done-workout {
+  background: rgba(127, 211, 122, 0.15);
+  color: #7FD37A;
+}
+
+.calendar-day.before-reg {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
+}

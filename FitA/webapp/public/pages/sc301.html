@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#09131a">
+  <title>홈 – FitA</title>
+  <link rel="manifest" href="../../manifest.json">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/sc301.css">
+</head>
+<body>
+  <header class="mob-header">
+    <img src="../img/FitALogo.png" alt="FitA" class="mob-header-logo">
+    <span class="mob-header-title">홈</span>
+    <div class="mob-header-right"><button class="mob-header-btn" id="aiChatBtn">💬</button></div>
+  </header>
+
+  <main class="mob-main">
+    <!-- 프로필 요약 카드 -->
+    <div class="mob-inner">
+      <div class="dash-profile-card">
+        <div class="profile-avatar" id="profileAvatar">👤</div>
+        <div class="dash-profile-info">
+          <div class="dash-profile-name" id="userName">사용자</div>
+          <div class="dash-profile-sub" id="userBasicInfo">정보 불러오는 중...</div>
+          <div class="dash-profile-weights">
+            <span class="weight-chip-sm">현재 <strong id="currentWeightText">-</strong></span>
+            <span class="weight-chip-sm">목표 <strong id="targetWeightText">-</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 스트릭 -->
+      <div class="card" style="margin-top:12px;" id="streakCard">
+        <div class="card-header"><span class="card-title">연속 기록</span><span class="card-badge" id="streakCount">0일</span></div>
+        <div class="streak-days" id="streakDays"></div>
+      </div>
+
+      <!-- 진행률 링 -->
+      <div class="card" style="margin-top:12px;">
+        <div class="card-header"><span class="card-title">목표 진행률</span></div>
+        <div class="progress-ring-wrap">
+          <svg class="progress-ring" viewBox="0 0 100 100">
+            <circle class="ring-bg" cx="50" cy="50" r="40" fill="none" stroke-width="8"/>
+            <circle class="ring-fill" id="goalRingFill" cx="50" cy="50" r="40" fill="none" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
+          </svg>
+          <div class="ring-center">
+            <span class="ring-pct" id="progress">0%</span>
+            <span class="ring-label">달성</span>
+          </div>
+        </div>
+        <div class="dash-metrics">
+          <div class="dash-metric"><span class="dash-metric-label">BMI</span><span class="dash-metric-val" id="bmiDisplay">-</span></div>
+          <div class="dash-metric"><span class="dash-metric-label">BMR</span><span class="dash-metric-val" id="bmrValue">-</span></div>
+          <div class="dash-metric"><span class="dash-metric-label">TDEE</span><span class="dash-metric-val" id="tdeeValue">-</span></div>
+          <div class="dash-metric"><span class="dash-metric-label">목표</span><span class="dash-metric-val" id="targetCaloriesValue">-</span></div>
+        </div>
+      </div>
+
+      <!-- AI 플랜 카드 -->
+      <div class="card tint-pink" style="margin-top:12px;">
+        <div class="card-header"><span class="card-title">🥗 오늘 식단</span></div>
+        <div id="mealContent" class="ai-plan-text">AI 플랜을 불러오는 중...</div>
+        <div id="mealDoneTag" class="plan-done-tag" style="display:none;">✅ 식단 완료</div>
+      </div>
+      <div class="card tint-green" style="margin-top:12px;">
+        <div class="card-header"><span class="card-title">💪 오늘 운동</span></div>
+        <div id="workoutContent" class="ai-plan-text">AI 플랜을 불러오는 중...</div>
+        <div id="workoutDoneTag" class="plan-done-tag workout" style="display:none;">✅ 운동 완료</div>
+      </div>
+
+      <!-- 달력 -->
+      <div class="card" style="margin-top:12px;">
+        <div class="card-header">
+          <button class="cal-nav-btn" id="prevMonthBtn">‹</button>
+          <span class="card-title" id="calendarTitle">-</span>
+          <button class="cal-nav-btn" id="nextMonthBtn">›</button>
+        </div>
+        <div class="calendar-days" id="calendarDays"></div>
+      </div>
+      <div style="height:16px;"></div>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="sc301.html" class="bnav-item active"><span class="bnav-icon">🏠</span><span class="bnav-label">홈</span></a>
+    <a href="sc311.html" class="bnav-item"><span class="bnav-icon">📋</span><span class="bnav-label">오늘</span></a>
+    <a href="sc602.html" class="bnav-item"><span class="bnav-icon">📅</span><span class="bnav-label">기록</span></a>
+    <a href="sc701.html" class="bnav-item"><span class="bnav-icon">👤</span><span class="bnav-label">나</span></a>
+  </nav>
+
+  <!-- AI Overlay -->
+  <div class="ai-overlay" id="aiOverlay">
+    <div class="ai-overlay-panel" id="aiOverlayPanel">
+      <div class="ai-overlay-header">
+        <div class="ai-overlay-title">🤖 AI 상담</div>
+        <button class="ai-overlay-close" id="aiOverlayClose">×</button>
+      </div>
+      <div class="ai-overlay-messages" id="aiOverlayMessages">
+        <div class="chat-msg ai">
+          <div class="chat-avatar">🤖</div>
+          <div><div class="chat-bubble">안녕하세요! FitA AI 상담사입니다. 건강 관련 질문이나 식단/운동 조언이 필요하시면 언제든 물어보세요! 💪<br><br><span style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.5;">※ AI 상담은 의학적 진단·처방을 대체하지 않습니다. 건강 이상 증상이 있거나 기저 질환이 있으신 경우 반드시 전문의와 상담하세요.</span></div><div class="chat-time">AI 상담사</div></div>
+        </div>
+      </div>
+      <div class="ai-overlay-input-wrap">
+        <textarea class="ai-overlay-input" id="aiOverlayInput" placeholder="메시지를 입력하세요..." rows="1"></textarea>
+        <button class="ai-overlay-send" id="aiOverlaySend">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div class="hist-modal-overlay" id="histModalOverlay">
+    <div class="hist-modal" id="histModal">
+      <div class="hist-modal-header">
+        <div class="hist-modal-title">📅 히스토리</div>
+        <button class="hist-modal-close" id="histModalClose">×</button>
+      </div>
+      <div class="hist-modal-body">
+        <div class="hist-cal-nav">
+          <button class="hist-cal-arrow" id="histPrevMonth">&#8249;</button>
+          <span class="hist-cal-title" id="histCalTitle">-</span>
+          <button class="hist-cal-arrow" id="histNextMonth">&#8250;</button>
+        </div>
+        <div class="hist-legend">
+          <span class="hist-legend-item"><span class="hist-dot dot-both"></span>식단+운동</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-meal"></span>식단</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-workout"></span>운동</span>
+        </div>
+        <div class="hist-weekdays"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+        <div class="hist-days" id="histDays"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/sc301.js"></script>
+  <script src="../js/notifications.js"></script>
+  <script>
+    document.getElementById('aiChatBtn')?.addEventListener('click', () => {
+      document.getElementById('aiOverlay')?.classList.add('show');
+    });
+    document.getElementById('historyBtn')?.addEventListener('click', () => {
+      document.getElementById('histModalOverlay')?.classList.add('show');
+    });
+    const menuAiChat = document.getElementById('menuAiChat');
+    if (menuAiChat) menuAiChat.addEventListener('click', () => document.getElementById('aiOverlay')?.classList.add('show'));
+  </script>
+</body>
+</html>
