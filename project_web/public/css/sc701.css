@@ -487,7 +487,7 @@ select.field-input               { width: 240px; cursor: pointer; }
 
 .weight-graph-svg {
   width: 100%;
-  height: 220px;
+  height: 170px;
   display: block;
   overflow: visible;
 }

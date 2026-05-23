@@ -92,12 +92,26 @@ async function loadDayFromFirestore(dateStr) {
 }
 
 /* ── 페이지 렌더 ── */
+/* ── 로딩 인디케이터 표시/숨김 ── */
+function showPageLoading() {
+  document.getElementById('sc602Loading')?.style.setProperty('display', 'flex');
+  document.getElementById('detailBadgeRow')?.style.setProperty('visibility', 'hidden');
+  document.querySelectorAll('.detail-content').forEach(el => el.style.setProperty('visibility', 'hidden'));
+}
+function hidePageLoading() {
+  document.getElementById('sc602Loading')?.style.setProperty('display', 'none');
+  document.getElementById('detailBadgeRow')?.style.setProperty('visibility', '');
+  document.querySelectorAll('.detail-content').forEach(el => el.style.setProperty('visibility', ''));
+}
+
 async function renderPage(dateStr) {
   renderDateHeader(dateStr);
+  showPageLoading();
   await loadDayFromFirestore(dateStr);
   renderBadge(dateStr);
   renderMealTab(dateStr);
   renderWorkoutTab(dateStr);
+  hidePageLoading();
 }
 
 function renderDateHeader(dateStr) {

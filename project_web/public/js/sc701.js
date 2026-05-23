@@ -120,7 +120,8 @@ function renderSidebar(data) {
   if (cwEl) cwEl.textContent = data.weight       ? `${data.weight}kg`       : '-';
   if (twEl) twEl.textContent = data.targetWeight  ? `${data.targetWeight}kg` : '-';
 
-  const saved = localStorage.getItem('profileAvatar') || Storage.getUser().avatarUrl || null;
+  const _uid0 = getCurrentUid();
+  const saved = localStorage.getItem(_uid0 ? `profileAvatar_${_uid0}` : 'profileAvatar') || Storage.getUser().avatarUrl || null;
   if (saved && avatarEl) avatarEl.innerHTML = `<img src="${saved}" alt="프로필" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`;
 }
 
@@ -148,7 +149,8 @@ function renderBanner(data) {
   setTextSafe('bannerTargetWeight',  data.targetWeight  ? `${data.targetWeight}kg` : '—');
   setTextSafe('bannerTargetLoss',    data.targetLoss    ? `${data.targetLoss}kg`   : '—');
 
-  const saved      = localStorage.getItem('profileAvatar') || Storage.getUser().avatarUrl || null;
+  const _uid1 = getCurrentUid();
+  const saved      = localStorage.getItem(_uid1 ? `profileAvatar_${_uid1}` : 'profileAvatar') || Storage.getUser().avatarUrl || null;
   const heroAvatar = document.getElementById('heroAvatar');
   if (saved && heroAvatar) heroAvatar.innerHTML = `<img src="${saved}" alt="프로필" />`;
 }
@@ -166,7 +168,8 @@ function bindAvatarUpload() {
     const reader = new FileReader();
     reader.onload = async function (e) {
       const dataUrl = e.target.result;
-      localStorage.setItem('profileAvatar', dataUrl);
+      const _uid2 = getCurrentUid();
+      localStorage.setItem(_uid2 ? `profileAvatar_${_uid2}` : 'profileAvatar', dataUrl);
 
       const imgTag = `<img src="${dataUrl}" alt="프로필" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`;
       const el1 = document.getElementById('heroAvatar');
@@ -659,7 +662,7 @@ function setTextSafe(id, text) {
 /* ════════════════════════════════
    체중 변화 그래프 (최근 30일)
    ════════════════════════════════ */
-function renderWeightGraph() {
+async function renderWeightGraph() {
   const svg      = document.getElementById('weightGraphSvg');
   const labelsEl = document.getElementById('weightGraphLabels');
   const emptyEl  = document.getElementById('weightGraphEmpty');
@@ -676,6 +679,25 @@ function renderWeightGraph() {
     const key     = `todayWeight_check_${uid}_${dateStr}`;
     const val     = parseFloat(localStorage.getItem(key));
     points.push({ dateStr, weight: isNaN(val) ? null : val, dayLabel: `${d.getMonth()+1}/${d.getDate()}` });
+  }
+
+  /* localStorage에 없는 날짜를 Firestore에서 보완 */
+  if (points.some(p => p.weight === null) && typeof db !== 'undefined') {
+    try {
+      const snap = await db.collection('users').doc(uid).collection('daily')
+        .where(firebase.firestore.FieldPath.documentId(), '>=', points[0].dateStr)
+        .where(firebase.firestore.FieldPath.documentId(), '<=', points[points.length - 1].dateStr)
+        .get();
+      snap.forEach(doc => {
+        const data = doc.data();
+        if (typeof data.weight !== 'number') return;
+        const pt = points.find(p => p.dateStr === doc.id);
+        if (pt && pt.weight === null) {
+          pt.weight = data.weight;
+          localStorage.setItem(`todayWeight_check_${uid}_${doc.id}`, String(data.weight));
+        }
+      });
+    } catch { /* 네트워크 오류 — localStorage 데이터만 사용 */ }
   }
 
   const valid = points.filter(p => p.weight !== null);
@@ -698,7 +720,7 @@ function renderWeightGraph() {
   const maxW    = Math.round((rawMax + 0.5) * 10) / 10;
   const rangeW  = maxW - minW || 1;
 
-  const W = 600, H = 180, padL = 36, padR = 12, padT = 14, padB = 14;
+  const W = 600, H = 160, padL = 36, padR = 12, padT = 14, padB = 14;
   const gW = W - padL - padR;
   const gH = H - padT - padB;
 

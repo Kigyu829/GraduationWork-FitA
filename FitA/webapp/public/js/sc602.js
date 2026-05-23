@@ -46,7 +46,9 @@ function initDate() {
   });
 
   document.getElementById('nextDayBtn')?.addEventListener('click', () => {
-    currentDate = offsetDate(currentDate, 1);
+    const next = offsetDate(currentDate, 1);
+    if (next > todayStr()) return;
+    currentDate = next;
     updateURL(currentDate);
     renderPage(currentDate);
   });
@@ -92,13 +94,27 @@ async function loadDayFromFirestore(dateStr) {
   }
 }
 
+/* ── 로딩 인디케이터 표시/숨김 ── */
+function showPageLoading() {
+  document.getElementById('sc602Loading')?.style.setProperty('display', 'flex');
+  document.getElementById('detailBadgeRow')?.style.setProperty('visibility', 'hidden');
+  document.querySelectorAll('.tab-content').forEach(el => el.style.setProperty('visibility', 'hidden'));
+}
+function hidePageLoading() {
+  document.getElementById('sc602Loading')?.style.setProperty('display', 'none');
+  document.getElementById('detailBadgeRow')?.style.setProperty('visibility', '');
+  document.querySelectorAll('.tab-content').forEach(el => el.style.setProperty('visibility', ''));
+}
+
 /* ── 페이지 렌더 ── */
 async function renderPage(dateStr) {
   renderDateHeader(dateStr);
+  showPageLoading();
   await loadDayFromFirestore(dateStr);
   renderBadge(dateStr);
   renderMealTab(dateStr);
   renderWorkoutTab(dateStr);
+  hidePageLoading();
 }
 
 function renderDateHeader(dateStr) {
@@ -288,14 +304,16 @@ function initSc602Cal() {
       document.getElementById('sc602HistOverlay').classList.remove('show');
     }
   });
-  document.getElementById('sc602PrevMonth')?.addEventListener('click', () => {
+  document.getElementById('sc602PrevMonth')?.addEventListener('click', async () => {
     sc602CalMonth--;
     if (sc602CalMonth < 0) { sc602CalMonth = 11; sc602CalYear--; }
+    await loadMonthChecksFromFirestore(sc602CalYear, sc602CalMonth);
     buildSc602Cal();
   });
-  document.getElementById('sc602NextMonth')?.addEventListener('click', () => {
+  document.getElementById('sc602NextMonth')?.addEventListener('click', async () => {
     sc602CalMonth++;
     if (sc602CalMonth > 11) { sc602CalMonth = 0; sc602CalYear++; }
+    await loadMonthChecksFromFirestore(sc602CalYear, sc602CalMonth);
     buildSc602Cal();
   });
 }
@@ -386,11 +404,12 @@ function buildWeeklyMacro() {
     </div>`;
 }
 
-function openSc602Cal() {
+async function openSc602Cal() {
   const d = new Date(currentDate);
   sc602CalYear  = d.getFullYear();
   sc602CalMonth = d.getMonth();
   document.getElementById('sc602HistOverlay')?.classList.add('show');
+  await loadMonthChecksFromFirestore(sc602CalYear, sc602CalMonth);
   buildSc602Cal();
 }
 
@@ -436,7 +455,7 @@ function buildSc602Cal() {
     const icon = hasMeal && hasWorkout ? '🌟' : hasMeal ? '🥗' : hasWorkout ? '💪' : '';
     btn.innerHTML = `<span class="hist-day-num">${d}</span>${icon ? `<span class="hist-day-icon">${icon}</span>` : ''}`;
 
-    if (regDate && dateStr < regDate) {
+    if ((regDate && dateStr < regDate) || dateStr > todayStr()) {
       btn.disabled = true;
       btn.classList.add('before-reg');
     } else {

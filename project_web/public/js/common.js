@@ -339,40 +339,161 @@ function initAiOverlay() {
   const input     = document.getElementById('aiOverlayInput');
   const messages  = document.getElementById('aiOverlayMessages');
 
-  const AI_RESPONSES = [
-    '좋은 질문이에요! 현재 식단 구성은 균형 잡혀 있어요 💪',
-    '운동 강도가 걱정되신다면, 처음엔 세트 수를 줄이고 점진적으로 늘려가세요.',
-    '식사 간격을 3~4시간으로 유지하면 혈당 조절에 도움이 돼요.',
-    '충분한 수분 섭취도 잊지 마세요. 하루 2L 이상을 목표로 해보세요.',
-    '단백질 섭취량을 체중 1kg당 1.2~1.6g 수준으로 맞추는 게 좋아요.',
-  ];
-  let aiIdx = 0;
+  const chatKey = `aiChat_${getCurrentUid() || 'guest'}`;
+  let chatHistory = [];
+  try { chatHistory = JSON.parse(localStorage.getItem(chatKey)) || []; } catch { chatHistory = []; }
 
-  menuBtn?.addEventListener('click', () => {
-    overlay?.classList.add('show');
-  });
+  let isSending = false;
 
-  closeBtn?.addEventListener('click', () => {
-    overlay?.classList.remove('show');
-  });
-
+  menuBtn?.addEventListener('click', () => { overlay?.classList.add('show'); });
+  closeBtn?.addEventListener('click', () => { overlay?.classList.remove('show'); });
   overlay?.addEventListener('click', (e) => {
     if (e.target === overlay) overlay.classList.remove('show');
   });
 
-  function sendMessage() {
+  /* ── Socket.io 연결 (lazy) ── */
+  let _socket = null;
+  function getSocket() {
+    if (!_socket && typeof io !== 'undefined') {
+      _socket = io({ transports: ['websocket', 'polling'] });
+    }
+    return _socket;
+  }
+
+  /* ── 스트리밍 버블 생성 ── */
+  function createStreamBubble() {
+    if (!messages) return null;
+    const now  = new Date();
+    const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const div  = document.createElement('div');
+    div.className = 'chat-msg ai';
+    const avatar = document.createElement('div');
+    avatar.className = 'chat-avatar';
+    avatar.textContent = '🤖';
+    const inner = document.createElement('div');
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble';
+    const timeEl = document.createElement('div');
+    timeEl.className = 'chat-time';
+    timeEl.textContent = `AI 상담사 · ${time}`;
+    inner.appendChild(bubble);
+    inner.appendChild(timeEl);
+    div.appendChild(avatar);
+    div.appendChild(inner);
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    return div;
+  }
+
+  async function sendMessage() {
     const text = input?.value.trim();
-    if (!text) return;
+    if (!text || isSending) return;
+    isSending = true;
+
     appendAiMsg('user', text);
     input.value = '';
-    input.style.height = 'auto';
+    if (input) input.style.height = 'auto';
+    if (sendBtn) sendBtn.disabled = true;
 
+    const userData = Storage.getUser();
+    const userInfoStr = [
+      userData.gender       ? `성별 ${userData.gender}`         : '',
+      userData.height       ? `키 ${userData.height}cm`         : '',
+      userData.weight       ? `체중 ${userData.weight}kg`       : '',
+      userData.targetWeight ? `목표 ${userData.targetWeight}kg` : '',
+      userData.goalWeeks    ? `기간 ${userData.goalWeeks}주`    : '',
+    ].filter(Boolean).join(', ');
+
+    const recentHistory = chatHistory.slice(-6)
+      .map(h => `${h.role === 'user' ? '사용자' : 'AI'}: ${h.text}`)
+      .join('\n');
+
+    const socket = getSocket();
+
+    /* ── Socket.io 스트리밍 경로 ── */
+    if (socket) {
+      const streamDiv = createStreamBubble();
+      const bubble    = streamDiv?.querySelector('.chat-bubble');
+
+      function onToken(token) {
+        if (bubble) bubble.textContent += token;
+        if (messages) messages.scrollTop = messages.scrollHeight;
+      }
+      function cleanup() {
+        socket.off('chat_token', onToken);
+        socket.off('chat_done',  onDone);
+        socket.off('chat_error', onError);
+      }
+      function onDone({ reply, action, reason }) {
+        cleanup();
+        const finalReply = reply || bubble?.textContent || '응답을 받지 못했어요.';
+        if (bubble) bubble.textContent = finalReply;
+        const now = new Date();
+        const t   = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        chatHistory.push({ role: 'ai', text: finalReply, time: t });
+        if (chatHistory.length > 30) chatHistory.splice(0, chatHistory.length - 30);
+        try { localStorage.setItem(chatKey, JSON.stringify(chatHistory)); } catch {}
+        isSending = false;
+        if (sendBtn) sendBtn.disabled = false;
+        if (action === 'meal_adjust' && reason)          _commonAdjustPlan('meal', reason);
+        else if (action === 'exercise_adjust' && reason) _commonAdjustPlan('exercise', reason);
+      }
+      function onError(errMsg) {
+        cleanup();
+        if (bubble) bubble.textContent = errMsg || '오류가 발생했어요. 다시 시도해주세요. 😔';
+        isSending = false;
+        if (sendBtn) sendBtn.disabled = false;
+      }
+
+      cleanup();
+      socket.on('chat_token', onToken);
+      socket.on('chat_done',  onDone);
+      socket.on('chat_error', onError);
+
+      socket.emit('chat_message', {
+        message:     text,
+        userInfo:    userInfoStr,
+        mealPlan:    userData.aiMealPlan    || null,
+        workoutPlan: userData.aiWorkoutPlan || null,
+        recentHistory,
+      });
+      return;
+    }
+
+    /* ── HTTP 폴백 ── */
     const typing = appendTypingIndicator();
-    setTimeout(() => {
+    const controller = new AbortController();
+    const timeoutId  = setTimeout(() => controller.abort(), 15000);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message:     text,
+          userInfo:    userInfoStr,
+          mealPlan:    userData.aiMealPlan    || null,
+          workoutPlan: userData.aiWorkoutPlan || null,
+          recentHistory,
+        }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
       typing.remove();
-      appendAiMsg('ai', AI_RESPONSES[aiIdx % AI_RESPONSES.length]);
-      aiIdx++;
-    }, 1000 + Math.random() * 600);
+      const data = await res.json();
+      appendAiMsg('ai', data.reply || '응답을 받지 못했어요.');
+      if (data.action === 'meal_adjust' && data.reason)          _commonAdjustPlan('meal', data.reason);
+      else if (data.action === 'exercise_adjust' && data.reason) _commonAdjustPlan('exercise', data.reason);
+    } catch (err) {
+      clearTimeout(timeoutId);
+      typing.remove();
+      appendAiMsg('ai', err.name === 'AbortError'
+        ? '응답 시간이 초과됐어요. 잠시 후 다시 시도해주세요. ⏱️'
+        : '일시적인 오류가 발생했어요. AI 서버가 실행 중인지 확인해주세요. 😔');
+    } finally {
+      isSending = false;
+      if (sendBtn) sendBtn.disabled = false;
+    }
   }
 
   sendBtn?.addEventListener('click', sendMessage);
@@ -384,20 +505,35 @@ function initAiOverlay() {
     input.style.height = Math.min(input.scrollHeight, 100) + 'px';
   });
 
-  function appendAiMsg(role, text) {
+  function renderMsg(role, text, time) {
     if (!messages) return;
+    const div = document.createElement('div');
+    div.className = `chat-msg ${role}`;
+    const avatar = document.createElement('div');
+    avatar.className = 'chat-avatar';
+    avatar.textContent = role === 'ai' ? '🤖' : '👤';
+    const inner = document.createElement('div');
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble';
+    bubble.textContent = text;
+    const timeEl = document.createElement('div');
+    timeEl.className = 'chat-time';
+    timeEl.textContent = `${role === 'ai' ? 'AI 상담사' : '나'} · ${time}`;
+    inner.appendChild(bubble);
+    inner.appendChild(timeEl);
+    div.appendChild(avatar);
+    div.appendChild(inner);
+    messages.appendChild(div);
+  }
+
+  function appendAiMsg(role, text) {
     const now  = new Date();
     const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    const div  = document.createElement('div');
-    div.className = `chat-msg ${role}`;
-    div.innerHTML = `
-      <div class="chat-avatar">${role === 'ai' ? '🤖' : '👤'}</div>
-      <div>
-        <div class="chat-bubble">${text}</div>
-        <div class="chat-time">${role === 'ai' ? 'AI 상담사' : '나'} · ${time}</div>
-      </div>`;
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
+    renderMsg(role, text, time);
+    if (messages) messages.scrollTop = messages.scrollHeight;
+    chatHistory.push({ role, text, time });
+    if (chatHistory.length > 30) chatHistory.splice(0, chatHistory.length - 30);
+    try { localStorage.setItem(chatKey, JSON.stringify(chatHistory)); } catch {}
   }
 
   function appendTypingIndicator() {
@@ -409,8 +545,14 @@ function initAiOverlay() {
         <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
       </div>`;
     messages?.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
+    if (messages) messages.scrollTop = messages.scrollHeight;
     return div;
+  }
+
+  /* 저장된 히스토리 복원 */
+  if (chatHistory.length > 0) {
+    chatHistory.forEach(msg => renderMsg(msg.role, msg.text, msg.time));
+    if (messages) messages.scrollTop = messages.scrollHeight;
   }
 }
 
@@ -587,7 +729,8 @@ function renderSidebar() {
   initMobileSidebar();
 
   /* 프로필 사진 반영 (localStorage 캐시 → Firestore URL 순) */
-  const savedAvatar = localStorage.getItem('profileAvatar') || Storage.getUser().avatarUrl || null;
+  const _uid = getCurrentUid();
+  const savedAvatar = localStorage.getItem(_uid ? `profileAvatar_${_uid}` : 'profileAvatar') || Storage.getUser().avatarUrl || null;
   const avatarHtml = savedAvatar
     ? `<img src="${savedAvatar}" alt="프로필" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`
     : '👤';
@@ -650,6 +793,31 @@ function bindLogoClick() {
   document.getElementById('sidebarLogo')?.addEventListener('click', () => {
     location.href = 'sc301.html';
   });
+}
+
+/* ════════════════════════════════
+   Mifflin-St Jeor 기반 목표 칼로리 계산
+   sc302, sc311 공통 사용
+   ════════════════════════════════ */
+function calcTargetCalories(userData) {
+  const weight       = Number(userData.weight);
+  const height       = Number(userData.height);
+  const targetWeight = Number(userData.targetWeight);
+  const goalWeeks    = Number(userData.goalWeeks) || 8;
+  const gender       = userData.gender;
+  const birth        = userData.birth || '';
+  const age          = birth ? new Date().getFullYear() - Number(birth.slice(0, 4)) : 25;
+
+  const bmr = gender === '남성'
+    ? 10 * weight + 6.25 * height - 5 * age + 5
+    : 10 * weight + 6.25 * height - 5 * age - 161;
+
+  const actMap = { '낮음': 1.2, '보통': 1.375, '높음': 1.55, '매우높음': 1.725, '선수': 1.9 };
+  const tdee   = Math.round(bmr * (actMap[userData.activityLevel] || 1.375));
+
+  const weightToLose = Math.max(0, weight - targetWeight);
+  const dailyDeficit = Math.min(Math.round((weightToLose * 7700) / (goalWeeks * 7)), 1000);
+  return Math.max(1200, tdee - dailyDeficit);
 }
 
 /* ════════════════════════════════

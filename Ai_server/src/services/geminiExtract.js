@@ -7,9 +7,7 @@
  * Gemini 호출 실패 시 빈 배열 반환 → 기존 플랜 유지 (안전한 폴백).
  */
 
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const { callGemini } = require('../config');
 
 /**
  * 식단 조정 의도 추출
@@ -18,7 +16,6 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
  * @returns {{ excluded: string[], preferred: string[] }}
  */
 async function extractMealIntent(reasons, foodNames) {
-    const model  = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const prompt =
         `사용자 피드백: ${reasons.map(r => `"${r}"`).join(', ')}\n\n` +
         `사용 가능한 음식 목록:\n${foodNames.join(', ')}\n\n` +
@@ -30,8 +27,7 @@ async function extractMealIntent(reasons, foodNames) {
         `{"excluded": ["음식명"], "preferred": ["음식명"]}`;
 
     try {
-        const result = await model.generateContent(prompt);
-        const text   = result.response.text().trim();
+        const text = (await callGemini(prompt)).trim();
         const match  = text.match(/\{[\s\S]*?\}/);
         if (!match) throw new Error('JSON 없음');
 
@@ -54,7 +50,6 @@ async function extractMealIntent(reasons, foodNames) {
  * @returns {{ excluded: string[], preferred: string[], intensityDelta: -1|0|1 }}
  */
 async function extractExerciseIntent(reasons, exerciseNames) {
-    const model  = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const prompt =
         `사용자 피드백: ${reasons.map(r => `"${r}"`).join(', ')}\n\n` +
         `사용 가능한 운동 목록:\n${exerciseNames.join(', ')}\n\n` +
@@ -67,8 +62,7 @@ async function extractExerciseIntent(reasons, exerciseNames) {
         `{"excluded": ["운동명"], "preferred": ["운동명"], "intensityDelta": 0}`;
 
     try {
-        const result = await model.generateContent(prompt);
-        const text   = result.response.text().trim();
+        const text = (await callGemini(prompt)).trim();
         const match  = text.match(/\{[\s\S]*?\}/);
         if (!match) throw new Error('JSON 없음');
 

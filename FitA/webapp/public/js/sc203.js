@@ -35,7 +35,7 @@ function getSelectedWeeks() {
 }
 
 /* ── 기타 선택 시 직접입력 필드 토글 ── */
-goalPeriodInput.addEventListener('change', () => {
+goalPeriodInput?.addEventListener('change', () => {
   if (goalPeriodInput.value === '기타') {
     customPeriodWrap.style.display = 'block';
     customPeriodInput.focus();

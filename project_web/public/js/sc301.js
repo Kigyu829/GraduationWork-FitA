@@ -23,11 +23,29 @@ function todayStr() {
 }
 
 /* ── 오늘 체중 미입력이면 sc300으로 이동 ── */
-function redirectIfNoTodayWeight() {
+async function redirectIfNoTodayWeight() {
   const data = Storage.getUser();
   if (!data.weight || !data.height || !data.targetWeight) return false;
-  const todayKey = `todayWeight_${getTodayKey()}`;
+  const d = new Date();
+  const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const todayKey = `todayWeight_${lsKey('check', dateStr)}`;
   if (localStorage.getItem(todayKey)) return false;
+
+  /* localStorage에 없으면 Firestore에서 확인 (새 기기 로그인 대응) */
+  const uid = getCurrentUid();
+  if (uid && typeof db !== 'undefined') {
+    try {
+      const doc = await db.collection('users').doc(uid).collection('daily').doc(dateStr).get();
+      if (doc.exists && doc.data().weight != null) {
+        localStorage.setItem(todayKey, String(doc.data().weight));
+        Storage.mergeUser({ weight: String(doc.data().weight) });
+        return false;
+      }
+    } catch (e) {
+      console.warn('[sc301] 오늘 체중 Firestore 조회 실패:', e.message);
+    }
+  }
+
   location.replace('sc300.html');
   return true;
 }
@@ -46,8 +64,8 @@ function autoRedirectIfNoPlan() {
 
 window.addEventListener('DOMContentLoaded', async () => {
   await restoreUserFromFirestore();  /* localStorage 비어있으면 Firestore에서 복원 */
-  if (autoRedirectIfNoPlan()) return;      /* 플랜 없으면 sc302로 이동 */
-  if (redirectIfNoTodayWeight()) return;   /* 오늘 체중 미입력이면 sc300으로 이동 */
+  if (autoRedirectIfNoPlan()) return;           /* 플랜 없으면 sc302로 이동 */
+  if (await redirectIfNoTodayWeight()) return;  /* 오늘 체중 미입력이면 sc300으로 이동 */
 
   renderHeader();
   renderSidebar();
@@ -150,7 +168,8 @@ function renderSidebar() {
   if (targetWeightEl)  targetWeightEl.textContent  = data.targetWeight ? `${data.targetWeight}kg` : '-';
 
   /* 프로필 사진 반영 (localStorage 캐시 → Firestore URL 순) */
-  const saved = localStorage.getItem('profileAvatar') || Storage.getUser().avatarUrl || null;
+  const _uid = getCurrentUid();
+  const saved = localStorage.getItem(_uid ? `profileAvatar_${_uid}` : 'profileAvatar') || Storage.getUser().avatarUrl || null;
   const imgTag = saved
     ? `<img src="${saved}" alt="프로필" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`
     : '👤';

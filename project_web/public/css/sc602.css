@@ -3,6 +3,32 @@
    의존: common.css, sc301.css (사이드바)
    ============================================================ */
 
+/* ── 로딩 오버레이 ── */
+.sc602-loading-overlay {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 0 40px;
+  gap: 14px;
+}
+.sc602-spinner {
+  width: 38px;
+  height: 38px;
+  border: 3px solid rgba(102, 208, 188, 0.18);
+  border-top-color: var(--teal, #66D0BC);
+  border-radius: 50%;
+  animation: sc602Spin 0.75s linear infinite;
+}
+@keyframes sc602Spin {
+  to { transform: rotate(360deg); }
+}
+.sc602-loading-label {
+  font-size: 13px;
+  color: var(--text-sec, #8faebb);
+  margin: 0;
+}
+
 /* 사이드바 */
 /* ── 메인 ── */
 .main { padding: 28px 32px; overflow-y: auto; }

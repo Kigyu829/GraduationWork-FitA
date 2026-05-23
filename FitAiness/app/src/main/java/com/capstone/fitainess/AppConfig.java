@@ -20,9 +20,16 @@ package com.capstone.fitainess;
 public class AppConfig {
 
     // ★ 서버 주소 — 여기 한 곳만 변경하면 앱 전체에 적용됨
+    // 아래 3줄 중 하나만 주석 해제해서 사용
+
+    // [발표/외부 데모] start_all.bat 실행 후 Cloudflare 창의 URL 복사
+    // public static final String BASE_URL = "https://xxxx.trycloudflare.com";
+
+    // [실기기 + 같은 Wi-Fi] cmd에서 ipconfig → IPv4 주소 확인
+    // public static final String BASE_URL = "http://192.168.0.x:3000";
+
+    // [에뮬레이터 전용]
     public static final String BASE_URL = "http://10.0.2.2:3000";
-    // public static final String BASE_URL = "http://192.168.0.x:3000";   // 실기기 + 같은 WiFi
-    // public static final String BASE_URL = "https://xxxx.trycloudflare.com"; // 외부 접속
 
     // AI 서버 API (프록시 통과)
     public static final String AI_URL  = BASE_URL;  // /api/... 경로 사용

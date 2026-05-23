@@ -51,11 +51,6 @@ function extractJson(text) {
 // Body: { message, userInfo, mealPlan, workoutPlan, recentHistory }
 // Response: { success, reply, action, reason }
 // ──────────────────────────────────────────
-// 중국어 포함 여부 확인
-function hasChinese(text) {
-    return /[\u4e00-\u9fff\u3400-\u4dbf]/.test(text);
-}
-
 function buildChatPrompt(message, userInfo, mealPlan, workoutPlan, recentHistory, ragContext) {
     let p = '당신은 한국어 전용 다이어트 코칭 AI입니다. 친절하고 전문적으로 3~5문장으로 답변하세요. 의학적 진단은 하지 않고, 심각한 건강 문제는 병원 방문을 권유하세요.\n\n';
     if (userInfo)      p += '사용자 정보: ' + userInfo + '\n';

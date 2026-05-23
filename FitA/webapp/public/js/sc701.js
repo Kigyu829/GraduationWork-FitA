@@ -9,7 +9,7 @@
    탭 대신 좌측 nav-item 클릭으로 섹션 전환
 
    [저장 방식]
-   fetch → 서버(/profile/*)  +  localStorage 항상 동기화 (폴백 보장)
+   Firebase Auth (이메일/비밀번호 변경) + Firestore (유저 데이터) + localStorage 동기화
    ============================================================ */
 
 'use strict';
@@ -61,43 +61,29 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 /* ════════════════════════════════
-   서버 유저 데이터 로드 (폴백: localStorage)
+   유저 데이터 로드 (Firestore → localStorage 폴백)
    ════════════════════════════════ */
 async function fetchUser() {
-  try {
-    const userId = localStorage.getItem('userId');
-    const reg    = Storage.getRegistered();
-    const url    = userId
-      ? `/user/${userId}`
-      : `/user/byEmail?email=${encodeURIComponent(reg.email)}`;
-
-    const res  = await fetch(url);
-    if (!res.ok) throw new Error(`서버 오류 (${res.status})`);
-    const data = await res.json();
-    if (data && data.id) localStorage.setItem('userId', data.id);
-    return data;
-  } catch (err) {
-    console.warn('서버 로드 실패, localStorage 사용:', err.message);
-    return buildLocalData();
+  const uid = getCurrentUid();
+  const reg = Storage.getRegistered();
+  if (uid && typeof db !== 'undefined') {
+    try {
+      const doc = await db.collection('users').doc(uid).get();
+      if (doc.exists) {
+        const data = doc.data().userData || {};
+        return { email: reg.email, nickname: reg.nickname, ...data };
+      }
+    } catch (err) {
+      console.warn('Firestore 로드 실패, localStorage 사용:', err.message);
+    }
   }
+  return buildLocalData();
 }
 
 function buildLocalData() {
   const reg  = Storage.getRegistered();
   const data = Storage.getUser();
-  return { email: reg.email, nickname: reg.nickname, password: reg.password, ...data };
-}
-
-async function apiPost(endpoint, body) {
-  const userId = localStorage.getItem('userId');
-  const reg    = Storage.getRegistered();
-  const res    = await fetch(endpoint, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ userId, email: reg.email, ...body }),
-  });
-  if (!res.ok) throw new Error(`서버 오류 (${res.status})`);
-  return res.json();
+  return { email: reg.email, nickname: reg.nickname, ...data };
 }
 
 /* ════════════════════════════════
@@ -120,7 +106,8 @@ function renderSidebar(data) {
   if (cwEl) cwEl.textContent = data.weight       ? `${data.weight}kg`       : '-';
   if (twEl) twEl.textContent = data.targetWeight  ? `${data.targetWeight}kg` : '-';
 
-  const saved = localStorage.getItem('profileAvatar') || Storage.getUser().avatarUrl || null;
+  const _uid0 = getCurrentUid();
+  const saved = localStorage.getItem(_uid0 ? `profileAvatar_${_uid0}` : 'profileAvatar') || Storage.getUser().avatarUrl || null;
   if (saved && avatarEl) avatarEl.innerHTML = `<img src="${saved}" alt="프로필" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`;
 }
 
@@ -148,7 +135,8 @@ function renderBanner(data) {
   setTextSafe('bannerTargetWeight',  data.targetWeight  ? `${data.targetWeight}kg` : '—');
   setTextSafe('bannerTargetLoss',    data.targetLoss    ? `${data.targetLoss}kg`   : '—');
 
-  const saved      = localStorage.getItem('profileAvatar') || Storage.getUser().avatarUrl || null;
+  const _uid1 = getCurrentUid();
+  const saved      = localStorage.getItem(_uid1 ? `profileAvatar_${_uid1}` : 'profileAvatar') || Storage.getUser().avatarUrl || null;
   const heroAvatar = document.getElementById('heroAvatar');
   if (saved && heroAvatar) heroAvatar.innerHTML = `<img src="${saved}" alt="프로필" />`;
 }
@@ -166,7 +154,8 @@ function bindAvatarUpload() {
     const reader = new FileReader();
     reader.onload = async function (e) {
       const dataUrl = e.target.result;
-      localStorage.setItem('profileAvatar', dataUrl);
+      const _uid2 = getCurrentUid();
+      localStorage.setItem(_uid2 ? `profileAvatar_${_uid2}` : 'profileAvatar', dataUrl);
 
       const imgTag = `<img src="${dataUrl}" alt="프로필" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`;
       const el1 = document.getElementById('heroAvatar');
@@ -238,10 +227,8 @@ function bindProfileSave() {
     const nickname = document.getElementById('inputNickname')?.value.trim();
     if (!nickname) { showToast('닉네임을 입력해주세요.', 'error'); return; }
 
-    try { await apiPost('/profile/update', { nickname }); } catch { /* 폴백 */ }
-
     const reg = Storage.getRegistered();
-    Storage.setRegistered(reg.email, reg.password, nickname);
+    Storage.setRegistered(reg.email, '', nickname);
 
     setTextSafe('userName',  `${nickname}님`);
     setTextSafe('heroName',  nickname);
@@ -328,8 +315,6 @@ function bindBodySave() {
 
   async function _doSaveBody(height, weight, gender, birth) {
     const bmi = calculateBMI(height, weight);
-    try { await apiPost('/profile/update', { height, weight, gender, birth }); } catch { /* 폴백 */ }
-
     Storage.mergeUser({ height, weight, gender, birth, bmi });
 
     const fresh = buildLocalData();
@@ -489,9 +474,6 @@ function bindGoalSave(userData) {
 
   async function _doSaveGoal(currentW, targetLoss, periodLabel, weeks, targetWeight, activity) {
     const goalData = { initialWeight: currentW, targetLoss, goalPeriod: periodLabel, goalWeeks: weeks, targetWeight, activityLevel: activity };
-
-    try { await apiPost('/profile/goal', goalData); } catch { /* 폴백 */ }
-
     Storage.mergeUser(goalData);
 
     setTextSafe('statInitialWeight', `${currentW}kg`);
@@ -519,18 +501,24 @@ function bindAccountSave() {
   document.getElementById('btnSaveEmail')?.addEventListener('click', async () => {
     const newEmail  = document.getElementById('inputEmail')?.value.trim();
     const pwConfirm = document.getElementById('inputEmailPwConfirm')?.value;
-    const reg       = Storage.getRegistered();
 
-    if (!newEmail)               { showToast('이메일을 입력해주세요.', 'error'); return; }
-    if (!pwConfirm)              { showToast('현재 비밀번호를 입력해주세요.', 'error'); return; }
-    if (pwConfirm !== reg.password) { showToast('현재 비밀번호가 올바르지 않아요.', 'error'); return; }
+    if (!newEmail)  { showToast('이메일을 입력해주세요.', 'error'); return; }
+    if (!pwConfirm) { showToast('현재 비밀번호를 입력해주세요.', 'error'); return; }
+
+    const user = typeof auth !== 'undefined' ? auth.currentUser : null;
+    if (!user) { showToast('로그인 상태를 확인해주세요.', 'error'); return; }
 
     try {
-      const json = await apiPost('/profile/email', { newEmail, currentPassword: pwConfirm });
-      if (json && !json.success) { showToast(json.message || '변경에 실패했어요.', 'error'); return; }
-    } catch { /* 폴백 */ }
+      const cred = firebase.auth.EmailAuthProvider.credential(user.email, pwConfirm);
+      await user.reauthenticateWithCredential(cred);
+      await user.updateEmail(newEmail);
+    } catch (e) {
+      const msg = e.code === 'auth/wrong-password' ? '현재 비밀번호가 올바르지 않아요.' : '변경에 실패했어요.';
+      showToast(msg, 'error'); return;
+    }
 
-    Storage.setRegistered(newEmail, reg.password, reg.nickname);
+    const reg = Storage.getRegistered();
+    Storage.setRegistered(newEmail, '', reg.nickname);
     setTextSafe('heroEmail', newEmail);
     document.getElementById('inputEmailPwConfirm').value = '';
     showToast('✅ 이메일이 변경됐어요.', 'success');
@@ -562,16 +550,23 @@ function bindAccountSave() {
     const currentPw = document.getElementById('inputCurrentPw')?.value;
     const newPw     = document.getElementById('inputNewPw')?.value;
     const newPwConf = document.getElementById('inputNewPwConfirm')?.value;
-    const reg       = Storage.getRegistered();
 
     if (!currentPw)                { showToast('현재 비밀번호를 입력해주세요.', 'error'); return; }
-    if (currentPw !== reg.password){ showToast('현재 비밀번호가 올바르지 않아요.', 'error'); return; }
     if (!newPw || newPw.length < 8){ showToast('새 비밀번호는 8자 이상이어야 해요.', 'error'); return; }
     if (newPw !== newPwConf)       { showToast('새 비밀번호가 일치하지 않아요.', 'error'); return; }
 
-    try { await apiPost('/profile/password', { currentPassword: currentPw, newPassword: newPw }); } catch { /* 폴백 */ }
+    const user = typeof auth !== 'undefined' ? auth.currentUser : null;
+    if (!user) { showToast('로그인 상태를 확인해주세요.', 'error'); return; }
 
-    Storage.setRegistered(reg.email, newPw, reg.nickname);
+    try {
+      const cred = firebase.auth.EmailAuthProvider.credential(user.email, currentPw);
+      await user.reauthenticateWithCredential(cred);
+      await user.updatePassword(newPw);
+    } catch (e) {
+      const msg = e.code === 'auth/wrong-password' ? '현재 비밀번호가 올바르지 않아요.' : '변경에 실패했어요.';
+      showToast(msg, 'error'); return;
+    }
+
     ['inputCurrentPw', 'inputNewPw', 'inputNewPwConfirm'].forEach(id => {
       const el = document.getElementById(id); if (el) el.value = '';
     });
@@ -594,40 +589,53 @@ function getPwStrength(pw) {
    섹션6: 위험 구역
    ════════════════════════════════ */
 function bindDangerZone() {
-  document.getElementById('btnResetData')?.addEventListener('click', async () => {
-    const ok = confirm('⚠️ 모든 건강 데이터(신체정보, 목표, 기록)가 삭제됩니다.\n계속하시겠습니까?');
-    if (!ok) return;
-
-    try { await apiPost('/profile/reset', {}); } catch { /* 폴백 */ }
-    Storage.setUser({});  /* 건강 데이터 초기화 (계정 유지, Firestore도 업데이트) */
-    showToast('✅ 건강 데이터가 초기화됐어요.', 'success');
-    setTimeout(() => { location.href = 'sc202.html'; }, 1200);
+  document.getElementById('btnResetData')?.addEventListener('click', () => {
+    showCustomConfirm({
+      icon: '⚠️',
+      title: '건강 데이터 초기화',
+      desc: '모든 건강 데이터(신체정보, 목표, 기록)가 삭제됩니다.<br>계속하시겠습니까?',
+      okText: '초기화',
+      cancelText: '취소',
+      danger: true,
+      onOk: () => {
+        Storage.setUser({});
+        showToast('✅ 건강 데이터가 초기화됐어요.', 'success');
+        setTimeout(() => { location.href = 'sc202.html'; }, 1200);
+      }
+    });
   });
 
-  document.getElementById('btnDeleteAccount')?.addEventListener('click', async () => {
-    const ok = confirm('⚠️ 계정을 탈퇴하면 모든 정보가 삭제되며 복구할 수 없습니다.\n정말 탈퇴하시겠습니까?');
-    if (!ok) return;
+  document.getElementById('btnDeleteAccount')?.addEventListener('click', () => {
+    showCustomConfirm({
+      icon: '⚠️',
+      title: '정말 탈퇴하시겠어요?',
+      desc: `계정을 탈퇴하면 모든 정보가 삭제되며 복구할 수 없습니다.<br><br>
+             <input id="_deletePwInput" type="password" placeholder="현재 비밀번호 입력"
+               style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);
+                      background:rgba(255,255,255,0.07);color:#fff;font-size:14px;box-sizing:border-box;">`,
+      okText: '탈퇴하기',
+      cancelText: '취소',
+      danger: true,
+      onOk: async () => {
+        const currentPw = document.getElementById('_deletePwInput')?.value;
+        if (!currentPw) { showToast('비밀번호를 입력해주세요.', 'error'); return; }
 
-    const currentPw = prompt('탈퇴를 진행하려면 현재 비밀번호를 입력해주세요.');
-    if (!currentPw) return;
+        const user = typeof auth !== 'undefined' ? auth.currentUser : null;
+        if (user) {
+          try {
+            const cred = firebase.auth.EmailAuthProvider.credential(user.email, currentPw);
+            await user.reauthenticateWithCredential(cred);
+            try { await db.collection('users').doc(user.uid).delete(); } catch { /* 폴백 */ }
+            await user.delete();
+          } catch (e) {
+            showToast('비밀번호가 올바르지 않아요.', 'error'); return;
+          }
+        }
 
-    /* Firebase Auth 비밀번호 재인증 후 계정 삭제 */
-    const user = typeof auth !== 'undefined' ? auth.currentUser : null;
-    if (user) {
-      try {
-        const cred = firebase.auth.EmailAuthProvider.credential(user.email, currentPw);
-        await user.reauthenticateWithCredential(cred);
-        /* Firestore 사용자 데이터 삭제 */
-        try { await db.collection('users').doc(user.uid).delete(); } catch { /* 폴백 */ }
-        await user.delete();
-      } catch (e) {
-        showToast('비밀번호가 올바르지 않아요.', 'error'); return;
+        Storage.clearAll();
+        location.href = 'sc101.html';
       }
-    }
-
-    try { await apiPost('/profile/delete', { currentPassword: currentPw }); } catch { /* 폴백 */ }
-    Storage.clearAll();
-    location.href = 'sc101.html';
+    });
   });
 }
 
@@ -719,7 +727,7 @@ async function renderWeightGraph() {
   const maxW    = Math.ceil(Math.max(...weights)  + 1);
   const rangeW  = maxW - minW || 1;
 
-  const W = 300, H = 110, padL = 30, padR = 8, padT = 10, padB = 10;
+  const W = 300, H = 160, padL = 30, padR = 8, padT = 10, padB = 10;
   const gW = W - padL - padR;
   const gH = H - padT - padB;
 

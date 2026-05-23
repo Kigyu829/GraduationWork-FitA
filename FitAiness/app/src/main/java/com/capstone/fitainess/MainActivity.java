@@ -114,8 +114,8 @@ public class MainActivity extends AppCompatActivity {
         CookieManager.getInstance().setAcceptCookie(true);
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
 
-        /* Chrome DevTools 디버깅 (빌드 후 제거 권장) */
-        WebView.setWebContentsDebuggingEnabled(true);
+        /* Chrome DevTools 디버깅 — debug 빌드에서만 활성화 */
+        WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
 
         /* ── WebViewClient: 페이지 로딩 / URL 라우팅 ── */
         webView.setWebViewClient(new WebViewClient() {

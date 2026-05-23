@@ -53,7 +53,12 @@
       "Bash(grep -rn \"routine_name\\\\|routineTitle\\\\|workoutRoutine\" C:/Users/B2b/Desktop/Graduation_Work --include=*.html -l)",
       "Bash(awk:*)",
       "Bash(echo \"EXIT:$?\")",
-      "Bash(node -e \"const r = require\\(''./src/services/ragService''\\); console.log\\(typeof r.retrieveContext\\);\")"
+      "Bash(node -e \"const r = require\\(''./src/services/ragService''\\); console.log\\(typeof r.retrieveContext\\);\")",
+      "Bash(head -10 grep -n \"300\\\\|fallback\" \"C:/Users/김인규/Desktop/Graduation_Work/FitA/webapp/public/js/hc403.js\")",
+      "Bash(grep -rn \"cnn\\\\|4000\\\\|/cnn/\" C:/Users/김인규/Desktop/Graduation_Work/FitA/webapp/ --include=*.html -l)",
+      "Bash(grep -rn \"cnn\\\\|4000\\\\|proxy\\\\|CNN_SERVER\" C:/Users/김인규/Desktop/Graduation_Work/FitA/webapp/public/ --include=*.js)",
+      "Bash(find C:/Users/김인규/Desktop/Graduation_Work/FitA -name *.java)",
+      "Bash(find C:/Users/김인규/Desktop/Graduation_Work/FitAIness -name *.java)"
     ]
   }
 }

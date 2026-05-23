@@ -9,7 +9,7 @@ echo.
 
 REM ── 1) AI 서버 (포트 5000 / Ollama + 식단/운동)
 echo [1/4] AI 서버 시작 (port 5000)...
-start "AI Server :5000" cmd /k "cd /d %~dp0Ai_server && node src/index.js"
+start "AI Server :5000" cmd /k "cd /d %~dp0Ai_server && node server.js"
 timeout /t 2 /nobreak >nul
 
 REM ── 2) CNN 서버 (포트 4000 / 음식인식)

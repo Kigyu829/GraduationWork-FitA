@@ -1,33 +1,12 @@
 /**
- * 식단 추천 서비스 (규칙 기반 + 감성 점수 재조정)
+ * 식단 추천 서비스 (규칙 기반 + Gemini 의도 추출 재조정)
  *
  * 칼로리 배분: 아침 25% / 점심 40% / 저녁 35%
  * 구성 순서: 주식(main) → 국/찌개(soup) → 반찬(side) 채우기
- *
- * 재조정 알고리즘 (감성 점수 기반):
- *   긍정 단어(+) / 부정 단어(-) 합산 → 재료/음식명 키워드 점수 결정
- *   score > 0 → preferred  (해당 음식 우선 배치)
- *   score < 0 → excluded   (해당 음식 풀에서 제거)
- *   score = 0 → neutral    (기본 랜덤)
  */
 
 const { FOODS } = require('../data/foodDb');
 const { extractMealIntent } = require('./geminiExtract');
-
-// 재료 키워드 → 관련 음식 목록
-const INGREDIENT_MAP = {
-    '닭':    ['닭갈비', '닭볶음탕', '찜닭', '닭계장', '삼계탕', '양념치킨', '후라이드치킨'],
-    '돼지':  ['삼겹살', '제육볶음', '보쌈', '수육', '편육', '소세지볶음', '감자탕'],
-    '소고기':['불고기', '갈비구이', '갈비찜', '갈비탕', '장조림', '육개장', '육회', '곰탕/설렁탕', '떡갈비'],
-    '해산물':['매운탕', '해물찜', '꼬막찜', '산낙지', '멍게', '물회', '간장게장', '양념게장', '새우튀김', '오징어튀김'],
-    '생선':  ['고등어구이', '갈치구이', '조기구이', '황태구이', '고등어조림', '갈치조림', '꽁치조림', '코다리조림', '생선전'],
-    '매운':  ['떡볶이', '라볶이', '닭갈비', '김치찌개', '순두부찌개', '쫄면', '주꾸미볶음'],
-    '면':    ['라면', '짜장면', '짬뽕', '물냉면', '비빔냉면', '막국수', '잔치국수', '열무국수', '쫄면', '수제비', '칼국수', '콩국수', '라볶이'],
-};
-
-// 감성 점수 단어 목록
-const POSITIVE_WORDS = ['더', '많이', '좋아', '좋은데', '먹고 싶', '먹고싶', '원해', '포함', '넣어', '추가', '늘려', '강화', '자주'];
-const NEGATIVE_WORDS = ['못', '안 먹', '안먹', '싫어', '알레르기', '기피', '빼줘', '제외', '없애', '바꿔', '줄여', '못 먹', '못먹'];
 
 const MEAL_TIPS = [
     '물을 하루 2L 이상 마시면 포만감 유지에 도움이 됩니다.',
@@ -46,55 +25,6 @@ function shuffle(arr) {
         [a[i], a[j]] = [a[j], a[i]];
     }
     return a;
-}
-
-/**
- * 텍스트의 감성 점수 계산
- * 긍정 단어 +1, 부정 단어 -1 합산
- */
-function calcScore(text) {
-    let score = 0;
-    POSITIVE_WORDS.forEach(w => { if (text.includes(w)) score++; });
-    NEGATIVE_WORDS.forEach(w => { if (text.includes(w)) score--; });
-    return score;
-}
-
-/**
- * reasons 배열 분석 → { excluded: Set, preferred: Set }
- *
- * reasons 배열의 각 항목을 개별 문장으로 점수 계산.
- * score < 0 → 관련 음식 excluded
- * score > 0 → 관련 음식 preferred
- */
-function parseReasons(reasons = []) {
-    const excluded  = new Set();
-    const preferred = new Set();
-
-    for (const reason of reasons) {
-        const score = calcScore(reason);
-        if (score === 0) continue;  // 중립 → 영향 없음
-
-        // 재료 키워드 → 관련 음식 일괄 처리
-        for (const [keyword, foods] of Object.entries(INGREDIENT_MAP)) {
-            if (reason.includes(keyword)) {
-                if (score < 0) foods.forEach(f => excluded.add(f));
-                else            foods.forEach(f => preferred.add(f));
-            }
-        }
-
-        // 음식 이름 직접 언급 처리
-        for (const food of FOODS) {
-            if (reason.includes(food.name)) {
-                if (score < 0) excluded.add(food.name);
-                else            preferred.add(food.name);
-            }
-        }
-    }
-
-    // preferred이면서 excluded에도 있으면 excluded 우선
-    preferred.forEach(f => { if (excluded.has(f)) preferred.delete(f); });
-
-    return { excluded, preferred };
 }
 
 /**
