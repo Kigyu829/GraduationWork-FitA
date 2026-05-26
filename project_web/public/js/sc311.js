@@ -24,6 +24,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   bindMenuBtns();
   bindLogout();
   bindLogoClick();
+  await refreshUserDataFromFirestore(); /* 타 기기 플랜 변경 반영 */
   await loadTodayFromFirestore();       /* 새 기기 로그인 시 Firestore에서 오늘 데이터 복원 */
   await restoreRoutinesFromFirestore(); /* 새 기기 로그인 시 저장된 루틴 복원 */
   renderAiPlan();
@@ -252,6 +253,7 @@ function saveTodayState(state) {
    식단 인증 버튼
    ════════════════════════════════ */
 let TOTAL_MEAL_KCAL           = calcTargetCalories(Storage.getUser()) || 1800;
+let CURRENT_BURN_KCAL         = 0;   /* 운동 소모 칼로리 (updateWorkoutSummary 에서 갱신) */
 let CURRENT_MEAL_ACCOUNTED    = 0;   /* 식사 처리 칼로리 (먹은 + 스킵한 식사 플랜 칼로리 합계) */
 
 function initMealVerify() {
@@ -303,14 +305,27 @@ function restoreMealState(state) {
 
 function updateMealSummary(verifiedKcal, verifiedCount, accountedKcal = verifiedKcal) {
   CURRENT_MEAL_ACCOUNTED = accountedKcal;
-  const totalKcalEl   = document.getElementById('totalKcal');
   const verifiedKcalEl = document.getElementById('verifiedKcal');
-  const remainKcalEl  = document.getElementById('remainKcal');
-  const verifiedCntEl = document.getElementById('verifiedCount');
+  const remainKcalEl   = document.getElementById('remainKcal');
+  const verifiedCntEl  = document.getElementById('verifiedCount');
+
+  const remaining = Math.max(0, TOTAL_MEAL_KCAL - accountedKcal + CURRENT_BURN_KCAL);
 
   if (verifiedKcalEl) verifiedKcalEl.textContent = verifiedKcal.toLocaleString();
-  if (remainKcalEl)   remainKcalEl.textContent   = Math.max(0, TOTAL_MEAL_KCAL - accountedKcal).toLocaleString();
+  if (remainKcalEl)   remainKcalEl.textContent   = remaining.toLocaleString();
   if (verifiedCntEl)  verifiedCntEl.textContent  = `${verifiedCount}/3`;
+
+  /* 칼로리 진행 바 */
+  const pct     = TOTAL_MEAL_KCAL > 0 ? Math.min(100, Math.round(verifiedKcal / TOTAL_MEAL_KCAL * 100)) : 0;
+  const barFill = document.getElementById('kcalBarFill');
+  if (barFill) {
+    barFill.style.width      = `${pct}%`;
+    barFill.style.background = pct >= 100 ? 'var(--red,#FF3B3B)' : 'var(--teal)';
+  }
+  const consumedEl = document.getElementById('kcalBarConsumed');
+  const targetEl   = document.getElementById('kcalBarTarget');
+  if (consumedEl) consumedEl.textContent = `${verifiedKcal.toLocaleString()} kcal 섭취`;
+  if (targetEl)   targetEl.textContent   = `목표 ${TOTAL_MEAL_KCAL.toLocaleString()} kcal`;
 }
 
 /* ════════════════════════════════
@@ -547,7 +562,12 @@ function updateWorkoutSummary() {
 
   if (pctEl)  pctEl.textContent  = `${pct}%`;
   if (fillEl) fillEl.style.width = `${pct}%`;
-  if (kcalEl) kcalEl.textContent = `${burnKcal} kcal`;
+  if (kcalEl) kcalEl.textContent = `소모 칼로리 ${burnKcal.toLocaleString()} kcal`;
+
+  /* 운동 소모 칼로리 → 남은 칼로리에 반영 */
+  CURRENT_BURN_KCAL = burnKcal;
+  const remainEl    = document.getElementById('remainKcal');
+  if (remainEl) remainEl.textContent = Math.max(0, TOTAL_MEAL_KCAL - CURRENT_MEAL_ACCOUNTED + CURRENT_BURN_KCAL).toLocaleString();
 
   const allDone  = totalItems > 0 && doneItems === totalItems;
   const today    = new Date();
@@ -566,6 +586,18 @@ function updateWorkoutSummary() {
 /* ════════════════════════════════
    오늘 상태 복원
    ════════════════════════════════ */
+/* ── Firestore에서 최신 userData 갱신 (타 기기 플랜 변경 반영) ── */
+async function refreshUserDataFromFirestore() {
+  const uid = getCurrentUid();
+  if (!uid || typeof db === 'undefined') return;
+  try {
+    const doc = await db.collection('users').doc(uid).get();
+    if (doc.exists && doc.data().userData) {
+      localStorage.setItem(`hud_${uid}`, JSON.stringify(doc.data().userData));
+    }
+  } catch { /* 네트워크 오류 — 캐시 사용 */ }
+}
+
 /* ── Firestore에서 오늘 데이터 복원 (localStorage 캐시 없을 때) ── */
 async function loadTodayFromFirestore() {
   const uid = getCurrentUid();
@@ -598,7 +630,19 @@ function restoreTodayState() {
 /* ════════════════════════════════
    AI 채팅 사이드패널 (socket.io 스트리밍)
    ════════════════════════════════ */
-const chatHistory = [];
+/* ── 채팅 히스토리 localStorage 저장/로드 ── */
+const _sc311ChatKey = () => `sc311Chat_${getCurrentUid() || 'guest'}`;
+let chatHistory = (() => {
+  try { return JSON.parse(localStorage.getItem(_sc311ChatKey())) || []; } catch { return []; }
+})();
+function saveChatHistory() {
+  if (chatHistory.length > 30) chatHistory.splice(0, chatHistory.length - 30);
+  try { localStorage.setItem(_sc311ChatKey(), JSON.stringify(chatHistory)); } catch {}
+}
+function nowTime() {
+  const n = new Date();
+  return `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
+}
 
 /* ── Socket.io 연결 ── */
 let _aiSocket = null;
@@ -666,8 +710,9 @@ function initAiChat() {
     const text = input.value.trim();
     if (!text || sendBtn.disabled) return;
 
-    appendMessage('user', text);
-    chatHistory.push({ role: 'user', text });
+    appendMessage('user', text, nowTime());
+    chatHistory.push({ role: 'user', text, time: nowTime() });
+    saveChatHistory();
     input.value = '';
     autoResizeTextarea(input);
     sendBtn.disabled = true;
@@ -703,7 +748,8 @@ function initAiChat() {
       cleanup();
       const finalReply = reply || bubble.textContent || '죄송해요, 응답을 받지 못했어요.';
       bubble.textContent = finalReply;
-      chatHistory.push({ role: 'ai', text: finalReply });
+      chatHistory.push({ role: 'ai', text: finalReply, time: nowTime() });
+      saveChatHistory();
       sendBtn.disabled = false;
       if (action === 'meal_adjust' && reason)          handleMealAdjust(reason);
       else if (action === 'exercise_adjust' && reason) handleExerciseAdjust(reason);
@@ -733,14 +779,20 @@ function initAiChat() {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   });
   input?.addEventListener('input', () => autoResizeTextarea(input));
+
+  /* ── 저장된 채팅 기록 복원 ── */
+  if (chatHistory.length > 0) {
+    chatHistory.forEach(msg => appendMessage(msg.role, msg.text, msg.time));
+    const chatMsgs = document.getElementById('chatMessages');
+    if (chatMsgs) chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  }
 }
 
-function appendMessage(role, text) {
+function appendMessage(role, text, savedTime) {
   const messages = document.getElementById('chatMessages');
   if (!messages) return;
 
-  const now  = new Date();
-  const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const time = savedTime || nowTime();
 
   const div = document.createElement('div');
   div.className = `chat-msg ${role}`;
@@ -804,24 +856,33 @@ async function handleMealAdjust(reason) {
   const targetCalories = calcTargetCalories(userData);
   if (!currentPlan) return;
 
+  const accumulated = [...(userData.mealAdjustReasons || []), reason];
+
   const typingEl = appendTyping();
   try {
     const res = await fetch(`${AI_SERVER}/api/meal/adjust`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ currentPlan, reasons: [reason], targetCalories }),
+      body: JSON.stringify({ currentPlan, reasons: accumulated, targetCalories }),
     });
     if (!res.ok) throw new Error(`서버 오류 (${res.status})`);
     const json = await res.json();
     if (!json.success) throw new Error(json.message);
 
-    clearAdjustState('meals');           /* 기존 식단 체크 초기화 */
-    Storage.mergeUser({ aiMealPlan: json.data });
+    clearAdjustState('meals');
+    Storage.mergeUser({ aiMealPlan: json.data, mealAdjustReasons: accumulated });
+    const uid = getCurrentUid();
+    if (uid && typeof db !== 'undefined') {
+      const today = new Date();
+      const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+      db.collection('users').doc(uid).collection('daily').doc(todayKey)
+        .set({ aiMealPlan: json.data }, { merge: true }).catch(console.error);
+    }
     renderMealItems(json.data);
     applyIcons();
     initMealVerify();
     initMealSkip();
-    updateMealSummary(0, 0);             /* 요약 0으로 리셋 */
+    updateMealSummary(0, 0);
 
     typingEl.remove();
     appendMessage('ai', `✅ "${reason}" 사유로 식단을 수정했어요! 식단 탭에서 확인해보세요.`);
@@ -837,23 +898,32 @@ async function handleExerciseAdjust(reason) {
   const targetWeeks = userData.goalWeeks;
   if (!currentPlan) return;
 
+  const accumulated = [...(userData.workoutAdjustReasons || []), reason];
+
   const typingEl = appendTyping();
   try {
     const res = await fetch(`${AI_SERVER}/api/exercise/adjust`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ currentPlan, reasons: [reason], targetWeeks, bmi: userData.bmi, activityLevel: userData.activityLevel }),
+      body: JSON.stringify({ currentPlan, reasons: accumulated, targetWeeks, bmi: userData.bmi, activityLevel: userData.activityLevel }),
     });
     if (!res.ok) throw new Error(`서버 오류 (${res.status})`);
     const json = await res.json();
     if (!json.success) throw new Error(json.message);
 
-    clearAdjustState('workouts');        /* 기존 운동 체크 초기화 */
-    Storage.mergeUser({ aiWorkoutPlan: json.data });
+    clearAdjustState('workouts');
+    Storage.mergeUser({ aiWorkoutPlan: json.data, workoutAdjustReasons: accumulated });
+    const uid = getCurrentUid();
+    if (uid && typeof db !== 'undefined') {
+      const today = new Date();
+      const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+      db.collection('users').doc(uid).collection('daily').doc(todayKey)
+        .set({ aiWorkoutPlan: json.data }, { merge: true }).catch(console.error);
+    }
     renderWorkoutItems(json.data);
     applyIcons();
     initWorkoutCheck();
-    updateWorkoutSummary();              /* 달성률 0으로 리셋 */
+    updateWorkoutSummary();
 
     typingEl.remove();
     appendMessage('ai', `✅ "${reason}" 사유로 운동 플랜을 수정했어요! 운동 탭에서 확인해보세요.`);

@@ -54,6 +54,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   bindAccountSave();
   bindDangerZone();
   bindCancelBtns();
+  bindActivitySave();    /* FitA 활동량 저장 */
   initCommonOverlays();  /* AI상담 오버레이 + 히스토리 sc602 이동 */
   bindMenuBtns();   /* common.js */
   bindLogout();
@@ -94,7 +95,7 @@ function renderSidebar(data) {
   const infoEl   = document.getElementById('userBasicInfo');
   const cwEl     = document.getElementById('currentWeightText');
   const twEl     = document.getElementById('targetWeightText');
-  const avatarEl = document.getElementById('sidebarAvatar');
+  const avatarEl = document.getElementById('profileAvatar') || document.getElementById('sidebarAvatar');
 
   if (nameEl) nameEl.textContent = data.nickname ? `${data.nickname}님` : '사용자';
   if (infoEl) {
@@ -145,7 +146,7 @@ function renderBanner(data) {
    프로필 사진 업로드
    ════════════════════════════════ */
 function bindAvatarUpload() {
-  const fileInput = document.getElementById('avatarFileInput');
+  const fileInput = document.getElementById('avatarInput') || document.getElementById('avatarFileInput');
   if (!fileInput) return;
 
   fileInput.addEventListener('change', function () {
@@ -158,7 +159,7 @@ function bindAvatarUpload() {
       localStorage.setItem(_uid2 ? `profileAvatar_${_uid2}` : 'profileAvatar', dataUrl);
 
       const imgTag = `<img src="${dataUrl}" alt="프로필" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`;
-      const el1 = document.getElementById('heroAvatar');
+      const el1 = document.getElementById('heroAvatar') || document.getElementById('profileAvatar');
       const el2 = document.getElementById('sidebarAvatar');
       if (el1) el1.innerHTML = imgTag;
       if (el2) el2.innerHTML = imgTag;
@@ -230,6 +231,12 @@ function bindProfileSave() {
     const reg = Storage.getRegistered();
     Storage.setRegistered(reg.email, '', nickname);
 
+    /* Firestore users/{uid}.nickname 갱신 */
+    const uid = getCurrentUid();
+    if (uid && typeof db !== 'undefined') {
+      db.collection('users').doc(uid).update({ nickname }).catch(console.error);
+    }
+
     setTextSafe('userName',  `${nickname}님`);
     setTextSafe('heroName',  nickname);
     showToast('✅ 닉네임이 변경됐어요.', 'success');
@@ -240,37 +247,75 @@ function bindProfileSave() {
    섹션2: 신체 정보 수정
    ════════════════════════════════ */
 function loadBodyForm(data) {
-  setVal('inputGender', data.gender);
-  setVal('inputBirth',  data.birth);
-  setVal('inputHeight', data.height);
-  setVal('inputWeight', data.weight);
+  setVal('inputGender',     data.gender);
+  setVal('inputBirth',      data.birth);
+  setVal('inputHeight',     data.height);
+  setVal('inputWeight',     data.weight);
+  setVal('mpHeight',        data.height);
+  setVal('mpWeight',        data.weight);
+  setVal('mpTargetWeight',  data.targetWeight);
   updateBmiMini();
 
-  ['inputHeight', 'inputWeight'].forEach(id => {
+  ['inputHeight', 'inputWeight', 'mpHeight', 'mpWeight'].forEach(id => {
     document.getElementById(id)?.addEventListener('input', updateBmiMini);
   });
-  document.getElementById('inputWeight')?.addEventListener('input', () => updateGoalPreview(Storage.getUser()));
+  ['inputWeight', 'mpWeight'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', () => updateGoalPreview(Storage.getUser()));
+  });
 }
 
 function updateBmiMini() {
-  const height  = document.getElementById('inputHeight')?.value;
-  const weight  = document.getElementById('inputWeight')?.value;
-  const row     = document.getElementById('bmiMiniRow');
-  const valEl   = document.getElementById('bmiMiniValue');
-  const stEl    = document.getElementById('bmiMiniStatus');
+  const height = (document.getElementById('mpHeight') || document.getElementById('inputHeight'))?.value;
+  const weight = (document.getElementById('mpWeight') || document.getElementById('inputWeight'))?.value;
 
+  /* FitA: mpBmiDisplay 단일 div */
+  const bmiDisplay = document.getElementById('mpBmiDisplay');
+  if (bmiDisplay) {
+    if (!height || !weight) { bmiDisplay.textContent = ''; return; }
+    const bmi    = calculateBMI(height, weight);
+    const status = getBMIStatus(bmi);
+    bmiDisplay.textContent = `BMI ${bmi} · ${status.label}`;
+    bmiDisplay.style.color = status.color;
+    return;
+  }
+
+  /* project_web: bmiMiniRow 구조 */
+  const row   = document.getElementById('bmiMiniRow');
+  const valEl = document.getElementById('bmiMiniValue');
+  const stEl  = document.getElementById('bmiMiniStatus');
   if (!row) return;
   if (!height || !weight) { row.style.display = 'none'; return; }
-
   const bmi    = calculateBMI(height, weight);
   const status = getBMIStatus(bmi);
-
   row.style.display = 'grid';
   if (valEl) { valEl.textContent = bmi; valEl.style.color = status.color; }
   if (stEl)  stEl.textContent = status.label;
 }
 
 function bindBodySave() {
+  /* FitA: form submit 이벤트 (saveBodyBtn이 type=submit) */
+  document.getElementById('bodyInfoForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const height       = document.getElementById('mpHeight')?.value;
+    const weight       = document.getElementById('mpWeight')?.value;
+    const targetWeight = document.getElementById('mpTargetWeight')?.value;
+    const gender       = document.getElementById('inputGender')?.value;
+    const birth        = document.getElementById('inputBirth')?.value;
+    if (!height || !weight) { showToast('키와 체중은 필수 입력이에요.', 'error'); return; }
+    const minSafeBody = calcMinSafeWeight(Number(height));
+    if (Number(weight) < minSafeBody) {
+      showCustomConfirm({
+        icon: '⚖️', title: '권장 체중 이하예요',
+        desc: `입력한 체중 <strong>${weight}kg</strong>은 최저 권장 체중 <strong>${minSafeBody}kg</strong>(BMI 18.5)보다 낮아요.`,
+        okText: '그래도 저장', cancelText: '다시 입력', danger: true,
+        onOk: () => _doSaveBody(height, weight, gender, birth, targetWeight)
+      });
+      return;
+    }
+    _doSaveBody(height, weight, gender, birth, targetWeight);
+  });
+
+  /* project_web: 버튼 클릭 이벤트 */
   document.getElementById('btnSaveBody')?.addEventListener('click', async () => {
     const height = document.getElementById('inputHeight')?.value;
     const weight = document.getElementById('inputWeight')?.value;
@@ -313,15 +358,30 @@ function bindBodySave() {
     _doSaveBody(height, weight, gender, birth);
   });
 
-  async function _doSaveBody(height, weight, gender, birth) {
+  async function _doSaveBody(height, weight, gender, birth, targetWeight) {
     const bmi = calculateBMI(height, weight);
-    Storage.mergeUser({ height, weight, gender, birth, bmi });
+    const update = { height, weight, gender, birth, bmi };
+    if (targetWeight) update.targetWeight = targetWeight;
+    Storage.mergeUser(update);
 
     const fresh = buildLocalData();
     renderSidebar(fresh);
     renderBanner(fresh);
     showToast('✅ 신체 정보가 저장됐어요.', 'success');
   }
+}
+
+/* ════════════════════════════════
+   FitA 활동량 저장
+   ════════════════════════════════ */
+function bindActivitySave() {
+  document.getElementById('activityForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const activityLevel = document.getElementById('mpActivityLevel')?.value;
+    if (!activityLevel) return;
+    Storage.mergeUser({ activityLevel });
+    showToast('✅ 활동량이 저장됐어요.', 'success');
+  });
 }
 
 /* ════════════════════════════════
@@ -334,7 +394,8 @@ function loadGoalForm(data) {
   setTextSafe('statGoalPeriod',    data.goalPeriod    || '—');
   setTextSafe('statActivityLevel', data.activityLevel || '—');
 
-  setVal('inputActivityLevel', data.activityLevel);
+  setVal('inputActivityLevel',  data.activityLevel);
+  setVal('mpActivityLevel',     data.activityLevel); /* FitA */
   setVal('inputTargetLoss',    data.targetLoss);
 
   const standardPeriods = ['4주', '8주', '12주', '16주'];
@@ -351,7 +412,7 @@ function loadGoalForm(data) {
   const customWrap = document.getElementById('customWeeksWrap');
 
   periodSel?.addEventListener('change', () => {
-    customWrap.style.display = periodSel.value === '기타' ? 'block' : 'none';
+    if (customWrap) customWrap.style.display = periodSel.value === '기타' ? 'block' : 'none';
     if (periodSel.value !== '기타') {
       const el = document.getElementById('inputCustomWeeks');
       if (el) el.value = '';
@@ -401,11 +462,13 @@ function updateGoalPreview(data) {
   const previewEl  = document.getElementById('goalPreviewText');
   const warningBox = document.getElementById('goalWarningBox');
 
-  if (targetLoss && weeks && targetLoss / weeks > 1.0) {
-    warningBox.style.display = 'block';
-    warningBox.textContent   = `⚠️ 주 ${(targetLoss / weeks).toFixed(1)}kg 감량은 권장 범위(주 1kg)를 초과합니다.`;
-  } else {
-    if (warningBox) warningBox.style.display = 'none';
+  if (warningBox) {
+    if (targetLoss && weeks && targetLoss / weeks > 1.0) {
+      warningBox.style.display = 'block';
+      warningBox.textContent   = `⚠️ 주 ${(targetLoss / weeks).toFixed(1)}kg 감량은 권장 범위(주 1kg)를 초과합니다.`;
+    } else {
+      warningBox.style.display = 'none';
+    }
   }
 
   if (!previewEl) return;
@@ -605,7 +668,7 @@ function bindDangerZone() {
     });
   });
 
-  document.getElementById('btnDeleteAccount')?.addEventListener('click', () => {
+  (document.getElementById('btnDeleteAccount') || document.getElementById('withdrawBtn'))?.addEventListener('click', () => {
     showCustomConfirm({
       icon: '⚠️',
       title: '정말 탈퇴하시겠어요?',
@@ -644,7 +707,7 @@ function bindDangerZone() {
    ════════════════════════════════ */
 let toastTimer = null;
 function showToast(msg, type = '') {
-  const toast = document.getElementById('toast');
+  const toast = document.getElementById('toastMsg') || document.getElementById('toast');
   if (!toast) return;
   toast.textContent = msg;
   toast.className   = `toast show${type ? ' ' + type : ''}`;

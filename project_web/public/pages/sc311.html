@@ -100,6 +100,17 @@
           </div>
         </div>
 
+        <!-- 칼로리 섭취 진행 바 -->
+        <div class="kcal-bar-wrap">
+          <div class="kcal-bar-track">
+            <div class="kcal-bar-fill" id="kcalBarFill"></div>
+          </div>
+          <div class="kcal-bar-labels">
+            <span id="kcalBarConsumed">0 kcal 섭취</span>
+            <span id="kcalBarTarget">목표 - kcal</span>
+          </div>
+        </div>
+
         <!-- 동기부여 메시지 -->
         <div class="motivation-card" id="motivationCard">
           <span class="motivation-icon">🤖</span>
@@ -323,7 +334,7 @@
     </div>
   </div>
 
-<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>

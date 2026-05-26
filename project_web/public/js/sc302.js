@@ -79,7 +79,10 @@ const STEPS = [
 async function fetchAiPlans() {
   const userData       = Storage.getUser();
   const targetCalories = calcTargetCalories(userData);
-  const body = {
+  const mealReasons     = userData.mealAdjustReasons    || [];
+  const workoutReasons  = userData.workoutAdjustReasons || [];
+
+  const baseBody = {
     height:          userData.height        || '',
     weight:          userData.weight        || '',
     bmi:             userData.bmi           || '',
@@ -98,13 +101,13 @@ async function fetchAiPlans() {
       fetch(`${AI_SERVER}/api/meal/recommend`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(body),
+        body:    JSON.stringify({ ...baseBody, ...(mealReasons.length > 0 && { reasons: mealReasons }) }),
         signal:  controller.signal,
       }),
       fetch(`${AI_SERVER}/api/exercise/recommend`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(body),
+        body:    JSON.stringify({ ...baseBody, ...(workoutReasons.length > 0 && { reasons: workoutReasons }) }),
         signal:  controller.signal,
       }),
     ]);

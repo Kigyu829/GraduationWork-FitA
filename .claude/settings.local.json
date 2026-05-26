@@ -58,7 +58,10 @@
       "Bash(grep -rn \"cnn\\\\|4000\\\\|/cnn/\" C:/Users/김인규/Desktop/Graduation_Work/FitA/webapp/ --include=*.html -l)",
       "Bash(grep -rn \"cnn\\\\|4000\\\\|proxy\\\\|CNN_SERVER\" C:/Users/김인규/Desktop/Graduation_Work/FitA/webapp/public/ --include=*.js)",
       "Bash(find C:/Users/김인규/Desktop/Graduation_Work/FitA -name *.java)",
-      "Bash(find C:/Users/김인규/Desktop/Graduation_Work/FitAIness -name *.java)"
+      "Bash(find C:/Users/김인규/Desktop/Graduation_Work/FitAIness -name *.java)",
+      "Bash(find C:/Users/김인규/Desktop/Graduation_Work -name google-services.json -not -path */node_modules/* 2)",
+      "Bash(/dev/null find:*)",
+      "Bash(/dev/null ls:*)"
     ]
   }
 }

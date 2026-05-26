@@ -80,6 +80,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   initCommonOverlays();  /* common.js — AI상담 오버레이 + 히스토리 sc602 이동 */
   initMobileSidebar();   /* common.js — 모바일 햄버거 메뉴 */
   initBackExit();        /* 안드로이드 뒤로가기 → 앱 종료 */
+  renderStreak();        /* 연속 기록 스트릭 카드 */
   renderStreakBanner();  /* 연속 달성 배너 */
 });
 
@@ -141,42 +142,6 @@ function initBackExit() {
 function renderHeader() {
   const el = document.getElementById('headerDate');
   if (el) el.textContent = formatDate();   /* common.js */
-}
-
-/* ════════════════════════════════
-   2. 사이드바 프로필
-   ════════════════════════════════ */
-function renderSidebar() {
-  const data = Storage.getUser();
-  const reg  = Storage.getRegistered();
-
-  const nameEl          = document.getElementById('userName');
-  const infoEl          = document.getElementById('userBasicInfo');
-  const currentWeightEl = document.getElementById('currentWeightText');
-  const targetWeightEl  = document.getElementById('targetWeightText');
-
-  if (nameEl) nameEl.textContent = reg.nickname ? `${reg.nickname}님` : '사용자';
-
-  if (infoEl) {
-    const parts = [];
-    if (data.gender) parts.push(data.gender);
-    if (data.height) parts.push(`키 ${data.height}cm`);
-    infoEl.textContent = parts.join(' · ') || '기본 정보 없음';
-  }
-
-  if (currentWeightEl) currentWeightEl.textContent = data.weight      ? `${data.weight}kg`      : '-';
-  if (targetWeightEl)  targetWeightEl.textContent  = data.targetWeight ? `${data.targetWeight}kg` : '-';
-
-  /* 프로필 사진 반영 (localStorage 캐시 → Firestore URL 순) */
-  const _uid = getCurrentUid();
-  const saved = localStorage.getItem(_uid ? `profileAvatar_${_uid}` : 'profileAvatar') || Storage.getUser().avatarUrl || null;
-  const imgTag = saved
-    ? `<img src="${saved}" alt="프로필" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`
-    : '👤';
-  const avatarEl = document.getElementById('profileAvatar');
-  if (avatarEl) avatarEl.innerHTML = imgTag;
-  const sidebarAvatarEl = document.getElementById('sidebarAvatar');
-  if (sidebarAvatarEl) sidebarAvatarEl.innerHTML = imgTag;
 }
 
 /* ════════════════════════════════
@@ -598,27 +563,6 @@ let activeKey = null;
 
 function dateKey(y, m, d) {
   return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-}
-
-/* ════════════════════════════════
-   9. 로그아웃 → sc101
-   ════════════════════════════════ */
-function bindLogout() {
-  document.getElementById('logoutBtn')?.addEventListener('click', () => {
-    if (typeof auth !== 'undefined') auth.signOut().catch(() => {});
-    Storage.clearAll();
-    location.href = 'sc101.html';
-  });
-}
-
-/* ════════════════════════════════
-   10. 로고 클릭 → sc101
-   ════════════════════════════════ */
-function bindLogoClick() {
-  document.getElementById('sidebarLogo')?.addEventListener('click', () => {
-    /* 로그인 후 페이지이므로 로고 클릭 시 대시보드로 이동 */
-    location.href = 'sc301.html';
-  });
 }
 
 /* ════════════════════════════════

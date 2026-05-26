@@ -42,7 +42,7 @@ function hideMealSelector() {
 }
 
 function bindMealSelector() {
-  const mealBtns = document.querySelectorAll('.meal-select-btn');
+  const mealBtns = document.querySelectorAll('.meal-select-btn, .meal-type-btn');
 
   mealBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -86,16 +86,16 @@ function bindSidebar() {
    업로드
    ════════════════════════════════ */
 function bindUpload() {
-  const zone       = document.getElementById('uploadZone');
-  const fileInput  = document.getElementById('fileInput');
-  const uploadBtn  = document.getElementById('uploadBtn');
-  const zoneInner  = document.getElementById('uploadZoneInner');
-  const preview    = document.getElementById('uploadPreview');
-  const previewImg = document.getElementById('previewImg');
-  const actions    = document.getElementById('uploadActions');
-  const infoEl     = document.getElementById('selectedInfo');
-  const cancelBtn  = document.getElementById('cancelBtn');
-  const analyzeBtn = document.getElementById('analyzeBtn');
+  const zone        = document.getElementById('uploadZone') || document.getElementById('dropZone');
+  const fileInput   = document.getElementById('fileInput')  || document.getElementById('foodFileInput');
+  const uploadBtn   = document.getElementById('uploadBtn');
+  const zoneInner   = document.getElementById('uploadZoneInner') || document.getElementById('uploadPlaceholder');
+  const preview     = document.getElementById('uploadPreview');
+  const previewImg  = document.getElementById('previewImg');
+  const actions     = document.getElementById('uploadActions');
+  const infoEl      = document.getElementById('selectedInfo');
+  const cancelBtn   = document.getElementById('cancelBtn');
+  const analyzeBtn  = document.getElementById('analyzeBtn');
 
   let selectedFile = null;
 
@@ -128,13 +128,17 @@ function bindUpload() {
       return;
     }
     selectedFile = file;
+    if (analyzeBtn) analyzeBtn.disabled = false;
 
     const reader = new FileReader();
     reader.onload = ev => {
-      previewImg.src = ev.target.result;
-      zoneInner.style.display = 'none';
-      preview.style.display   = 'flex';
-      zone.classList.add('has-preview');
+      if (previewImg) {
+        previewImg.src          = ev.target.result;
+        previewImg.style.display = 'block';
+      }
+      if (zoneInner) zoneInner.style.display = 'none';
+      if (preview)   preview.style.display   = 'flex';
+      if (zone)      zone.classList.add('has-preview');
     };
     reader.readAsDataURL(file);
 
@@ -145,12 +149,13 @@ function bindUpload() {
 
   cancelBtn?.addEventListener('click', () => {
     selectedFile = null;
-    fileInput.value = '';
-    previewImg.src  = '';
-    preview.style.display   = 'none';
-    zoneInner.style.display = 'flex';
-    zone.classList.remove('has-preview');
-    if (actions) actions.style.display = 'none';
+    if (fileInput) fileInput.value = '';
+    if (previewImg) { previewImg.src = ''; previewImg.style.display = 'none'; }
+    if (preview)   preview.style.display   = 'none';
+    if (zoneInner) zoneInner.style.display = 'flex';
+    if (zone)      zone.classList.remove('has-preview');
+    if (actions)   actions.style.display = 'none';
+    if (analyzeBtn) analyzeBtn.disabled = true;
   });
 
   /* 분석 시작 → uploadParams 확인 후 hc402로 */

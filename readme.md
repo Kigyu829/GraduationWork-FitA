@@ -1,4 +1,4 @@
-# FitAiNess — AI 기반 다이어트 코칭 앱
+# FitA — AI 기반 다이어트 코칭 앱
 
 > 2026 캡스톤 디자인 졸업작품  
 > CNN 음식 인식 → 식단 자동 검증 → Gemini AI 재스케줄링의 폐쇄 루프 다이어트 코칭 시스템
@@ -8,132 +8,172 @@
 ## 시스템 구조
 
 ```
-사용자 (Android 앱)
-    │
-    ├─► FitAiNess (Android, Java)
-    │       │
-    │       ├─► Ai_server (port 5000)   ← Gemini 2.5-flash 식단/운동 추천
-    │       └─► Server (port 4000)      ← CNN 음식 인식 (PyTorch → Python spawn)
-    │
-    └─► project_web (port 3000)         ← 웹 프로토타입 (HTML/CSS/JS)
+사용자
+  │
+  ├─► FitAIness (Android, Java)
+  │       └─ WebView → http://localhost:3000/fita/
+  │
+  └─► 브라우저 → http://localhost:3000
+              │
+              project_web (포트 3000) ← 정적 파일 서빙 + 프록시 게이트웨이
+                  ├─► /api/*    → Ai_server (포트 5000)  Gemini 2.5-flash
+                  ├─► /cnn/*    → Server    (포트 4000)  CNN 음식 인식
+                  └─► /fita/    → FitA/webapp/           모바일 웹앱
 
-model_CNN/   ← PyTorch 모델 학습 및 평가 (오프라인)
+model_CNN/   ← PyTorch 모델 학습/평가 (오프라인)
 ```
 
 ---
 
-## 컴포넌트 소개
+## 컴포넌트
 
 | 폴더 | 역할 | 포트 | 기술 |
 |------|------|------|------|
-| `Server/` | CNN 추론 서버 | 4000 | Node.js (Express 5), Python spawn |
-| `Ai_server/` | Gemini AI 추천 서버 | 5000 | Node.js (Express 4), Gemini 2.5-flash |
+| `project_web/` | 웹 서버 + 프록시 게이트웨이 | 3000 | Node.js, Express 5 |
+| `FitA/webapp/` | 모바일 웹앱 UI (PWA) | — | HTML/CSS/JS, Firebase SDK |
+| `Ai_server/` | AI 추천/채팅 서버 | 5000 | Node.js, Gemini 2.5-flash, Socket.io |
+| `Server/` | CNN 음식 인식 서버 | 4000 | Node.js, Python spawn, PyTorch |
 | `model_CNN/` | CNN 모델 학습/평가 | — | PyTorch, CUDA, Albumentations |
-| `project_web/` | 웹 프로토타입 | 3000 | Express 5, 순수 HTML/CSS/JS |
-| `FitAiNess/` | Android 앱 | — | Java, Firebase, Navigation Component |
+| `FitAIness/` | Android 앱 (WebView 래퍼) | — | Java 2파일, WebView |
 
 ---
 
 ## 사전 요구사항
 
-### 공통
-- **Node.js** LTS (`node -v`로 확인)
+- **Node.js** LTS
 - **Python 3.11** (3.12+ 일부 라이브러리 호환 문제)
-- **NVIDIA GPU + CUDA** (CNN 추론/학습용, CPU도 동작하지만 느림)
-
-### Android 앱
-- **Android Studio** Hedgehog 이상
-- **Firebase** 프로젝트 생성 및 `google-services.json` 배치 (아래 참고)
+- **NVIDIA GPU + CUDA** (CNN 추론용, CPU도 동작하지만 느림)
+- **Android Studio** Hedgehog 이상 (앱 빌드 시)
 
 ---
 
 ## 환경변수 설정
 
 ### `Ai_server/.env`
+
 ```env
-GEMINI_API_KEY=your_google_ai_studio_api_key
+# Gemini API 키 (쉼표로 여러 개 나열 → 429 초과 시 자동으로 다음 키 사용)
+GEMINI_API_KEY=키1,키2,키3
+
+# AI 채팅 모델
+GEMINI_CHAT_MODEL=gemini-2.5-flash
+
+# CNN 서버 주소
+CNN_SERVER_URL=http://localhost:4000
+
+# AI 서버 포트
 PORT=5000
 ```
-> Google AI Studio(https://aistudio.google.com)에서 API 키 발급  
-> 무료 한도: gemini-2.5-flash 기준 20 RPD (개발 중 소진 시 새 계정으로 재발급)
 
-### `Server/.env`
-```env
-PORT=4000
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=graduation_db
-DB_USER=root
-DB_PASSWORD=본인_MySQL_비밀번호
-JWT_SECRET=랜덤문자열_아무거나
-PYTHON_PATH=python
-```
+> [Google AI Studio](https://aistudio.google.com)에서 API 키 발급
 
 ---
 
 ## 실행 방법
 
-### 1. CNN 서버 (`Server/`)
+### 한 번에 실행 (Windows)
+
+```bat
+start_all.bat
+```
+
+4개 창이 열림: AI 서버(5000), CNN 서버(4000), 웹 서버(3000), Cloudflare Tunnel
+
+### 수동 실행
+
+**1. CNN 서버 (`Server/`)**
 
 ```bash
 cd Server
 npm install
 
-# Python 의존성 설치 (최초 1회)
+# Python 의존성 (최초 1회)
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
 pip install -r ../model_CNN/requirements.txt
 
-# 모델 가중치 배치 (별도 다운로드 필요 — 아래 참고)
-# Server/model/weights/food_scouter_v1.pth
-
-npm run dev   # nodemon, port 4000
+node server.js   # port 4000
 ```
 
-### 2. AI 서버 (`Ai_server/`)
+**2. AI 서버 (`Ai_server/`)**
 
 ```bash
 cd Ai_server
 npm install
-# .env 파일에 GEMINI_API_KEY 입력 후
-npm run dev   # nodemon, port 5000
+# Ai_server/.env 파일에 GEMINI_API_KEY 입력 후
+node server.js   # port 5000
 ```
 
-### 3. 웹 프로토타입 (`project_web/`)
+**3. 웹 서버 (`project_web/`)**
 
 ```bash
 cd project_web
 npm install
-npm run dev   # port 3000
-# 테스트 계정: test1@test.com / test1TEST
+node server.js   # port 3000
 ```
 
-### 4. Android 앱 (`FitAiNess/`)
+브라우저에서 `http://localhost:3000` 접속
 
-1. `FitAiNess/app/src/main/` 에 `google-services.json` 배치 (Firebase Console에서 다운로드)
-2. Android Studio에서 `FitAiNess/` 폴더 오픈
-3. 에뮬레이터 사용 시 서버 IP는 `10.0.2.2` (기본값 적용됨)
-4. 실기기 사용 시 아래 두 파일의 IP를 PC 실제 IP로 변경
+---
+
+## 외부 접속 (실기기 / 데모)
+
+```bat
+cloudflared.exe tunnel --url http://localhost:3000
+```
+
+터미널에 표시되는 `https://xxxx.trycloudflare.com` URL을 `FitAIness/app/src/main/java/.../AppConfig.java` 의 `BASE_URL`에 입력 후 재빌드.
+
+---
+
+## Android 앱 (`FitAIness/`)
+
+WebView 래퍼 앱 — Java 파일 2개(`AppConfig.java`, `MainActivity.java`)만 존재.
+
+1. Firebase Console에서 `google-services.json` 다운로드 → `FitAIness/app/` 에 배치
+2. Android Studio에서 `FitAIness/` 폴더 열기
+3. `AppConfig.java` 에서 서버 URL 확인
 
 ```java
-// GeminiHelper.java
-private static final String AI_SERVER = "http://192.168.0.xxx:5000";
+// 에뮬레이터
+static final String BASE_URL = "http://10.0.2.2:3000";
 
-// DinerFragment.java
-private static final String CNN_SERVER = "http://192.168.0.xxx:4000";
+// 실기기 (같은 Wi-Fi)
+static final String BASE_URL = "http://192.168.0.xxx:3000";
+
+// 외부 데모 (Cloudflare Tunnel)
+static final String BASE_URL = "https://xxxx.trycloudflare.com";
 ```
 
 ---
 
-## 모델 가중치 다운로드
+## 다른 PC로 이전 시 필수 파일
 
-CNN 모델 가중치 파일(`food_scouter_v1.pth`)은 용량 문제로 git에 포함되지 않습니다.
+git clone으로 코드는 복원되지만, `.gitignore`에 의해 제외된 파일은 직접 옮겨야 함.
+
+| 파일 | 경로 | 비고 |
+|------|------|------|
+| `.env` | `Ai_server/.env` | Gemini API 키 필수 |
+| `food_scouter_v2.pth` | `model_CNN/weights/` | CNN 음식 인식 모델 |
+| `food_detector_v1.pth` | `Server/weights/` | 음식 감지 모델 |
+| `sam_vit_b.pth` | `Server/weights/` | SAM 세그멘테이션 (~375MB) |
+| `cloudflared.exe` | 루트 | Cloudflare 터널 실행파일 |
+| `google-services.json` | `FitAIness/app/` | Firebase 콘솔에서 재다운 가능 |
+
+> `local.properties`는 Android Studio가 자동 생성하므로 불필요  
+> `checkpoint_epoch*.pth`는 학습 재개 안 할 경우 불필요
+
+---
+
+## 모델 가중치
+
+CNN 모델 가중치 파일은 용량 문제로 git에 포함되지 않음.
 
 **배치 위치:**
 ```
-Server/model/weights/food_scouter_v1.pth
+model_CNN/weights/food_scouter_v2.pth   ← 학습용
+Server/weights/food_detector_v1.pth     ← CNN 서버 추론용
+Server/weights/sam_vit_b.pth            ← SAM 세그멘테이션
 ```
-
-> 직접 학습하려면 아래 **CNN 모델 학습** 섹션을 참고하세요.
 
 ---
 
@@ -142,14 +182,13 @@ Server/model/weights/food_scouter_v1.pth
 ### 데이터셋 준비
 
 1. [AI Hub 한국 음식 이미지](https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=79) 다운로드 신청
-2. 승인 후 zip 파일 압축 해제 → `model_CNN/data/raw/` 에 배치
+2. 승인 후 압축 해제 → `model_CNN/data/raw/` 에 배치
 
 ```
 model_CNN/data/raw/
 ├── 구이/
-│   └── 갈비구이/   ← 이미지 파일들
+│   └── 갈비구이/
 ├── 국/
-├── 김치/
 └── ...  (총 150종)
 ```
 
@@ -157,24 +196,17 @@ model_CNN/data/raw/
 
 ```bash
 cd model_CNN
-
-# PyTorch 설치 (본인 CUDA 버전에 맞게 — nvidia-smi로 확인)
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
 pip install -r requirements.txt
 
-# 데이터 전처리
-python src/preprocess.py
-
-# 모델 학습
-python src/train.py       # v1 (SE Block)
-# python src/train_v2.py  # v2 (ResBlock + CBAM, 성능 개선)
-
-# 모델 평가
-python src/evaluate.py
+python src/preprocess.py        # 데이터 전처리
+python src/train.py             # v1 (SE Block)
+# python src/train_v2.py        # v2 (ResBlock + CBAM, 성능 개선)
+python src/evaluate.py          # 평가
 ```
 
-학습 완료 시 `model_CNN/weights/food_scouter_v1.pth` 저장  
-→ `Server/model/weights/`에 복사하면 CNN 서버에서 사용 가능
+완료 후 `model_CNN/weights/food_scouter_v*.pth` 저장  
+→ `Server/weights/` 에 복사하면 CNN 서버에서 사용 가능
 
 ### 모델 아키텍처
 
@@ -202,6 +234,7 @@ Input (3×256×256)
 ## 주요 API 엔드포인트
 
 ### CNN 서버 (port 4000)
+
 | 메서드 | 경로 | 설명 |
 |--------|------|------|
 | POST | `/api/analyze` | 이미지 업로드 → 음식 분류 (field: `image`) |
@@ -209,37 +242,38 @@ Input (3×256×256)
 | GET | `/api/model/info` | 모델 정보 |
 
 ### AI 서버 (port 5000)
+
 | 메서드 | 경로 | 설명 |
 |--------|------|------|
 | POST | `/api/meal/recommend` | 식단 추천 |
 | POST | `/api/meal/adjust` | 식단 재조정 |
 | POST | `/api/exercise/recommend` | 운동 추천 |
 | POST | `/api/exercise/adjust` | 운동 재조정 |
-| POST | `/api/chat` | AI 채팅 상담 |
+| POST | `/api/chat` | AI 채팅 (HTTP, Android WebView용) |
 | POST | `/api/goal/calories` | 일일 목표 칼로리 계산 |
 | POST | `/api/plan/reschedule` | 식단+운동 일괄 재스케줄링 |
+| WS | `chat_message` | AI 채팅 스트리밍 (Socket.io, 브라우저용) |
 
 ---
 
-## Android 앱 화면 구성
+## 앱 화면 구성
 
 ```
-스플래시 → 로그인/회원가입 → 신체정보 입력 (온보딩)
+로그인/회원가입 → 신체정보 입력 (온보딩)
     │
-    └─ 홈 (오늘의 식단 카드, AI 기능 카드)
-         ├─ 식단 추천 (MealFragment)
-         ├─ 운동 추천 (WorkoutFragment)
-         ├─ AI 상담 (ChatFragment)
-         └─ 식단 기록 (DinerFragment) ← CNN 음식 인식
+    └─ 대시보드 (sc301) — 오늘의 식단/운동 현황
+         ├─ 오늘 식단/운동 (sc311) ← CNN 음식 인증 + AI 채팅
+         ├─ 운동 가이드 (hc503)   ← 포즈 인식 + 렙 카운팅
+         ├─ 히스토리 (sc602)      ← Firestore 크로스 디바이스 복원
+         └─ 프로필 (sc701)        ← 체중 그래프 + 아바타
 ```
 
 **데이터 흐름:**
 ```
-Firebase (성별/키/몸무게)
-    + GoalPrefs (목표 체중/기간)
-        → AI 서버에 맞춤 요청
-        → meal_sp / workout_sp (SharedPreferences) 저장
-        → 홈 화면 자동 표시
+Firebase Auth (로그인)
+    → Firestore users/{uid} (userData: 신체정보, AI 플랜, 조정 사유)
+    → localStorage (캐시, 즉시 읽기)
+    ↔ Firestore daily/{YYYY-MM-DD} (식단 인증, 운동 기록, 체중)
 ```
 
 ---
@@ -251,25 +285,17 @@ Firebase (성별/키/몸무게)
 | CNN 모델 | PyTorch (SE Block, CBAM), Albumentations |
 | 음식 분류 | 한국 음식 150종, AI Hub 데이터 약 15만 장 |
 | AI 추천 | Google Gemini 2.5-flash |
-| 백엔드 | Node.js, Express, Python spawn |
-| 데이터베이스 | Firebase Firestore (앱), MySQL (웹) |
-| Android | Java, Navigation Component, Firebase Auth |
-| 웹 프로토타입 | 순수 HTML/CSS/JS + Express |
+| 백엔드 | Node.js, Express, Python spawn, Socket.io |
+| 데이터베이스 | Firebase Firestore + Firebase Storage |
+| Android | Java, WebView (하이브리드 앱) |
+| 웹 | 순수 HTML/CSS/JS + Express 프록시 |
+| 외부 접속 | Cloudflare Tunnel |
 
 ---
 
 ## 참고 자료
 
 - [AI Hub 한국 음식 이미지 데이터셋](https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=79)
-- [PyTorch 설치 가이드](https://pytorch.org/get-started/locally/)
 - [Google AI Studio (Gemini API)](https://aistudio.google.com)
 - [Firebase 콘솔](https://console.firebase.google.com)
-epth (v2, 정규화)
-Residual Connection (v2, 학습 안정화)
-
-
-참고
-
-AI Hub 한국 음식 이미지: https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=79
-PyTorch 설치: https://pytorch.org/get-started/locally/
-Node.js 다운로드: https://nodejs.org/en/download
+- [PyTorch 설치 가이드](https://pytorch.org/get-started/locally/)

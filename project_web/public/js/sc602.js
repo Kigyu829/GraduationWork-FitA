@@ -45,7 +45,9 @@ function initDate() {
   });
 
   document.getElementById('nextDayBtn')?.addEventListener('click', () => {
-    currentDate = offsetDate(currentDate, 1);
+    const next = offsetDate(currentDate, 1);
+    if (next > todayStr()) return;
+    currentDate = next;
     updateURL(currentDate);
     renderPage(currentDate);
   });
@@ -363,7 +365,7 @@ function buildSc602Cal() {
     const icon = hasMeal && hasWorkout ? '🌟' : hasMeal ? '🥗' : hasWorkout ? '💪' : '';
     btn.innerHTML = `<span class="hist-day-num">${d}</span>${icon ? `<span class="hist-day-icon">${icon}</span>` : ''}`;
 
-    if (regDate && dateStr < regDate) {
+    if ((regDate && dateStr < regDate) || dateStr > todayStr()) {
       btn.disabled = true;
       btn.classList.add('before-reg');
     } else {

@@ -119,13 +119,15 @@ function initPage() {
       ? Math.round(18.5 * (heightCm / 100) ** 2 * 10) / 10
       : 30;
 
-    function applyAndGo() {
+    async function applyAndGo() {
       localStorage.setItem(todayKey, String(val));
       Storage.mergeUser({ weight: String(val) });
       const uid = getCurrentUid();
       if (uid && typeof db !== 'undefined') {
-        db.collection('users').doc(uid).collection('daily').doc(todayStr)
-          .set({ weight: val }, { merge: true }).catch(console.error);
+        try {
+          await db.collection('users').doc(uid).collection('daily').doc(todayStr)
+            .set({ weight: val }, { merge: true });
+        } catch(err) { console.error(err); }
       }
       location.replace('sc301.html');
     }

@@ -138,6 +138,20 @@
 .summary-pill-val   { font-size: 18px; font-weight: 800; color: var(--teal, #66D0BC); }
 .summary-pill-label { font-size: 10px; color: var(--text-mute, #4d6b7a); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
 
+.kcal-bar-wrap { margin-bottom: 14px; }
+.kcal-bar-track {
+  height: 8px; background: var(--border, #243840);
+  border-radius: 4px; overflow: hidden; margin-bottom: 6px;
+}
+.kcal-bar-fill {
+  height: 100%; background: var(--teal, #66D0BC);
+  border-radius: 4px; width: 0%; transition: width 0.5s ease, background 0.3s;
+}
+.kcal-bar-labels {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--text-mute, #4d6b7a); font-weight: 600;
+}
+
 /* ── 운동 섹션 ── */
 .workout-list { display: flex; flex-direction: column; gap: 12px; }
 

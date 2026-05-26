@@ -22,6 +22,58 @@ function lsKey(prefix, dateStr) {
 }
 
 /**
+ * sc311.js 없이 공통 채팅에서 플랜 조정 (meal/exercise)
+ * Storage 업데이트 후 오늘 daily 문서에 반영
+ */
+async function _commonAdjustPlan(type, reason) {
+  const userData = Storage.getUser();
+  const isMeal   = type === 'meal';
+  const currentPlan = isMeal ? userData.aiMealPlan : userData.aiWorkoutPlan;
+  if (!currentPlan) return;
+
+  try {
+    const endpoint    = isMeal ? '/api/meal/adjust' : '/api/exercise/adjust';
+    const reasonsKey  = isMeal ? 'mealAdjustReasons' : 'workoutAdjustReasons';
+    const accumulated = [...(userData[reasonsKey] || []), reason];
+    const targetCalories = typeof calcTargetCalories === 'function' ? calcTargetCalories(userData) : null;
+    const body     = isMeal
+      ? { currentPlan, reasons: accumulated, targetCalories }
+      : { currentPlan, reasons: accumulated, targetWeeks: userData.goalWeeks, bmi: userData.bmi, activityLevel: userData.activityLevel };
+
+    const res  = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const json = await res.json();
+    if (!json.success) return;
+
+    if (isMeal) {
+      Storage.mergeUser({ aiMealPlan: json.data, mealAdjustReasons: accumulated });
+      if (typeof clearAdjustState   === 'function') clearAdjustState('meals');
+      if (typeof renderMealItems    === 'function') renderMealItems(json.data);
+      if (typeof applyIcons         === 'function') applyIcons();
+      if (typeof initMealVerify     === 'function') initMealVerify();
+      if (typeof initMealSkip       === 'function') initMealSkip();
+      if (typeof updateMealSummary  === 'function') updateMealSummary(0, 0);
+    } else {
+      Storage.mergeUser({ aiWorkoutPlan: json.data, workoutAdjustReasons: accumulated });
+      if (typeof clearAdjustState     === 'function') clearAdjustState('workouts');
+      if (typeof renderWorkoutItems   === 'function') renderWorkoutItems(json.data);
+      if (typeof applyIcons           === 'function') applyIcons();
+      if (typeof initWorkoutCheck     === 'function') initWorkoutCheck();
+      if (typeof updateWorkoutSummary === 'function') updateWorkoutSummary();
+    }
+
+    /* 오늘 daily 플랜도 Firestore에 반영 */
+    const uid = getCurrentUid();
+    if (uid && typeof db !== 'undefined') {
+      const _d  = new Date();
+      const today = `${_d.getFullYear()}-${String(_d.getMonth()+1).padStart(2,'0')}-${String(_d.getDate()).padStart(2,'0')}`;
+      const planData = isMeal ? { plan: { mealPlan: json.data } } : { plan: { workoutPlan: json.data } };
+      db.collection('users').doc(uid).collection('daily').doc(today)
+        .set(planData, { merge: true }).catch(console.error);
+    }
+  } catch { /* 조용히 실패 */ }
+}
+
+/**
  * 날짜별 데이터를 Firestore에 동기화 (비동기, 오류 무시)
  * sc311.js / hc403.js write 이후 호출
  */

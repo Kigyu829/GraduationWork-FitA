@@ -246,6 +246,12 @@ function bindProfileSave() {
     const reg = Storage.getRegistered();
     Storage.setRegistered(reg.email, reg.password, nickname);
 
+    /* Firestore users/{uid}.nickname 갱신 */
+    const uid = getCurrentUid();
+    if (uid && typeof db !== 'undefined') {
+      db.collection('users').doc(uid).update({ nickname }).catch(console.error);
+    }
+
     setTextSafe('userName',  `${nickname}님`);
     setTextSafe('heroName',  nickname);
     showToast('✅ 닉네임이 변경됐어요.', 'success');
@@ -369,7 +375,7 @@ function loadGoalForm(data) {
   const customWrap = document.getElementById('customWeeksWrap');
 
   periodSel?.addEventListener('change', () => {
-    customWrap.style.display = periodSel.value === '기타' ? 'block' : 'none';
+    if (customWrap) customWrap.style.display = periodSel.value === '기타' ? 'block' : 'none';
     if (periodSel.value !== '기타') {
       const el = document.getElementById('inputCustomWeeks');
       if (el) el.value = '';
@@ -419,11 +425,13 @@ function updateGoalPreview(data) {
   const previewEl  = document.getElementById('goalPreviewText');
   const warningBox = document.getElementById('goalWarningBox');
 
-  if (targetLoss && weeks && targetLoss / weeks > 1.0) {
-    warningBox.style.display = 'block';
-    warningBox.textContent   = `⚠️ 주 ${(targetLoss / weeks).toFixed(1)}kg 감량은 권장 범위(주 1kg)를 초과합니다.`;
-  } else {
-    if (warningBox) warningBox.style.display = 'none';
+  if (warningBox) {
+    if (targetLoss && weeks && targetLoss / weeks > 1.0) {
+      warningBox.style.display = 'block';
+      warningBox.textContent   = `⚠️ 주 ${(targetLoss / weeks).toFixed(1)}kg 감량은 권장 범위(주 1kg)를 초과합니다.`;
+    } else {
+      warningBox.style.display = 'none';
+    }
   }
 
   if (!previewEl) return;
@@ -522,18 +530,24 @@ function bindAccountSave() {
   document.getElementById('btnSaveEmail')?.addEventListener('click', async () => {
     const newEmail  = document.getElementById('inputEmail')?.value.trim();
     const pwConfirm = document.getElementById('inputEmailPwConfirm')?.value;
-    const reg       = Storage.getRegistered();
 
-    if (!newEmail)               { showToast('이메일을 입력해주세요.', 'error'); return; }
-    if (!pwConfirm)              { showToast('현재 비밀번호를 입력해주세요.', 'error'); return; }
-    if (pwConfirm !== reg.password) { showToast('현재 비밀번호가 올바르지 않아요.', 'error'); return; }
+    if (!newEmail)  { showToast('이메일을 입력해주세요.', 'error'); return; }
+    if (!pwConfirm) { showToast('현재 비밀번호를 입력해주세요.', 'error'); return; }
+
+    const user = typeof auth !== 'undefined' ? auth.currentUser : null;
+    if (!user) { showToast('로그인 상태를 확인해주세요.', 'error'); return; }
 
     try {
-      const json = await apiPost('/profile/email', { newEmail, currentPassword: pwConfirm });
-      if (json && !json.success) { showToast(json.message || '변경에 실패했어요.', 'error'); return; }
-    } catch { /* 폴백 */ }
+      const cred = firebase.auth.EmailAuthProvider.credential(user.email, pwConfirm);
+      await user.reauthenticateWithCredential(cred);
+      await user.updateEmail(newEmail);
+    } catch (e) {
+      const msg = e.code === 'auth/wrong-password' ? '현재 비밀번호가 올바르지 않아요.' : '변경에 실패했어요.';
+      showToast(msg, 'error'); return;
+    }
 
-    Storage.setRegistered(newEmail, reg.password, reg.nickname);
+    const reg = Storage.getRegistered();
+    Storage.setRegistered(newEmail, '', reg.nickname);
     setTextSafe('heroEmail', newEmail);
     document.getElementById('inputEmailPwConfirm').value = '';
     showToast('✅ 이메일이 변경됐어요.', 'success');
@@ -565,16 +579,23 @@ function bindAccountSave() {
     const currentPw = document.getElementById('inputCurrentPw')?.value;
     const newPw     = document.getElementById('inputNewPw')?.value;
     const newPwConf = document.getElementById('inputNewPwConfirm')?.value;
-    const reg       = Storage.getRegistered();
 
     if (!currentPw)                { showToast('현재 비밀번호를 입력해주세요.', 'error'); return; }
-    if (currentPw !== reg.password){ showToast('현재 비밀번호가 올바르지 않아요.', 'error'); return; }
     if (!newPw || newPw.length < 8){ showToast('새 비밀번호는 8자 이상이어야 해요.', 'error'); return; }
     if (newPw !== newPwConf)       { showToast('새 비밀번호가 일치하지 않아요.', 'error'); return; }
 
-    try { await apiPost('/profile/password', { currentPassword: currentPw, newPassword: newPw }); } catch { /* 폴백 */ }
+    const user = typeof auth !== 'undefined' ? auth.currentUser : null;
+    if (!user) { showToast('로그인 상태를 확인해주세요.', 'error'); return; }
 
-    Storage.setRegistered(reg.email, newPw, reg.nickname);
+    try {
+      const cred = firebase.auth.EmailAuthProvider.credential(user.email, currentPw);
+      await user.reauthenticateWithCredential(cred);
+      await user.updatePassword(newPw);
+    } catch (e) {
+      const msg = e.code === 'auth/wrong-password' ? '현재 비밀번호가 올바르지 않아요.' : '변경에 실패했어요.';
+      showToast(msg, 'error'); return;
+    }
+
     ['inputCurrentPw', 'inputNewPw', 'inputNewPwConfirm'].forEach(id => {
       const el = document.getElementById(id); if (el) el.value = '';
     });

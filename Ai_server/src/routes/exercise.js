@@ -8,15 +8,23 @@ const router = Router();
 // POST /api/exercise/recommend — 운동 추천
 // Body: { height, weight, bmi, gender, targetWeight, targetWeeks, activityLevel? }
 // ──────────────────────────────────────────
-router.post('/recommend', cacheMiddleware('exercise_recommend'), (req, res) => {
-    const { height, weight, bmi, gender, targetWeight, targetWeeks, activityLevel } = req.body;
+router.post('/recommend', cacheMiddleware('exercise_recommend'), async (req, res) => {
+    const { height, weight, bmi, gender, targetWeight, targetWeeks, activityLevel,
+            reasons } = req.body;
 
     if (!height || !weight || !targetWeight || !targetWeeks) {
         return res.status(400).json({ success: false, message: '필수 파라미터가 없습니다. (height, weight, targetWeight, targetWeeks)' });
     }
 
     try {
-        const data = recommendExercise({ bmi: bmi || 22, targetWeeks, activityLevel });
+        let data;
+        if (reasons && reasons.length > 0) {
+            console.log(`  누적 사유 ${reasons.length}개 반영 (Gemini)...`);
+            reasons.forEach((r, i) => console.log(`    ${i + 1}. ${r}`));
+            data = await adjustExercise({ bmi: bmi || 22, targetWeeks, activityLevel, reasons });
+        } else {
+            data = recommendExercise({ bmi: bmi || 22, targetWeeks, activityLevel });
+        }
         console.log(`  결과: 총 ${data.total_duration}분 / 소모 ${data.total_calories}kcal / 메인 운동 ${data.main.length}개`);
         res.json({ success: true, data });
     } catch (err) {
