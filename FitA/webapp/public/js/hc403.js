@@ -270,14 +270,14 @@ window.addEventListener('DOMContentLoaded', () => {
   function showReasonPanel() {
     const panel      = document.getElementById('reasonPanel');
     const actionsEl  = document.getElementById('resultActions');
-    if (panel)     panel.classList.add('show');
+    if (panel)     { panel.style.display = ''; panel.classList.add('show'); }
     if (actionsEl) actionsEl.style.display = 'none';
   }
 
   function hideReasonPanel() {
     const panel      = document.getElementById('reasonPanel');
     const actionsEl  = document.getElementById('resultActions');
-    if (panel)     panel.classList.remove('show');
+    if (panel)     { panel.classList.remove('show'); panel.style.display = 'none'; }
     if (actionsEl) actionsEl.style.display = '';
   }
 

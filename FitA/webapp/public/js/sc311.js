@@ -172,10 +172,13 @@ function renderWorkoutItems(workoutPlan) {
     html += `<div class="ai-tip" style="margin-top:16px;padding:12px;background:var(--card);border-radius:10px;font-size:13px;color:var(--text-sec);">💡 ${workoutPlan.tip}</div>`;
   }
 
+  const routineBar = container.querySelector('#routineActionBar');
   Array.from(container.children).forEach(child => {
-    if (child !== summaryDiv) child.remove();
+    if (child !== summaryDiv && child !== routineBar) child.remove();
   });
   summaryDiv.insertAdjacentHTML('afterend', html);
+  /* 루틴 바를 항상 맨 끝으로 이동 */
+  if (routineBar) container.appendChild(routineBar);
 }
 
 /* 아이콘 매핑 */

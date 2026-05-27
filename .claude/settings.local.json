@@ -61,7 +61,11 @@
       "Bash(find C:/Users/김인규/Desktop/Graduation_Work/FitAIness -name *.java)",
       "Bash(find C:/Users/김인규/Desktop/Graduation_Work -name google-services.json -not -path */node_modules/* 2)",
       "Bash(/dev/null find:*)",
-      "Bash(/dev/null ls:*)"
+      "Bash(/dev/null ls:*)",
+      "Bash(du -sh \"C:/Users/김인규/Desktop/Graduation_Work/Server/weights/\"*)",
+      "Bash(find C:/Users/김인규/Desktop/Graduation_Work/model_CNN -name *.json -o -name *.txt)",
+      "Bash(powershell -Command \"Select-String -Path 'C:\\\\Users\\\\김인규\\\\Desktop\\\\Graduation_Work\\\\FitA\\\\webapp\\\\public\\\\pages\\\\sc311.html' -Pattern 'viewport'\")",
+      "Bash(powershell -Command \"Select-String -Path 'C:\\\\Users\\\\김인규\\\\Desktop\\\\Graduation_Work\\\\FitA\\\\webapp\\\\public\\\\pages\\\\*.html' -Pattern 'mob-header' | Select-Object Filename, LineNumber, Line | Format-Table -AutoSize\")"
     ]
   }
 }

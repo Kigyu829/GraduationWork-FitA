@@ -23,13 +23,13 @@ public class AppConfig {
     // 아래 3줄 중 하나만 주석 해제해서 사용
 
     // [발표/외부 데모] start_all.bat 실행 후 Cloudflare 창의 URL 복사
-    // public static final String BASE_URL = "https://xxxx.trycloudflare.com";
+    public static final String BASE_URL = "https://arabia-investors-theaters-responsibility.trycloudflare.com";
 
     // [실기기 + 같은 Wi-Fi] cmd에서 ipconfig → IPv4 주소 확인
-    // public static final String BASE_URL = "http://192.168.0.x:3000";
+    // public static final String BASE_URL = "http://192.168.0.39:3000";
 
     // [에뮬레이터 전용]
-    public static final String BASE_URL = "http://10.0.2.2:3000";
+    //public static final String BASE_URL = "http://10.0.2.2:3000";
 
     // AI 서버 API (프록시 통과)
     public static final String AI_URL  = BASE_URL;  // /api/... 경로 사용

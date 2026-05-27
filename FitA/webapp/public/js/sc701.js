@@ -237,8 +237,11 @@ function bindProfileSave() {
       db.collection('users').doc(uid).update({ nickname }).catch(console.error);
     }
 
-    setTextSafe('userName',  `${nickname}님`);
-    setTextSafe('heroName',  nickname);
+    setTextSafe('userName',    `${nickname}님`);
+    setTextSafe('heroName',    nickname);
+    setTextSafe('mpNickname',  nickname);
+    const nf = document.getElementById('nicknameForm');
+    if (nf) nf.style.display = 'none';
     showToast('✅ 닉네임이 변경됐어요.', 'success');
   });
 }
@@ -556,7 +559,23 @@ function bindGoalSave(userData) {
    섹션4·5: 이메일 + 비밀번호 변경
    ════════════════════════════════ */
 function loadAccountForm(data) {
-  setVal('inputEmail', data.email);
+  setTextSafe('mpEmail',    data.email    || '-');
+  setTextSafe('mpNickname', data.nickname || '-');
+  setVal('inputEmail',    data.email);
+  setVal('inputNickname', data.nickname);
+
+  /* 수정 버튼 토글 */
+  function toggleForm(btnId, formId) {
+    document.getElementById(btnId)?.addEventListener('click', () => {
+      const form = document.getElementById(formId);
+      if (!form) return;
+      const isOpen = form.style.display !== 'none';
+      form.style.display = isOpen ? 'none' : 'flex';
+    });
+  }
+  toggleForm('toggleNicknameForm', 'nicknameForm');
+  toggleForm('toggleEmailForm',    'emailForm');
+  toggleForm('togglePwForm',       'pwForm');
 }
 
 function bindAccountSave() {
@@ -583,7 +602,10 @@ function bindAccountSave() {
     const reg = Storage.getRegistered();
     Storage.setRegistered(newEmail, '', reg.nickname);
     setTextSafe('heroEmail', newEmail);
+    setTextSafe('mpEmail',   newEmail);
     document.getElementById('inputEmailPwConfirm').value = '';
+    const ef = document.getElementById('emailForm');
+    if (ef) ef.style.display = 'none';
     showToast('✅ 이메일이 변경됐어요.', 'success');
   });
 
@@ -635,6 +657,8 @@ function bindAccountSave() {
     });
     const wrap = document.getElementById('pwStrengthWrap');
     if (wrap) wrap.style.display = 'none';
+    const pf = document.getElementById('pwForm');
+    if (pf) pf.style.display = 'none';
     showToast('✅ 비밀번호가 변경됐어요.', 'success');
   });
 }

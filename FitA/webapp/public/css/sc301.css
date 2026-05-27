@@ -145,12 +145,16 @@
   font-size: 10px;
   color: var(--text-mute);
   text-transform: uppercase;
+  text-align: center;
+  width: 100%;
 }
 
 .dash-metric-val {
   font-size: 13px;
   font-weight: 800;
   color: var(--text);
+  text-align: center;
+  width: 100%;
 }
 
 /* AI Plan text */

@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#09131a">
   <title>프로필 – FitA</title>
   <link rel="manifest" href="../../manifest.json">
@@ -83,8 +83,51 @@
       <!-- 계정 섹션 -->
       <div class="mypage-section">
         <div class="section-header"><h3 class="section-title">계정</h3></div>
-        <div class="mypage-info-row"><span class="info-label">이메일</span><span class="info-val" id="mpEmail">-</span></div>
-        <div class="mypage-info-row"><span class="info-label">닉네임</span><span class="info-val" id="mpNickname">-</span></div>
+
+        <!-- 닉네임 -->
+        <div class="mypage-info-row">
+          <span class="info-label">닉네임</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="info-val" id="mpNickname">-</span>
+            <button class="acct-edit-btn" id="toggleNicknameForm">수정</button>
+          </div>
+        </div>
+        <div class="acct-edit-form" id="nicknameForm" style="display:none;">
+          <input type="text" id="inputNickname" class="acct-input" placeholder="새 닉네임" maxlength="20">
+          <button class="primary-btn acct-save-btn" id="btnSaveNickname">저장</button>
+        </div>
+
+        <!-- 이메일 -->
+        <div class="mypage-info-row">
+          <span class="info-label">이메일</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="info-val" id="mpEmail">-</span>
+            <button class="acct-edit-btn" id="toggleEmailForm">수정</button>
+          </div>
+        </div>
+        <div class="acct-edit-form" id="emailForm" style="display:none;">
+          <input type="email" id="inputEmail" class="acct-input" placeholder="새 이메일 주소">
+          <input type="password" id="inputEmailPwConfirm" class="acct-input" placeholder="현재 비밀번호 확인">
+          <button class="primary-btn acct-save-btn" id="btnSaveEmail">저장</button>
+        </div>
+
+        <!-- 비밀번호 -->
+        <div class="mypage-info-row" style="border-bottom:none;">
+          <span class="info-label">비밀번호</span>
+          <button class="acct-edit-btn" id="togglePwForm">변경</button>
+        </div>
+        <div class="acct-edit-form" id="pwForm" style="display:none;">
+          <input type="password" id="inputCurrentPw" class="acct-input" placeholder="현재 비밀번호">
+          <input type="password" id="inputNewPw" class="acct-input" placeholder="새 비밀번호 (8자 이상)">
+          <div id="pwStrengthWrap" style="display:none;">
+            <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin:4px 0 2px;">
+              <div id="pwStrengthFill" style="height:100%;width:0;border-radius:2px;transition:width .3s,background .3s;"></div>
+            </div>
+            <span id="pwStrengthLabel" style="font-size:11px;"></span>
+          </div>
+          <input type="password" id="inputNewPwConfirm" class="acct-input" placeholder="새 비밀번호 재입력">
+          <button class="primary-btn acct-save-btn" id="btnSavePw">저장</button>
+        </div>
       </div>
 
       <!-- 로그아웃 / 탈퇴 -->

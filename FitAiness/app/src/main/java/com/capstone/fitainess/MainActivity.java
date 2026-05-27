@@ -14,8 +14,10 @@ import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+import android.net.http.SslError;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
@@ -115,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
 
         /* Chrome DevTools 디버깅 — debug 빌드에서만 활성화 */
-        WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
+        WebView.setWebContentsDebuggingEnabled(false);
 
         /* ── WebViewClient: 페이지 로딩 / URL 라우팅 ── */
         webView.setWebViewClient(new WebViewClient() {
@@ -140,6 +142,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+                handler.proceed(); /* Cloudflare 터널 SSL 인증서 허용 */
             }
 
             @Override

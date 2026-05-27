@@ -53,12 +53,12 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: var(--header-h);
+  height: calc(var(--header-h) + env(safe-area-inset-top, 0px));
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
-  padding: 0 16px;
+  padding: env(safe-area-inset-top, 0px) 16px 0;
   z-index: 100;
   gap: 10px;
 }
@@ -70,11 +70,18 @@ body {
 }
 
 .mob-header-title {
-  flex: 1;
-  text-align: center;
+  position: absolute;
+  top: env(safe-area-inset-top, 0px);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 16px;
   font-weight: 800;
   letter-spacing: -0.01em;
+  pointer-events: none;
 }
 
 .mob-header-back {
@@ -111,13 +118,13 @@ body {
 
 /* ── Main Content Areas ── */
 .mob-main {
-  padding-top: var(--header-h);
+  padding-top: calc(var(--header-h) + env(safe-area-inset-top, 0px));
   padding-bottom: calc(var(--bnav-h) + env(safe-area-inset-bottom, 0px));
   min-height: 100vh;
 }
 
 .mob-main-sub {
-  padding-top: var(--header-h);
+  padding-top: calc(var(--header-h) + env(safe-area-inset-top, 0px));
   min-height: 100vh;
 }
 
