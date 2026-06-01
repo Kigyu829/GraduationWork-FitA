@@ -19,11 +19,16 @@ package com.capstone.fitainess;
  */
 public class AppConfig {
 
+    // ★ Google 로그인 Web Client ID
+    // Firebase Console → graduationwork-6c91c 프로젝트 →
+    // 인증 → 로그인 방법 → Google → Web SDK 구성 → 웹 클라이언트 ID
+    public static final String GOOGLE_WEB_CLIENT_ID = "329977977689-rm6lqh4363aa6glnud5mipmg36q0mkd6.apps.googleusercontent.com";
+
     // ★ 서버 주소 — 여기 한 곳만 변경하면 앱 전체에 적용됨
     // 아래 3줄 중 하나만 주석 해제해서 사용
 
     // [발표/외부 데모] start_all.bat 실행 후 Cloudflare 창의 URL 복사
-    public static final String BASE_URL = "https://arabia-investors-theaters-responsibility.trycloudflare.com";
+    public static final String BASE_URL = "https://liable-similar-surrounded-indianapolis.trycloudflare.com";
 
     // [실기기 + 같은 Wi-Fi] cmd에서 ipconfig → IPv4 주소 확인
     // public static final String BASE_URL = "http://192.168.0.39:3000";

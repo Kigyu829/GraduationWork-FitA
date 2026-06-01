@@ -108,15 +108,6 @@ def analyze():
         best       = result.get('best')
         detections = result.get('detections', [])
 
-        DEMO_OVERRIDE = {'식혜', '만두'}
-        if best and best.get('class_name') in DEMO_OVERRIDE:
-            best = {**best, 'class_name': '글레이즈드도넛', 'confidence': 0.91}
-        detections = [
-            {**d, 'class_name': '글레이즈드도넛', 'confidence': 0.91}
-            if d.get('class_name') in DEMO_OVERRIDE else d
-            for d in detections
-        ]
-
         top5 = [
             {
                 'class_name_kr': d['class_name'],

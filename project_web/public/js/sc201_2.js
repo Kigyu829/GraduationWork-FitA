@@ -91,42 +91,76 @@ phoneEl.addEventListener('input', () => {
   phoneEl.value = v;
 });
 
-/* ── 인증번호 전송 ── */
-let mockCode     = '';
-let codeVerified = false;
+/* ── 전화번호 인증 (Firebase Phone Auth) ── */
+let confirmationResult = null;
+let codeVerified       = false;
+let recaptchaVerifier  = null;
 
-sendVerifyBtn.addEventListener('click', () => {
+function toE164(phone) {
+  const digits = phone.replace(/\D/g, '');
+  return '+82' + digits.slice(1); // 010xxxxxxxx → +8210xxxxxxxx
+}
+
+function initRecaptcha() {
+  if (recaptchaVerifier) return;
+  recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+    size: 'invisible',
+    'expired-callback': () => {
+      recaptchaVerifier.clear();
+      recaptchaVerifier = null;
+    }
+  });
+}
+
+initRecaptcha();
+
+sendVerifyBtn.addEventListener('click', async () => {
   const phone = phoneEl.value.replace(/\D/g, '');
   if (phone.length < 10) {
     alert('전화번호를 올바르게 입력해주세요.');
     return;
   }
-  mockCode     = String(Math.floor(100000 + Math.random() * 900000));
+
+  if (!recaptchaVerifier) initRecaptcha();
+  sendVerifyBtn.disabled    = true;
+  sendVerifyBtn.textContent = '전송 중...';
   codeVerified = false;
 
-  verifyCodeGroup.style.display       = 'flex';
-  verifyCodeGroup.style.flexDirection = 'column';
-  verifyCodeGroup.style.gap           = '6px';
+  try {
+    confirmationResult = await auth.signInWithPhoneNumber(toE164(phone), recaptchaVerifier);
 
-  setHint('verifyHint', `인증번호가 전송되었습니다. (개발 중 확인: ${mockCode})`, 'valid');
-  sendVerifyBtn.textContent = '재전송';
-  console.log('[DEV] 인증번호:', mockCode);
+    verifyCodeGroup.style.display       = 'flex';
+    verifyCodeGroup.style.flexDirection = 'column';
+    verifyCodeGroup.style.gap           = '6px';
+    setHint('verifyHint', 'SMS로 인증번호가 전송되었습니다.', 'valid');
+    sendVerifyBtn.textContent = '재전송';
+    sendVerifyBtn.disabled    = false;
+  } catch (err) {
+    sendVerifyBtn.disabled    = false;
+    sendVerifyBtn.textContent = '인증번호 전송';
+    if (recaptchaVerifier) { recaptchaVerifier.clear(); recaptchaVerifier = null; }
+    alert('전송 실패: ' + (err.message || err.code));
+    console.error('[Phone Auth]', err);
+  }
 });
 
-/* ── 인증번호 실시간 검사 ── */
-verifyCodeEl.addEventListener('input', () => {
-  if (!mockCode) return;
-  if (verifyCodeEl.value === mockCode) {
+/* ── 인증번호 확인 ── */
+verifyCodeEl.addEventListener('input', async () => {
+  if (!confirmationResult || verifyCodeEl.value.length !== 6) return;
+
+  verifyCodeEl.disabled = true;
+  try {
+    await confirmationResult.confirm(verifyCodeEl.value);
+    await auth.signOut(); // 임시 Phone Auth 사용자 정리 후 이메일 계정 생성
+    codeVerified = true;
     setHint('verifyHint', '인증이 완료되었습니다.', 'valid');
     setInputState(verifyCodeEl, 'valid');
-    codeVerified = true;
-  } else if (verifyCodeEl.value.length === 6) {
+  } catch {
+    codeVerified = false;
     setHint('verifyHint', '인증번호가 올바르지 않습니다.', 'error');
     setInputState(verifyCodeEl, 'error');
-    codeVerified = false;
-  } else {
-    setHint('verifyHint', '');
-    codeVerified = false;
+  } finally {
+    verifyCodeEl.disabled = false;
   }
 });
 

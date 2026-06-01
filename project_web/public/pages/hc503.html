@@ -278,9 +278,9 @@ const POSE_RULES = {
     check: (lms) => {
       const lk = calcAngle(lms[23], lms[25], lms[27]);
       const rk = calcAngle(lms[24], lms[26], lms[28]);
-      return { ok: lk < 120 && rk < 120, angles: [
-        { label: '왼쪽 무릎', value: lk, ok: lk < 120, fix: '왼쪽 무릎을 더 깊이 구부려 앉으세요' },
-        { label: '오른쪽 무릎', value: rk, ok: rk < 120, fix: '오른쪽 무릎을 더 깊이 구부려 앉으세요' },
+      return { ok: lk < 110 && rk < 110, angles: [
+        { label: '왼쪽 무릎', value: lk, ok: lk < 110, fix: '왼쪽 무릎을 더 깊이 구부려 앉으세요' },
+        { label: '오른쪽 무릎', value: rk, ok: rk < 110, fix: '오른쪽 무릎을 더 깊이 구부려 앉으세요' },
       ]};
     },
     hint: '무릎을 구부려 앉는 자세를 취해주세요',
@@ -289,9 +289,9 @@ const POSE_RULES = {
     check: (lms) => {
       const lk = calcAngle(lms[23], lms[25], lms[27]);
       const rk = calcAngle(lms[24], lms[26], lms[28]);
-      return { ok: lk < 120 && rk < 120, angles: [
-        { label: '왼쪽 무릎', value: lk, ok: lk < 120, fix: '왼쪽 무릎을 더 구부려 앉으세요' },
-        { label: '오른쪽 무릎', value: rk, ok: rk < 120, fix: '오른쪽 무릎을 더 구부려 앉으세요' },
+      return { ok: lk < 110 && rk < 110, angles: [
+        { label: '왼쪽 무릎', value: lk, ok: lk < 110, fix: '왼쪽 무릎을 더 깊이 구부려 앉으세요' },
+        { label: '오른쪽 무릎', value: rk, ok: rk < 110, fix: '오른쪽 무릎을 더 깊이 구부려 앉으세요' },
       ]};
     },
     hint: '스쿼트 자세로 앉아주세요',
@@ -341,10 +341,10 @@ const POSE_RULES = {
     check: (lms) => {
       const lk = calcAngle(lms[23], lms[25], lms[27]);
       const rk = calcAngle(lms[24], lms[26], lms[28]);
-      const ok = (lk < 110 && rk > 130) || (rk < 110 && lk > 130);
+      const ok = (lk < 110 && rk > 110) || (rk < 110 && lk > 110);
       return { ok, angles: [
         { label: '앞쪽 무릎', value: Math.min(lk, rk), ok: Math.min(lk, rk) < 110, fix: '앞 무릎을 90° 가깝게 더 구부리세요' },
-        { label: '뒤쪽 무릎', value: Math.max(lk, rk), ok: Math.max(lk, rk) > 130, fix: '뒷다리를 더 뒤로 뻗어 자세를 넓히세요' },
+        { label: '뒤쪽 무릎', value: Math.max(lk, rk), ok: Math.max(lk, rk) > 110, fix: '뒷다리를 더 뒤로 뻗어 자세를 넓히세요' },
       ]};
     },
     hint: '한 발을 앞으로 내딛어 무릎을 구부려주세요',
@@ -737,10 +737,10 @@ const POSE_RULES = {
       const lk = calcAngle(lms[23], lms[25], lms[27]);
       const rk = calcAngle(lms[24], lms[26], lms[28]);
       const wide = Math.abs(lms[27].x - lms[28].x) > 0.20;
-      const ok = lk < 120 && rk < 120 && wide;
+      const ok = lk < 110 && rk < 110 && wide;
       return { ok, angles: [
-        { label: '왼쪽 무릎', value: lk, ok: lk < 120, fix: '왼쪽 무릎을 발끝 방향으로 더 구부리세요' },
-        { label: '오른쪽 무릎', value: rk, ok: rk < 120, fix: '오른쪽 무릎을 발끝 방향으로 더 구부리세요' },
+        { label: '왼쪽 무릎', value: lk, ok: lk < 110, fix: '왼쪽 무릎을 발끝 방향으로 더 깊이 구부리세요' },
+        { label: '오른쪽 무릎', value: rk, ok: rk < 110, fix: '오른쪽 무릎을 발끝 방향으로 더 깊이 구부리세요' },
         { label: '넓은 발 간격', value: null, ok: wide, fix: '발을 어깨 너비 두 배로 더 넓게 벌리세요' },
       ]};
     },
@@ -776,10 +776,10 @@ const POSE_RULES = {
     check: (lms) => {
       const lk = calcAngle(lms[23], lms[25], lms[27]);
       const rk = calcAngle(lms[24], lms[26], lms[28]);
-      const ok = lk < 120 && rk < 120;
+      const ok = lk < 110 && rk < 110;
       return { ok, angles: [
-        { label: '왼쪽 무릎', value: lk, ok: lk < 120, fix: '왼쪽 무릎을 더 깊이 구부려 앉으세요' },
-        { label: '오른쪽 무릎', value: rk, ok: rk < 120, fix: '오른쪽 무릎을 더 깊이 구부려 앉으세요' },
+        { label: '왼쪽 무릎', value: lk, ok: lk < 110, fix: '왼쪽 무릎을 더 깊이 구부려 앉으세요' },
+        { label: '오른쪽 무릎', value: rk, ok: rk < 110, fix: '오른쪽 무릎을 더 깊이 구부려 앉으세요' },
       ]};
     },
     hint: '빠르게 스쿼트 자세를 반복하세요',
@@ -895,10 +895,10 @@ const HOLD_EXERCISES = new Set(['플랭크','사이드 플랭크','월 싯','버
 /* ── 렙 카운팅 규칙 { up(lms)→bool, down(lms)→bool } ── */
 /* up = 시작/복귀 자세, down = 운동 자세, down→up 전환 1회 = 1렙 */
 const _kStr  = (l) => calcAngle(l[23],l[25],l[27]) > 155 && calcAngle(l[24],l[26],l[28]) > 155;
-const _kBent = (l) => calcAngle(l[23],l[25],l[27]) < 120 && calcAngle(l[24],l[26],l[28]) < 120;
+const _kBent = (l) => calcAngle(l[23],l[25],l[27]) < 110 && calcAngle(l[24],l[26],l[28]) < 110;
 const _eStr  = (l) => calcAngle(l[11],l[13],l[15]) > 150 && calcAngle(l[12],l[14],l[16]) > 150;
 const _eBent = (l) => calcAngle(l[11],l[13],l[15]) < 110 || calcAngle(l[12],l[14],l[16]) < 110;
-const _lunge = (l) => { const a=calcAngle(l[23],l[25],l[27]),b=calcAngle(l[24],l[26],l[28]); return (a<110&&b>130)||(b<110&&a>130); };
+const _lunge = (l) => { const a=calcAngle(l[23],l[25],l[27]),b=calcAngle(l[24],l[26],l[28]); return (a<110&&b>110)||(b<110&&a>110); };
 const _stand = (l) => (l[11].y+l[12].y)/2 < (l[23].y+l[24].y)/2 - 0.20;
 const _floor = (l) => Math.abs(l[11].y-l[23].y) < 0.18;
 

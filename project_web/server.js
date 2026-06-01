@@ -100,6 +100,30 @@ app.use('/cnn', apiRateLimit, createProxyMiddleware({
 }));
 
 
+/* ── Kakao 로그인 토큰 교환 ── */
+app.post('/auth/kakao', express.json(), async (req, res) => {
+  const { code, redirectUri } = req.body;
+  const REST_KEY = process.env.KAKAO_REST_API_KEY;
+  if (!REST_KEY) return res.status(500).json({ error: 'KAKAO_REST_API_KEY 환경변수가 없습니다.' });
+  try {
+    const tokenRes = await fetch('https://kauth.kakao.com/oauth/token', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body:    new URLSearchParams({ grant_type: 'authorization_code', client_id: REST_KEY, redirect_uri: redirectUri, code }),
+    });
+    const tokenData = await tokenRes.json();
+    if (tokenData.error) return res.status(400).json({ error: tokenData.error_description || tokenData.error });
+
+    const userRes  = await fetch('https://kapi.kakao.com/v2/user/me', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    });
+    const userData = await userRes.json();
+    res.json({ kakaoId: String(userData.id), nickname: userData.properties?.nickname || '카카오 사용자' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 /* ── http.Server 로 감싸서 WebSocket 업그레이드 지원 ── */
 const server = http.createServer(app);
 server.on('upgrade', socketProxy.upgrade);

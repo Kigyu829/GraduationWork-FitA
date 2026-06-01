@@ -303,23 +303,26 @@ function initSc602Cal() {
       document.getElementById('sc602HistOverlay').classList.remove('show');
     }
   });
-  document.getElementById('sc602PrevMonth')?.addEventListener('click', () => {
+  document.getElementById('sc602PrevMonth')?.addEventListener('click', async () => {
     sc602CalMonth--;
     if (sc602CalMonth < 0) { sc602CalMonth = 11; sc602CalYear--; }
+    await loadMonthChecksFromFirestore(sc602CalYear, sc602CalMonth);
     buildSc602Cal();
   });
-  document.getElementById('sc602NextMonth')?.addEventListener('click', () => {
+  document.getElementById('sc602NextMonth')?.addEventListener('click', async () => {
     sc602CalMonth++;
     if (sc602CalMonth > 11) { sc602CalMonth = 0; sc602CalYear++; }
+    await loadMonthChecksFromFirestore(sc602CalYear, sc602CalMonth);
     buildSc602Cal();
   });
 }
 
-function openSc602Cal() {
+async function openSc602Cal() {
   const d = new Date(currentDate);
   sc602CalYear  = d.getFullYear();
   sc602CalMonth = d.getMonth();
   document.getElementById('sc602HistOverlay')?.classList.add('show');
+  await loadMonthChecksFromFirestore(sc602CalYear, sc602CalMonth);
   buildSc602Cal();
 }
 

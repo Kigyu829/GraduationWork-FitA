@@ -75,6 +75,19 @@ const STEPS = [
   { id: 'step3', label: '최종 검토', duration: 800  },
 ];
 
+/* ── 남은 목표 기간(주) 계산 ── */
+function calcRemainingWeeks(userData) {
+  const goalWeeks = Number(userData.goalWeeks) || 8;
+  const uid    = getCurrentUid();
+  const regStr = uid ? localStorage.getItem(`reg_${uid}`) : null;
+  if (!regStr) return goalWeeks;
+
+  const elapsedWeeks = Math.floor(
+    (new Date() - new Date(regStr)) / (1000 * 60 * 60 * 24 * 7)
+  );
+  return Math.max(1, goalWeeks - elapsedWeeks);
+}
+
 /* ── AI 플랜 API 호출 (15초 타임아웃) ── */
 async function fetchAiPlans() {
   const userData       = Storage.getUser();
@@ -88,41 +101,48 @@ async function fetchAiPlans() {
     bmi:             userData.bmi           || '',
     gender:          userData.gender        || '',
     targetWeight:    userData.targetWeight  || '',
-    targetWeeks:     userData.goalWeeks     || 8,
+    targetWeeks:     calcRemainingWeeks(userData),
     activityLevel:   userData.activityLevel || '보통',
     targetCalories,
   };
 
-  const controller = new AbortController();
-  const timeoutId  = setTimeout(() => controller.abort(), 15000);
+  const mealCtrl    = new AbortController();
+  const exCtrl      = new AbortController();
+  const mealTimeout = setTimeout(() => mealCtrl.abort(), 15000);
+  const exTimeout   = setTimeout(() => exCtrl.abort(),   15000);
 
   try {
-    const [mealRes, exRes] = await Promise.all([
+    const [mealResult, exResult] = await Promise.allSettled([
       fetch(`${AI_SERVER}/api/meal/recommend`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ ...baseBody, ...(mealReasons.length > 0 && { reasons: mealReasons }) }),
-        signal:  controller.signal,
+        signal:  mealCtrl.signal,
       }),
       fetch(`${AI_SERVER}/api/exercise/recommend`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ ...baseBody, ...(workoutReasons.length > 0 && { reasons: workoutReasons }) }),
-        signal:  controller.signal,
+        signal:  exCtrl.signal,
       }),
     ]);
 
-    const mealJson = await mealRes.json();
-    const exJson   = await exRes.json();
+    if (mealResult.status === 'fulfilled') {
+      const mealJson = await mealResult.value.json();
+      if (mealJson.success) Storage.mergeUser({ aiMealPlan: mealJson.data });
+    }
+    if (exResult.status === 'fulfilled') {
+      const exJson = await exResult.value.json();
+      if (exJson.success) Storage.mergeUser({ aiWorkoutPlan: exJson.data });
+    }
 
-    if (mealJson.success) Storage.mergeUser({ aiMealPlan:    mealJson.data });
-    if (exJson.success)   Storage.mergeUser({ aiWorkoutPlan: exJson.data   });
-
-    if (mealJson.success || exJson.success) {
+    const saved = Storage.getUser();
+    if (saved.aiMealPlan || saved.aiWorkoutPlan) {
       Storage.mergeUser({ planDate: todayStr() });
     }
   } finally {
-    clearTimeout(timeoutId);
+    clearTimeout(mealTimeout);
+    clearTimeout(exTimeout);
   }
 }
 

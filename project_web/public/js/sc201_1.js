@@ -8,7 +8,10 @@
 const loginForm  = document.getElementById('loginForm');
 const loginError = document.getElementById('loginError');
 
-/* ── 저장된 아이디 복원 ── */
+/* Android WebView 감지 (MainActivity의 UA 문자열 기반) */
+const isInWebView = /FitAiness\/1\.0/.test(navigator.userAgent);
+
+/* ── 저장된 아이디 복원 + Kakao/Google 리다이렉트 결과 처리 ── */
 window.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem('savedLoginId');
   if (saved) {
@@ -17,12 +20,16 @@ window.addEventListener('DOMContentLoaded', () => {
     const cb = document.getElementById('saveId');
     if (cb) cb.checked = true;
   }
+  const kakaoCode = new URLSearchParams(window.location.search).get('code');
+  if (kakaoCode) handleKakaoCallback(kakaoCode);
+
 });
 
-/* ── 이미 로그인된 경우 자동 이동 (Firebase Auth 세션 복원) ── */
+/* ── 로그인 상태 감지 (세션 복원 + 소셜 신규 유저 처리) ── */
 auth.onAuthStateChanged(async user => {
   if (!user) return;
   sessionStorage.setItem('_fitUid',   user.uid);
+  localStorage.setItem('_fitUid',     user.uid);
   sessionStorage.setItem('_fitEmail', user.email || '');
   try {
     const doc = await db.collection('users').doc(user.uid).get();
@@ -31,18 +38,111 @@ auth.onAuthStateChanged(async user => {
       if (data.nickname) sessionStorage.setItem('_fitNick', data.nickname);
       if (data.userData) localStorage.setItem(`hud_${user.uid}`, JSON.stringify(data.userData));
       if (data.userData?.targetWeight) { location.replace('sc301.html'); return; }
+    } else {
+      /* 신규 소셜 로그인 유저 — Firestore 문서 생성 */
+      const nickname = user.displayName || sessionStorage.getItem('_pendingNick') || '';
+      sessionStorage.removeItem('_pendingNick');
+      await db.collection('users').doc(user.uid).set({
+        email:     user.email || '',
+        nickname,
+        userData:  {},
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      localStorage.setItem(`hud_${user.uid}`, JSON.stringify({}));
+      const d = new Date();
+      localStorage.setItem(`reg_${user.uid}`,
+        `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+      if (nickname) sessionStorage.setItem('_fitNick', nickname);
     }
     location.replace('sc202.html');
-  } catch { /* 네트워크 오류 시 무시 */ }
+  } catch (e) {
+    console.error('[auth] Firestore 오류, sc202로 이동:', e);
+    location.replace('sc202.html');
+  }
 });
 
-/* ── 소셜 로그인 버튼 (추후 연동) ── */
-document.querySelectorAll('.social-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const provider = btn.classList.contains('naver') ? '네이버' :
-                     btn.classList.contains('kakao') ? '카카오' : '구글';
-    alert(`${provider} 로그인은 추후 연동 예정입니다.`);
+/* ── Google 로그인 ── */
+async function loginWithGoogle() {
+  if (isInWebView) {
+    /* Android: 네이티브 Google Sign-In (팝업/리다이렉트 불가) */
+    if (window.AndroidBridge) {
+      window.AndroidBridge.signInWithGoogle();
+    } else {
+      alert('구글 로그인을 사용할 수 없습니다.');
+    }
+    return;
+  }
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(provider);
+    /* onAuthStateChanged 가 이후 처리 */
+  } catch (err) {
+    if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
+      alert(`구글 로그인 실패: ${err.code}`);
+      console.error('[Google]', err.code, err.message);
+    }
+  }
+}
+
+/* ── 네이티브 Google Sign-In 토큰 수신 (Android → WebView) ── */
+function handleNativeGoogleToken(idToken) {
+  const credential = firebase.auth.GoogleAuthProvider.credential(idToken);
+  auth.signInWithCredential(credential).catch(err => {
+    alert('구글 로그인 실패: ' + err.code);
+    console.error('[Native Google]', err);
   });
+  /* onAuthStateChanged 가 이후 처리 */
+}
+
+/* ── Kakao 로그인 (authorize 리다이렉트 방식) ── */
+function loginWithKakao() {
+  try {
+    const redirectUri = window.location.href.split('?')[0].split('#')[0];
+    sessionStorage.setItem('_kakaoRedirectUri', redirectUri);
+    Kakao.Auth.authorize({ redirectUri });
+  } catch (e) {
+    alert('카카오 로그인 오류: ' + e.message);
+    console.error('[Kakao]', e);
+  }
+}
+
+async function handleKakaoCallback(code) {
+  const redirectUri = sessionStorage.getItem('_kakaoRedirectUri')
+    || window.location.href.split('?')[0].split('#')[0];
+  sessionStorage.removeItem('_kakaoRedirectUri');
+  window.history.replaceState({}, document.title, window.location.pathname);
+
+  try {
+    const res  = await fetch('/auth/kakao', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ code, redirectUri }),
+    });
+    const data = await res.json();
+    if (data.error) { alert('카카오 로그인 실패: ' + data.error); return; }
+
+    const fakeEmail    = `kakao_${data.kakaoId}@kakao.fita`;
+    const fakePassword = `kakao_${data.kakaoId}`;
+    sessionStorage.setItem('_pendingNick', data.nickname);
+    try {
+      await auth.signInWithEmailAndPassword(fakeEmail, fakePassword);
+    } catch (e) {
+      if (e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential') {
+        await auth.createUserWithEmailAndPassword(fakeEmail, fakePassword);
+      } else {
+        alert('카카오 Firebase 오류: ' + e.code);
+      }
+    }
+  } catch (err) {
+    alert('카카오 오류: ' + err.message);
+  }
+}
+
+/* ── 소셜 버튼 바인딩 ── */
+document.querySelector('.social-btn.google')?.addEventListener('click', loginWithGoogle);
+document.querySelector('.social-btn.kakao')?.addEventListener('click', loginWithKakao);
+document.querySelector('.social-btn.naver')?.addEventListener('click', () => {
+  alert('네이버 로그인은 준비 중입니다.');
 });
 
 /* ── 로그인 제출 ── */

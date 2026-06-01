@@ -8,7 +8,7 @@
 /* ── Firebase UID 헬퍼 ── */
 function getCurrentUid() {
   if (typeof auth !== 'undefined' && auth.currentUser) return auth.currentUser.uid;
-  return sessionStorage.getItem('_fitUid') || null;
+  return sessionStorage.getItem('_fitUid') || localStorage.getItem('_fitUid') || null;
 }
 
 /**

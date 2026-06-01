@@ -871,12 +871,15 @@ async function handleMealAdjust(reason) {
 
     clearAdjustState('meals');
     Storage.mergeUser({ aiMealPlan: json.data, mealAdjustReasons: accumulated });
-    const uid = getCurrentUid();
-    if (uid && typeof db !== 'undefined') {
+    {
       const today = new Date();
       const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-      db.collection('users').doc(uid).collection('daily').doc(todayKey)
-        .set({ aiMealPlan: json.data }, { merge: true }).catch(console.error);
+      const planKey  = lsKey('plan', todayKey);
+      let plan = {};
+      try { plan = JSON.parse(localStorage.getItem(planKey) || '{}'); } catch {}
+      plan.mealPlan = json.data;
+      localStorage.setItem(planKey, JSON.stringify(plan));
+      syncDayToFirestore(todayKey);
     }
     renderMealItems(json.data);
     applyIcons();
@@ -913,12 +916,15 @@ async function handleExerciseAdjust(reason) {
 
     clearAdjustState('workouts');
     Storage.mergeUser({ aiWorkoutPlan: json.data, workoutAdjustReasons: accumulated });
-    const uid = getCurrentUid();
-    if (uid && typeof db !== 'undefined') {
+    {
       const today = new Date();
       const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-      db.collection('users').doc(uid).collection('daily').doc(todayKey)
-        .set({ aiWorkoutPlan: json.data }, { merge: true }).catch(console.error);
+      const planKey  = lsKey('plan', todayKey);
+      let plan = {};
+      try { plan = JSON.parse(localStorage.getItem(planKey) || '{}'); } catch {}
+      plan.workoutPlan = json.data;
+      localStorage.setItem(planKey, JSON.stringify(plan));
+      syncDayToFirestore(todayKey);
     }
     renderWorkoutItems(json.data);
     applyIcons();
