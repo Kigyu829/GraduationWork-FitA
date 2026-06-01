@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#09131a">
+  <title>목표 설정 – FitA</title>
+  <link rel="manifest" href="../../manifest.json">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/sc202.css">
+  <link rel="stylesheet" href="../css/sc203.css">
+</head>
+<body class="onboard-page">
+  <div class="onboard-container">
+    <div class="step-bar">
+      <div class="step-item done"><div class="step-circle">✓</div><span class="step-label">신체 정보</span></div>
+      <div class="step-line done"></div>
+      <div class="step-item active"><div class="step-circle">2</div><span class="step-label">목표 설정</span></div>
+      <div class="step-line"></div>
+      <div class="step-item"><div class="step-circle">✓</div><span class="step-label">완료</span></div>
+    </div>
+    <section class="form-card">
+      <div class="form-header">
+        <span class="step-badge">STEP 2 / 2</span>
+        <h1>목표를 설정해주세요</h1>
+        <p>목표 감량과 달성 기간을 입력해주세요.</p>
+      </div>
+      <form id="bodyInfoForm2" class="health-form">
+        <div class="input-group">
+          <label for="activityLevel">평소 활동량</label>
+          <select id="activityLevel">
+            <option value="낮음">낮음 — 주로 앉아서 생활</option>
+            <option value="보통">보통 — 주 1~3회 가벼운 운동</option>
+            <option value="높음">높음 — 주 3~5회 규칙적 운동</option>
+            <option value="매우높음">매우 높음 — 주 6~7회 고강도 운동</option>
+            <option value="선수">운동 선수 — 하루 2회 훈련</option>
+          </select>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="targetLoss">목표 감량 (kg)</label>
+            <input type="number" id="targetLoss" placeholder="5" min="0.5" max="50" step="0.5">
+          </div>
+          <div class="input-group">
+            <label for="goalPeriod">달성 기간</label>
+            <select id="goalPeriod">
+              <option value="4주">4주</option>
+              <option value="8주">8주</option>
+              <option value="12주" selected>12주</option>
+              <option value="16주">16주</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
+        </div>
+        <div id="customPeriodWrap" style="display:none;" class="input-group">
+          <label>직접 입력 (주)</label>
+          <input type="number" id="customPeriodWeeks" placeholder="예: 20" min="1" max="52">
+          <span class="field-hint" id="customPeriodHint"></span>
+        </div>
+        <div class="bmi-preview">
+          <div class="bmi-box">
+            <div class="bmi-left"><span class="bmi-label">현재 BMI</span><strong id="bmiValue">-</strong></div>
+            <div class="bmi-divider"></div>
+            <div class="bmi-right"><p id="bmiStatus">이전 단계 정보를 불러오는 중입니다.</p></div>
+          </div>
+        </div>
+        <div class="goal-preview"><p class="info-text" id="goalInfo">목표 감량과 기간을 입력하면 표시됩니다.</p></div>
+        <div class="goal-warning" id="goalWarning"></div>
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <a href="sc202.html" class="secondary-btn" style="flex:1;text-align:center;">← 이전</a>
+          <button type="submit" class="primary-btn" style="flex:1;">완료하기</button>
+        </div>
+      </form>
+    </section>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/sc203.js"></script>
+</body>
+</html>

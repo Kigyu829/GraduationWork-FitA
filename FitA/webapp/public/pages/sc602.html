@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#09131a">
+  <title>기록 – FitA</title>
+  <link rel="manifest" href="../../manifest.json">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/sc602.css">
+</head>
+<body>
+  <header class="mob-header">
+    <img src="../img/FitALogo.png" alt="FitA" class="mob-header-logo">
+    <span class="mob-header-title">기록</span>
+  </header>
+
+  <main class="mob-main">
+    <div class="mob-inner">
+      <!-- 날짜 네비게이션 -->
+      <div class="detail-header">
+        <button class="detail-nav-btn" id="prevDayBtn">‹</button>
+        <div class="detail-date-center">
+          <div class="detail-date" id="detailDate">날짜 불러오는 중...</div>
+          <button class="detail-cal-btn" id="sc602CalOpen">📅</button>
+        </div>
+        <button class="detail-nav-btn" id="nextDayBtn">›</button>
+      </div>
+
+      <!-- 뱃지 -->
+      <div class="detail-badge-row" id="detailBadgeRow"></div>
+
+      <!-- 주간 매크로 리포트 -->
+      <div class="weekly-macro-card" id="weeklyMacroCard">
+        <div class="weekly-macro-header" id="weeklyMacroToggle">
+          <span class="weekly-macro-title">📊 주간 평균 매크로</span>
+          <span class="weekly-macro-chevron" id="weeklyMacroChevron">▾</span>
+        </div>
+        <div class="weekly-macro-body" id="weeklyMacroBody" style="display:none;">
+          <div class="weekly-macro-bars" id="weeklyMacroBars"></div>
+          <div class="weekly-macro-row" id="weeklyMacroRow"></div>
+        </div>
+      </div>
+
+      <!-- 탭 -->
+      <div class="tab-bar">
+        <button class="detail-tab tab-btn active" data-tab="meal">🥗 식단</button>
+        <button class="detail-tab tab-btn" data-tab="workout">💪 운동</button>
+      </div>
+
+      <!-- 로딩 인디케이터 (Firestore 데이터 로드 중) -->
+      <div id="sc602Loading" class="sc602-loading-overlay" aria-hidden="true">
+        <div class="sc602-spinner"></div>
+        <p class="sc602-loading-label">기록 불러오는 중...</p>
+      </div>
+
+      <!-- 식단 탭 -->
+      <div class="detail-content tab-content active" id="detailContentMeal">
+        <div class="detail-section-title">식단 기록</div>
+        <div class="detail-meal-list" id="detailMealList"><div class="detail-empty-msg">기록된 식단이 없어요</div></div>
+        <div class="detail-section-title" style="margin-top:16px;">인증 사진</div>
+        <div class="detail-photo-grid" id="detailPhotoGrid"><div class="detail-photo-empty">인증된 사진이 없어요</div></div>
+      </div>
+
+      <!-- 운동 탭 -->
+      <div class="detail-content tab-content" id="detailContentWorkout">
+        <div class="detail-section-title">운동 기록</div>
+        <div class="detail-workout-list" id="detailWorkoutList"><div class="detail-empty-msg">기록된 운동이 없어요</div></div>
+        <div class="detail-workout-summary" id="detailWorkoutSummary"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="sc301.html" class="bnav-item"><span class="bnav-icon">🏠</span><span class="bnav-label">홈</span></a>
+    <a href="sc311.html" class="bnav-item"><span class="bnav-icon">📋</span><span class="bnav-label">오늘</span></a>
+    <a href="sc602.html" class="bnav-item active"><span class="bnav-icon">📅</span><span class="bnav-label">기록</span></a>
+    <a href="sc701.html" class="bnav-item"><span class="bnav-icon">👤</span><span class="bnav-label">나</span></a>
+  </nav>
+
+  <!-- sc602 달력 모달 -->
+  <div class="hist-modal-overlay" id="sc602HistOverlay">
+    <div class="hist-modal" id="sc602HistModal">
+      <div class="hist-modal-header">
+        <div class="hist-modal-title">📅 날짜 선택</div>
+        <button class="hist-modal-close" id="sc602HistClose">×</button>
+      </div>
+      <div class="hist-modal-body">
+        <div class="hist-cal-nav">
+          <button class="hist-cal-arrow" id="sc602PrevMonth">&#8249;</button>
+          <span class="hist-cal-title" id="sc602CalTitle">-</span>
+          <button class="hist-cal-arrow" id="sc602NextMonth">&#8250;</button>
+        </div>
+        <div class="hist-legend">
+          <span class="hist-legend-item"><span class="hist-dot dot-both"></span>식단+운동</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-meal"></span>식단</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-workout"></span>운동</span>
+        </div>
+        <div class="hist-weekdays"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+        <div class="hist-days" id="sc602CalDays"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Overlay -->
+  <div class="ai-overlay" id="aiOverlay">
+    <div class="ai-overlay-panel" id="aiOverlayPanel">
+      <div class="ai-overlay-header">
+        <div class="ai-overlay-title">🤖 AI 상담</div>
+        <button class="ai-overlay-close" id="aiOverlayClose">×</button>
+      </div>
+      <div class="ai-overlay-messages" id="aiOverlayMessages">
+        <div class="chat-msg ai">
+          <div class="chat-avatar">🤖</div>
+          <div><div class="chat-bubble">안녕하세요! FitA AI 상담사입니다. 건강 관련 질문이나 식단/운동 조언이 필요하시면 언제든 물어보세요! 💪<br><br><span style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.5;">※ AI 상담은 의학적 진단·처방을 대체하지 않습니다. 건강 이상 증상이 있거나 기저 질환이 있으신 경우 반드시 전문의와 상담하세요.</span></div><div class="chat-time">AI 상담사</div></div>
+        </div>
+      </div>
+      <div class="ai-overlay-input-wrap">
+        <textarea class="ai-overlay-input" id="aiOverlayInput" placeholder="메시지를 입력하세요..." rows="1"></textarea>
+        <button class="ai-overlay-send" id="aiOverlaySend">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div class="hist-modal-overlay" id="histModalOverlay">
+    <div class="hist-modal" id="histModal">
+      <div class="hist-modal-header">
+        <div class="hist-modal-title">📅 히스토리</div>
+        <button class="hist-modal-close" id="histModalClose">×</button>
+      </div>
+      <div class="hist-modal-body">
+        <div class="hist-cal-nav">
+          <button class="hist-cal-arrow" id="histPrevMonth">&#8249;</button>
+          <span class="hist-cal-title" id="histCalTitle">-</span>
+          <button class="hist-cal-arrow" id="histNextMonth">&#8250;</button>
+        </div>
+        <div class="hist-legend">
+          <span class="hist-legend-item"><span class="hist-dot dot-both"></span>식단+운동</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-meal"></span>식단</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-workout"></span>운동</span>
+        </div>
+        <div class="hist-weekdays"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+        <div class="hist-days" id="histDays"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/sc602.js"></script>
+  <script>
+    document.getElementById('aiChatBtn')?.addEventListener('click', () => document.getElementById('aiOverlay')?.classList.add('show'));
+  </script>
+</body>
+</html>

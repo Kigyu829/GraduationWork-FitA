@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#09131a">
+  <title>식단 인증 – FitA</title>
+  <link rel="manifest" href="../../manifest.json">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/sc401.css">
+</head>
+<body>
+  <header class="mob-header">
+    <img src="../img/FitALogo.png" alt="FitA" class="mob-header-logo">
+    <span class="mob-header-title">식단 인증</span>
+    <div class="mob-header-right"></div>
+  </header>
+
+  <main class="mob-main">
+    <div class="mob-inner">
+      <div class="upload-guide">
+        <h2 class="upload-guide-title">오늘 식사를 인증해요</h2>
+        <p class="upload-guide-desc">식사 사진을 업로드하면 AI가 음식을 분석해 칼로리를 계산해드려요.</p>
+      </div>
+
+      <!-- 식사 타입 선택 -->
+      <div class="meal-type-bar">
+        <button class="meal-type-btn active" data-meal="breakfast">🌅 아침</button>
+        <button class="meal-type-btn" data-meal="lunch">☀️ 점심</button>
+        <button class="meal-type-btn" data-meal="dinner">🌙 저녁</button>
+        <button class="meal-type-btn" data-meal="snack">🍎 간식</button>
+      </div>
+
+      <!-- 업로드 카드 -->
+      <div class="upload-card" id="dropZone">
+        <input type="file" id="foodFileInput" accept="image/*" capture="environment" style="display:none;">
+        <div class="upload-placeholder" id="uploadPlaceholder">
+          <div class="upload-icon">📸</div>
+          <div class="upload-text">사진을 탭하여 업로드</div>
+          <div class="upload-subtext">카메라 또는 갤러리에서 선택</div>
+          <button class="secondary-btn" id="selectPhotoBtn" style="margin-top:16px;">사진 선택</button>
+        </div>
+        <img class="upload-preview" id="previewImg" src="" alt="미리보기" style="display:none;">
+      </div>
+
+      <button class="primary-btn" id="analyzeBtn" style="width:100%;margin-top:14px;" disabled>📊 AI 분석 시작</button>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="sc301.html" class="bnav-item"><span class="bnav-icon">🏠</span><span class="bnav-label">홈</span></a>
+    <a href="sc311.html" class="bnav-item"><span class="bnav-icon">📋</span><span class="bnav-label">오늘</span></a>
+    <a href="sc602.html" class="bnav-item"><span class="bnav-icon">📅</span><span class="bnav-label">기록</span></a>
+    <a href="sc701.html" class="bnav-item"><span class="bnav-icon">👤</span><span class="bnav-label">나</span></a>
+  </nav>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/sc401.js"></script>
+  <script>
+    document.getElementById('selectPhotoBtn')?.addEventListener('click', () => document.getElementById('foodFileInput')?.click());
+    document.getElementById('dropZone')?.addEventListener('click', e => {
+      if (e.target === document.getElementById('dropZone') || e.target === document.getElementById('uploadPlaceholder')) {
+        document.getElementById('foodFileInput')?.click();
+      }
+    });
+  </script>
+</body>
+</html>

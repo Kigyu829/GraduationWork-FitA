@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#09131a">
+  <title>회원가입 – FitA</title>
+  <link rel="manifest" href="../../manifest.json">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/sc201.css">
+</head>
+<body>
+  <!-- 가입 완료 팝업 -->
+  <div class="success-overlay" id="successOverlay">
+    <div class="success-card">
+      <div class="success-icon">✓</div>
+      <div class="success-title">가입 완료!</div>
+      <p class="success-sub">환영합니다 <strong id="welcomeName">닉네임</strong>님!<br>이제 FitA를 시작해보세요.</p>
+      <button class="primary-btn" id="successContinueBtn" style="width:100%;margin-top:16px;">시작하기 →</button>
+    </div>
+  </div>
+  <div class="auth-wrap">
+    <a href="sc101.html" class="auth-logo">
+      <img src="../img/FitALogo.png" alt="FitA" height="28">
+    </a>
+    <section class="form-card">
+      <div class="form-header">
+        <span class="page-badge">JOIN FREE</span>
+        <h1>회원가입</h1>
+        <p>정보를 입력하고 FitA를 시작하세요.</p>
+      </div>
+      <form id="signupForm" class="signup-form">
+        <div class="input-group">
+          <label for="signupEmail">이메일</label>
+          <input type="email" id="signupEmail" placeholder="example@email.com" autocomplete="email">
+          <span class="field-hint" id="emailHint"></span>
+        </div>
+        <div class="input-group">
+          <label for="signupNickname">닉네임</label>
+          <input type="text" id="signupNickname" placeholder="닉네임 입력" maxlength="12">
+          <span class="field-hint" id="nicknameHint"></span>
+        </div>
+        <div class="input-group">
+          <label for="signupPw">비밀번호</label>
+          <input type="password" id="signupPw" placeholder="8자 이상" autocomplete="new-password">
+          <span class="field-hint" id="pwHint"></span>
+        </div>
+        <div class="input-group">
+          <label for="signupPwConfirm">비밀번호 확인</label>
+          <input type="password" id="signupPwConfirm" placeholder="비밀번호 재입력" autocomplete="new-password">
+          <span class="field-hint" id="pwConfirmHint"></span>
+        </div>
+        <div class="input-group">
+          <label>전화번호</label>
+          <div style="display:flex;gap:8px;">
+            <input type="tel" id="signupPhone" placeholder="010-0000-0000" style="flex:1;">
+            <button type="button" class="secondary-btn" id="sendVerifyBtn" style="white-space:nowrap;padding:11px 14px;">인증번호 전송</button>
+          </div>
+        </div>
+        <div id="recaptcha-container"></div>
+        <div class="input-group" id="verifyCodeGroup" style="display:none;">
+          <label for="verifyCode">인증번호</label>
+          <input type="text" id="verifyCode" placeholder="6자리 입력" maxlength="6">
+          <span class="field-hint" id="verifyHint"></span>
+        </div>
+        <button type="submit" class="primary-btn" style="width:100%;margin-top:4px;">가입하기</button>
+      </form>
+    </section>
+    <p class="auth-footer">이미 계정이 있으신가요? <a href="sc201_1.html">로그인 →</a></p>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/sc201_2.js"></script>
+</body>
+</html>

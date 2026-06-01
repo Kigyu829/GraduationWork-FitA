@@ -28,8 +28,8 @@ router.post('/calories', (req, res) => {
         : 10 * weight + 6.25 * height - 5 * age - 161;
 
     // 활동계수 → TDEE
-    const activityMultiplier = { low: 1.2, moderate: 1.55, high: 1.725 };
-    const tdee = Math.round(bmr * (activityMultiplier[activityLevel] || 1.55));
+    const activityMultiplier = { '낮음': 1.2, '보통': 1.375, '높음': 1.55, '매우높음': 1.725, '선수': 1.9 };
+    const tdee = Math.round(bmr * (activityMultiplier[activityLevel] || 1.375));
 
     // 목표 칼로리 계산
     const weightToLose   = weight - targetWeight;

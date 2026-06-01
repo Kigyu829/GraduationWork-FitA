@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#1a1a2e"/>
+  <text x="256" y="320" text-anchor="middle" font-size="300" font-family="Segoe UI Emoji">🏃</text>
+  <text x="256" y="460" text-anchor="middle" font-size="72" font-weight="bold"
+        fill="white" font-family="Arial, sans-serif">FitAi</text>
+</svg>

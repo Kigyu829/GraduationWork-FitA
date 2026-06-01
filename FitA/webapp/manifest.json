@@ -1,0 +1,13 @@
+{
+  "name": "FitA",
+  "short_name": "FitA",
+  "description": "AI 기반 헬스 관리 앱",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#09131a",
+  "theme_color": "#09131a",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "./public/img/FitALogo.png", "sizes": "any", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

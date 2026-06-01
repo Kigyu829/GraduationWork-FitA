@@ -1,1 +1,173 @@
-<!--view history details-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>기록 상세 – FitA</title>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/sc301.css" />
+  <link rel="stylesheet" href="../css/sc602.css" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+<div class="dashboard">
+
+  <!-- 좌측 사이드바 -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo" id="sidebarLogo" style="cursor:pointer;">
+        <div class="sidebar-logo-icon">🏃</div>
+        <img src="../img/FitALogo.png" alt="FitA" style="height:26px;width:auto;object-fit:contain;" />
+      </div>
+      <div class="sidebar-card profile-card">
+        <div class="profile-avatar" id="profileAvatar">👤</div>
+        <div id="userName">내 정보</div>
+        <div id="userBasicInfo">불러오는 중...</div>
+        <div class="profile-weights">
+          <div class="weight-chip">
+            <span class="weight-chip-label">현재 체중</span>
+            <span class="weight-chip-value" id="currentWeightText">-</span>
+          </div>
+          <div class="weight-chip">
+            <span class="weight-chip-label">목표 체중</span>
+            <span class="weight-chip-value" id="targetWeightText">-</span>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-card menu-card">
+        <div class="menu-card-title">메뉴</div>
+        <div class="menu-list">
+          <button class="menu-btn" data-href="sc301.html"><span class="menu-btn-icon">🏠</span>대시보드</button>
+          <button class="menu-btn" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
+          <button class="menu-btn active"><span class="menu-btn-icon">📅</span>히스토리</button>
+          <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">⚙️</span>마이페이지</button>
+        </div>
+      </div>
+    </div>
+    <button class="logout-btn" id="logoutBtn">로그아웃</button>
+  </aside>
+
+  <!-- 메인 -->
+  <main class="main">
+    <div class="detail-wrap">
+
+      <!-- 헤더 -->
+      <div class="detail-header">
+        <!-- 왼쪽: 달력 열기 (돌아가기 대신) -->
+        <button class="detail-cal-btn" id="sc602CalOpen" title="달력에서 날짜 선택">📅 날짜 선택</button>
+
+        <!-- 가운데: ‹ 날짜 › -->
+        <div class="detail-date-center">
+          <button class="detail-nav-btn" id="prevDayBtn">‹</button>
+          <div class="detail-date" id="detailDate" title="클릭해서 날짜 선택">날짜 불러오는 중...</div>
+          <button class="detail-nav-btn" id="nextDayBtn">›</button>
+        </div>
+      </div>
+
+      <!-- 달성 뱃지 -->
+      <div class="detail-badge-row" id="detailBadgeRow"></div>
+
+      <!-- 탭 -->
+      <div class="detail-tab-bar">
+        <button class="detail-tab active" data-tab="meal">🥗 식단</button>
+        <button class="detail-tab" data-tab="workout">💪 운동</button>
+      </div>
+
+      <!-- 로딩 인디케이터 -->
+      <div id="sc602Loading" class="sc602-loading-overlay" aria-hidden="true">
+        <div class="sc602-spinner"></div>
+        <p class="sc602-loading-label">기록 불러오는 중...</p>
+      </div>
+
+      <!-- 식단 탭 -->
+      <div class="detail-content active" id="detailContentMeal">
+        <!-- 왼쪽: 식단 목록 -->
+        <div class="detail-col-left">
+          <div class="detail-section-title">식단 기록</div>
+          <div class="detail-meal-list" id="detailMealList">
+            <div class="detail-empty-msg">기록된 식단이 없어요</div>
+          </div>
+        </div>
+        <!-- 오른쪽: 인증 사진 -->
+        <div class="detail-col-right">
+          <div class="detail-section-title">인증 사진</div>
+          <div class="detail-photo-grid" id="detailPhotoGrid">
+            <div class="detail-photo-empty">인증된 사진이 없어요</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 운동 탭 -->
+      <div class="detail-content" id="detailContentWorkout">
+        <div class="detail-section-title">운동 기록</div>
+        <div class="detail-workout-list" id="detailWorkoutList">
+          <div class="detail-empty-msg">기록된 운동이 없어요</div>
+        </div>
+        <div class="detail-workout-summary" id="detailWorkoutSummary"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+  <!-- sc602 날짜 선택 달력 모달 -->
+  <div class="hist-modal-overlay" id="sc602HistOverlay">
+    <div class="hist-modal" id="sc602HistModal">
+      <div class="hist-modal-header">
+        <div class="hist-modal-title">📅 날짜 선택</div>
+        <button class="hist-modal-close" id="sc602HistClose">×</button>
+      </div>
+      <div class="hist-modal-body">
+        <div class="hist-cal-nav">
+          <button class="hist-cal-arrow" id="sc602PrevMonth">&#8249;</button>
+          <span class="hist-cal-title" id="sc602CalTitle">-</span>
+          <button class="hist-cal-arrow" id="sc602NextMonth">&#8250;</button>
+        </div>
+        <div class="hist-legend">
+          <span class="hist-legend-item"><span class="hist-dot dot-both"></span>식단+운동</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-meal"></span>식단</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-workout"></span>운동</span>
+        </div>
+        <div class="hist-weekdays">
+          <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+        </div>
+        <div class="hist-days" id="sc602CalDays"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- sc501: AI 상담 오버레이 -->
+  <div class="ai-overlay" id="aiOverlay">
+    <div class="ai-overlay-panel" id="aiOverlayPanel">
+      <div class="ai-overlay-header">
+        <div class="ai-overlay-title">🤖 AI 상담</div>
+        <button class="ai-overlay-close" id="aiOverlayClose">×</button>
+      </div>
+      <div class="ai-overlay-messages" id="aiOverlayMessages">
+        <div class="chat-msg ai">
+          <div class="chat-avatar">🤖</div>
+          <div>
+            <div class="chat-bubble">안녕하세요! 식단이나 운동, 건강에 대해 궁금한 점을 편하게 물어보세요 😊</div>
+            <div class="chat-time">AI 상담사</div>
+          </div>
+        </div>
+      </div>
+      <div class="ai-overlay-input-wrap">
+        <textarea class="ai-overlay-input" id="aiOverlayInput" placeholder="질문을 입력하세요..." rows="1"></textarea>
+        <button class="ai-overlay-send" id="aiOverlaySend">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+<script src="../js/common.js"></script>
+<script src="../js/sc602.js"></script>
+</body>
+</html>

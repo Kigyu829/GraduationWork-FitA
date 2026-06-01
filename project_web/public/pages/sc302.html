@@ -3,10 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI 플랜 생성 중 – HealthDash</title>
+  <title>AI 플랜 생성 중 – FitA</title>
   <link rel="stylesheet" href="../css/common.css" />
   <link rel="stylesheet" href="../css/sc301.css" />
   <link rel="stylesheet" href="../css/sc302.css" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
 <div class="dashboard">
@@ -16,11 +21,11 @@
     <div class="sidebar-top">
       <div class="sidebar-logo" id="sidebarLogo" style="cursor:pointer;">
         <div class="sidebar-logo-icon">🏃</div>
-        <span class="sidebar-logo-text">HealthDash</span>
+        <img src="../img/FitALogo.png" alt="FitA" style="height:26px;width:auto;object-fit:contain;" />
       </div>
 
       <div class="sidebar-card profile-card">
-        <div class="profile-avatar">👤</div>
+        <div class="profile-avatar" id="profileAvatar">👤</div>
         <div id="userName">내 정보</div>
         <div id="userBasicInfo">불러오는 중...</div>
         <div class="profile-weights">
@@ -39,10 +44,9 @@
         <div class="menu-card-title">메뉴</div>
         <div class="menu-list">
           <button class="menu-btn" data-href="sc301.html"><span class="menu-btn-icon">🏠</span>대시보드</button>
-          <button class="menu-btn active" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
           <button class="menu-btn" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
-          <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
-          <button class="menu-btn" data-href="sc601.html"><span class="menu-btn-icon">⚙️</span>설정</button>
+          <button class="menu-btn" id="menuHistory"><span class="menu-btn-icon">📅</span>히스토리</button>
+          <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">⚙️</span>마이페이지</button>
         </div>
       </div>
     </div>
@@ -51,7 +55,27 @@
 
   <!-- ── 메인: 로딩 영역 ── -->
   <main class="main">
-    <div class="loading-card">
+
+    <!-- 당일 플랜 이미 존재 시 표시 (기본 숨김) -->
+    <div class="loading-card already-plan-card" id="alreadyPlanCard" style="display:none;">
+      <div class="loading-character">✅</div>
+      <div>
+        <div class="loading-title">오늘은 이미 추천을 받았어요</div>
+        <div class="loading-subtitle">
+          변경을 원하신다면<br>AI 상담 기능을 이용해보세요.
+        </div>
+      </div>
+      <div class="already-plan-btns">
+        <button class="already-btn already-btn-secondary" id="btnBackToDash">
+          🏠 대시보드로 돌아가기
+        </button>
+        <button class="already-btn already-btn-primary" id="btnOpenAiChat">
+          🤖 AI 상담 받아보기
+        </button>
+      </div>
+    </div>
+
+    <div class="loading-card" id="loadingCard">
 
       <!-- 캐릭터 -->
       <div class="loading-character">🤖</div>
@@ -90,10 +114,64 @@
         </div>
       </div>
 
-    </div>
+    </div><!-- /loading-card -->
   </main>
 </div>
 
+
+  <!-- sc501: AI 상담 오버레이 -->
+  <div class="ai-overlay" id="aiOverlay">
+    <div class="ai-overlay-panel" id="aiOverlayPanel">
+      <div class="ai-overlay-header">
+        <div class="ai-overlay-title">🤖 AI 상담</div>
+        <button class="ai-overlay-close" id="aiOverlayClose">×</button>
+      </div>
+      <div class="ai-overlay-messages" id="aiOverlayMessages">
+        <div class="chat-msg ai">
+          <div class="chat-avatar">🤖</div>
+          <div>
+            <div class="chat-bubble">안녕하세요! 식단이나 운동, 건강에 대해 궁금한 점을 편하게 물어보세요 😊</div>
+            <div class="chat-time">AI 상담사</div>
+          </div>
+        </div>
+      </div>
+      <div class="ai-overlay-input-wrap">
+        <textarea class="ai-overlay-input" id="aiOverlayInput" placeholder="질문을 입력하세요..." rows="1"></textarea>
+        <button class="ai-overlay-send" id="aiOverlaySend">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- sc601: 히스토리 달력 모달 -->
+  <div class="hist-modal-overlay" id="histModalOverlay">
+    <div class="hist-modal" id="histModal">
+      <div class="hist-modal-header">
+        <div class="hist-modal-title">📅 히스토리</div>
+        <button class="hist-modal-close" id="histModalClose">×</button>
+      </div>
+      <div class="hist-modal-body">
+        <div class="hist-cal-nav">
+          <button class="hist-cal-arrow" id="histPrevMonth">&#8249;</button>
+          <span class="hist-cal-title" id="histCalTitle">-</span>
+          <button class="hist-cal-arrow" id="histNextMonth">&#8250;</button>
+        </div>
+        <div class="hist-legend">
+          <span class="hist-legend-item"><span class="hist-dot dot-both"></span>식단+운동</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-meal"></span>식단만</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-workout"></span>운동만</span>
+        </div>
+        <div class="hist-weekdays">
+          <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+        </div>
+        <div class="hist-days" id="histDays"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
 <script src="../js/common.js"></script>
 <script src="../js/sc302.js"></script>
 </body>
