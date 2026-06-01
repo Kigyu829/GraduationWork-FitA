@@ -1,0 +1,102 @@
+/* sc302.css — AI Plan Loading */
+
+.loading-card,
+.already-plan-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+}
+
+.loading-character {
+  font-size: 48px;
+}
+
+.loading-title {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.loading-subtitle {
+  font-size: 14px;
+  color: var(--text-sec);
+  line-height: 1.6;
+}
+
+.loading-msg {
+  font-size: 13px;
+  color: var(--teal);
+  font-weight: 800;
+}
+
+.loading-bar-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.loading-bar-track {
+  width: 100%;
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.loading-bar-fill {
+  height: 100%;
+  background: var(--teal);
+  border-radius: 4px;
+  transition: width 0.4s;
+}
+
+.loading-bar-label {
+  font-size: 12px;
+  color: var(--text-sec);
+}
+
+.loading-steps {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-mute);
+}
+
+.loading-step {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 800;
+}
+
+.loading-step.done {
+  color: var(--teal);
+}
+
+.loading-step.active {
+  color: var(--text);
+}
+
+.step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.step-sep {
+  color: var(--border2);
+}
+
+.already-plan-btns {
+  width: 100%;
+}

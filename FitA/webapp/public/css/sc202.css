@@ -1,0 +1,84 @@
+/* ===================================================
+   FitA Mobile PWA — sc202.css (Onboarding Body Info)
+   =================================================== */
+
+.onboard-page {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.onboard-container {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.birth-wrap {
+  display: flex;
+  gap: 8px;
+}
+
+.birth-wrap input {
+  flex: 1;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.health-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* 기저 질환 체크박스 */
+.condition-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.condition-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: var(--surface, #1e2d3a);
+  border: 1px solid var(--border, rgba(255,255,255,0.12));
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-sec, rgba(255,255,255,0.6));
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s;
+}
+
+.condition-chip input[type="checkbox"] {
+  accent-color: var(--teal, #66D0BC);
+  width: 14px;
+  height: 14px;
+}
+
+.condition-chip:has(input:checked) {
+  border-color: rgba(102,208,188,0.5);
+  background: rgba(102,208,188,0.1);
+  color: var(--teal, #66D0BC);
+}
+
+.condition-notice {
+  font-size: 11px;
+  color: var(--text-mute, rgba(255,255,255,0.35));
+  margin-top: 8px;
+  line-height: 1.5;
+}

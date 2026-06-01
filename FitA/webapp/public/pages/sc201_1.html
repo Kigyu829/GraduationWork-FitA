@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#09131a">
+  <title>로그인 – FitA</title>
+  <link rel="manifest" href="../../manifest.json">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/sc201.css">
+</head>
+<body>
+  <div class="auth-wrap">
+    <a href="sc101.html" class="auth-logo">
+      <img src="../img/FitALogo.png" alt="FitA" height="28">
+    </a>
+    <section class="form-card">
+      <div class="form-header">
+        <h1>로그인</h1>
+        <p>계속하려면 계정에 로그인하세요.</p>
+      </div>
+      <form id="loginForm" class="login-form" autocomplete="on">
+        <div class="error-msg" id="loginError">아이디 또는 비밀번호를 확인해주세요.</div>
+        <div class="input-group">
+          <label for="loginId">이메일</label>
+          <input type="email" id="loginId" name="loginId" placeholder="example@email.com" autocomplete="email">
+        </div>
+        <div class="input-group">
+          <label for="loginPw">비밀번호</label>
+          <input type="password" id="loginPw" name="password" placeholder="비밀번호 입력" autocomplete="current-password">
+        </div>
+        <div class="login-meta">
+          <label class="checkbox-label"><input type="checkbox" id="saveId"> 아이디 저장</label>
+          <a href="sc201_2.html" class="signup-link">회원가입</a>
+        </div>
+        <button type="submit" class="primary-btn" style="width:100%;margin-top:4px;">로그인</button>
+        <div class="social-divider">
+          <span class="social-divider-line"></span>
+          <span class="social-divider-text">소셜 로그인</span>
+          <span class="social-divider-line"></span>
+        </div>
+        <div class="social-btns">
+          <button type="button" class="social-btn naver" title="네이버">N</button>
+          <button type="button" class="social-btn kakao" title="카카오">K</button>
+          <button type="button" class="social-btn google" title="구글">G</button>
+        </div>
+      </form>
+    </section>
+    <p class="auth-footer">계정이 없으신가요? <a href="sc201_2.html">회원가입 →</a></p>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"></script>
+  <script>Kakao.init('cefe0d41d31ee2db932cfe89d7cf6d8b');</script>
+  <script src="../js/sc201_1.js"></script>
+</body>
+</html>

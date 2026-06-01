@@ -6,35 +6,43 @@
   <title>식단 판독 결과</title>
   <link rel="stylesheet" href="../css/common.css" />
   <link rel="stylesheet" href="../css/sc101.css" />
+  <link rel="stylesheet" href="../css/drawer.css" />
   <link rel="stylesheet" href="../css/hc403.css" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
 
   <!-- ── 네비게이션 바 ── -->
   <nav class="navbar">
     <div class="nav-inner">
-      <button class="drawer-toggle-nav" id="drawerToggle">☰</button>
-      <a href="sc101.html" class="site-logo">
+      <button class="drawer-toggle-nav" id="drawerToggle" title="메뉴">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+      <a href="sc301.html" class="site-logo" id="navLogo">
         <div class="site-logo-icon">🏃</div>
-        <span class="site-logo-text">HealthDash</span>
+        <img src="../img/FitALogo.png" alt="FitA" style="height:28px;width:auto;object-fit:contain;" />
       </a>
     </div>
   </nav>
 
   <aside class="drawer" id="drawer">
     <div class="drawer-header">
-      <div class="drawer-logo">
-        <div class="drawer-logo-icon">🏃</div>
-        <span class="drawer-logo-text">HealthDash</span>
+      <div class="drawer-logo" id="drawerLogo" style="cursor:pointer;">
+        <img src="../img/FitALogo.png" alt="FitA" style="height:26px;width:auto;object-fit:contain;" />
       </div>
       <button class="drawer-close" id="drawerClose">✕</button>
     </div>
     <nav class="drawer-nav">
       <button class="drawer-menu-btn" data-href="sc301.html"><span>🏠</span>대시보드</button>
-      <button class="drawer-menu-btn" data-href="sc302.html"><span>🤖</span>AI 식단 추천</button>
       <button class="drawer-menu-btn" data-href="sc311.html"><span>💪</span>오늘의 식단/운동</button>
-      <button class="drawer-menu-btn active" data-href="sc401.html"><span>🥗</span>식단 인증</button>
-      <button class="drawer-menu-btn" data-href="sc601.html"><span>⚙️</span>설정</button>
+      <button class="drawer-menu-btn" data-href="sc602.html"><span>📅</span>히스토리</button>
+      <button class="drawer-menu-btn" data-href="sc701.html"><span>⚙️</span>마이페이지</button>
     </nav>
     <button class="drawer-logout" id="drawerLogout">로그아웃</button>
   </aside>
@@ -44,6 +52,7 @@
   <main class="result-main">
     <div class="result-container" id="resultContainer">
 
+      <!-- ── 좌측: 사진 패널 ── -->
       <div class="photo-panel" id="photoPanel">
         <div class="photo-bg-blob blob1"></div>
         <div class="photo-bg-blob blob2"></div>
@@ -62,6 +71,7 @@
         </div>
       </div>
 
+      <!-- ── 우측: 결과 패널 ── -->
       <div class="result-panel" id="resultPanel">
         <div class="result-card">
           <div class="result-card-header">
@@ -69,23 +79,82 @@
           </div>
           <div class="result-food-name" id="foodName">—</div>
           <div class="result-divider"></div>
+
+          <!-- 인식 결과 -->
           <div class="result-nutrients" id="resultNutrients">
             <div class="nutrient-row skeleton"></div>
             <div class="nutrient-row skeleton"></div>
             <div class="nutrient-row skeleton"></div>
           </div>
           <div class="result-memo" id="resultMemo"></div>
-          <div class="result-actions">
+
+          <!-- ── 기본 액션 버튼 ── -->
+          <div class="result-actions" id="resultActions">
             <button class="secondary-btn" id="retakeBtn">재업로드</button>
             <button class="primary-btn cert-btn" id="certBtn">✅ 인증하기</button>
           </div>
+
+          <!-- ══════════════════════════════
+               메뉴에 없는 음식 사유 선택 패널
+               hc403.js에서 .show 클래스로 노출
+               ══════════════════════════════ -->
+          <div class="reason-panel" id="reasonPanel">
+
+            <div class="reason-header">
+              <span class="reason-icon">⚠️</span>
+              <div>
+                <div class="reason-title">플랜에 없는 음식이에요</div>
+                <div class="reason-sub">사유를 선택하거나 직접 입력해주세요.</div>
+              </div>
+            </div>
+
+            <!-- 사유 버튼 -->
+            <div class="reason-btns">
+              <button class="reason-btn" id="reasonFasting">
+                <span class="reason-btn-icon">🚫</span>
+                <div>
+                  <div class="reason-btn-label">단식</div>
+                  <div class="reason-btn-desc">칼로리 0으로 기록</div>
+                </div>
+              </button>
+              <button class="reason-btn" id="reasonCheating">
+                <span class="reason-btn-icon">🍔</span>
+                <div>
+                  <div class="reason-btn-label">치팅</div>
+                  <div class="reason-btn-desc">칼로리 그대로 기록</div>
+                </div>
+              </button>
+            </div>
+
+            <!-- 기타: 직접 입력 -->
+            <div class="reason-divider">
+              <span>위에 해당사항이 없으면</span>
+            </div>
+
+            <div class="reason-chat-wrap">
+              <textarea
+                id="reasonChatInput"
+                class="reason-chat-input"
+                placeholder="사유를 직접 입력하세요 (예: 외식, 간식, 음료 등)"
+                rows="2"
+              ></textarea>
+              <button class="reason-chat-submit" id="reasonChatSubmit">입력하고 인증</button>
+            </div>
+          </div><!-- /reason-panel -->
+
         </div>
       </div>
 
     </div>
   </main>
 
-  <script src="../js/common.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+<script src="../js/common.js"></script>
+  <script src="../js/drawer.js"></script>
   <script src="../js/hc403.js"></script>
 </body>
 </html>

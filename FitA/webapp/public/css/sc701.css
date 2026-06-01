@@ -1,0 +1,313 @@
+/* sc701.css — My Page / Profile */
+
+.mypage-profile-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.mypage-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.mypage-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  overflow: hidden;
+}
+
+.mypage-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.avatar-camera-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--teal);
+  border: none;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mypage-profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mypage-name {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.mypage-sub {
+  font-size: 12px;
+  color: var(--text-sec);
+  margin-bottom: 10px;
+}
+
+.mypage-weights {
+  display: flex;
+  gap: 10px;
+}
+
+.mypage-weight-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wc-label {
+  font-size: 10px;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.wc-val {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--teal);
+}
+
+/* 체중 그래프 */
+.weight-graph-range {
+  font-size: 11px;
+  color: var(--text-mute);
+  font-weight: 600;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.weight-graph-wrap {
+  position: relative;
+  padding-bottom: 24px;
+}
+
+.weight-graph-svg {
+  width: 100%;
+  height: 170px;
+  display: block;
+  overflow: visible;
+}
+
+.weight-graph-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-mute);
+  margin-top: 4px;
+}
+
+.weight-graph-empty {
+  text-align: center;
+  color: var(--text-mute);
+  font-size: 12px;
+  padding: 20px 0;
+  line-height: 1.6;
+}
+
+/* Sections */
+.mypage-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  margin-bottom: 12px;
+}
+
+.section-header {
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+/* Form inputs */
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-group label {
+  font-size: 12px;
+  color: var(--text-sec);
+  font-weight: 800;
+}
+
+.input-group input,
+.input-group select {
+  padding: 11px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  font-family: inherit;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+  border-color: var(--border2);
+}
+
+/* Info rows */
+.mypage-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.mypage-info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 13px;
+  color: var(--text-sec);
+}
+
+.info-val {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* Buttons */
+.logout-btn {
+  width: 100%;
+  height: 44px;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.withdraw-btn {
+  width: 100%;
+  height: 40px;
+  border: 1px solid rgba(255, 11, 85, 0.3);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* Account edit forms */
+.acct-edit-btn {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.acct-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.acct-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+.acct-input:focus { border-color: var(--teal); }
+
+.acct-save-btn {
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* BMI display */
+.bmi-display {
+  margin-top: 10px;
+  padding: 10px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-sec);
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: calc(var(--bnav-h) + 16px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 99px;
+  padding: 10px 22px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 300;
+  pointer-events: none;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}

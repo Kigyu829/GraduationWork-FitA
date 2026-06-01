@@ -16,20 +16,125 @@
 
 'use strict';
 
-window.addEventListener('DOMContentLoaded', () => {
+/* ── 오늘 날짜 문자열 (YYYY-MM-DD) ── */
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* ── 오늘 체중 미입력이면 sc300으로 이동 ── */
+async function redirectIfNoTodayWeight() {
+  const data = Storage.getUser();
+  if (!data.weight || !data.height || !data.targetWeight) return false;
+  const d = new Date();
+  const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const todayKey = `todayWeight_${lsKey('check', dateStr)}`;
+  if (localStorage.getItem(todayKey)) return false;
+
+  /* localStorage에 없으면 Firestore에서 확인 (새 기기 로그인 대응) */
+  const uid = getCurrentUid();
+  if (uid && typeof db !== 'undefined') {
+    try {
+      const doc = await db.collection('users').doc(uid).collection('daily').doc(dateStr).get();
+      if (doc.exists && doc.data().weight != null) {
+        localStorage.setItem(todayKey, String(doc.data().weight));
+        Storage.mergeUser({ weight: String(doc.data().weight) });
+        return false;
+      }
+    } catch (e) {
+      console.warn('[sc301] 오늘 체중 Firestore 조회 실패:', e.message);
+    }
+  }
+
+  location.replace('sc300.html');
+  return true;
+}
+
+/* ── 프로필이 있고 오늘 플랜이 없으면 sc302로 자동 이동 ── */
+function autoRedirectIfNoPlan() {
+  const data = Storage.getUser();
+  const hasPlan    = data.planDate === todayStr() && !!(data.aiMealPlan && data.aiWorkoutPlan);
+  const hasProfile = !!(data.weight && data.height && data.targetWeight);
+  if (!hasPlan && hasProfile) {
+    location.replace('sc302.html');
+    return true;
+  }
+  return false;
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  await restoreUserFromFirestore();  /* localStorage 비어있으면 Firestore에서 복원 */
+  if (autoRedirectIfNoPlan()) return;           /* 플랜 없으면 sc302로 이동 */
+  if (await redirectIfNoTodayWeight()) return;  /* 오늘 체중 미입력이면 sc300으로 이동 */
+
   renderHeader();
   renderSidebar();
   renderProgress();
   renderBMIGauge();
-  renderAiPlan();     /* ← AI 식단/운동 플랜 카드 렌더링 */
+  renderAiPlan();
   renderTodayCheck();
-  renderWater();
-  renderStreak();
   renderCalendar();
   bindMenuBtns();     /* common.js */
   bindLogout();
   bindLogoClick();
+  initCommonOverlays();  /* common.js — AI상담 오버레이 + 히스토리 sc602 이동 */
+  initMobileSidebar();   /* common.js — 모바일 햄버거 메뉴 */
+  initBackExit();        /* 안드로이드 뒤로가기 → 앱 종료 */
+  renderStreak();        /* 연속 기록 스트릭 카드 */
+  renderStreakBanner();  /* 연속 달성 배너 */
 });
+
+/* ════════════════════════════════
+   0. 안드로이드 뒤로가기 종료
+   ════════════════════════════════ */
+function initBackExit() {
+  /* PWA standalone 환경에서만 동작 */
+  if (!window.matchMedia('(display-mode: standalone)').matches) return;
+
+  /* 현재 히스토리 스택 맨 위에 더미 상태를 추가
+     → 뒤로가기 시 이전 페이지(로그인)로 가지 않고 popstate 이벤트만 발생 */
+  history.pushState({ backExit: true }, '', location.href);
+
+  let backPressedOnce = false;
+  let toastEl = null;
+
+  window.addEventListener('popstate', () => {
+    /* 다시 더미 상태를 쌓아서 다음 뒤로가기에도 같은 로직 반복 */
+    history.pushState({ backExit: true }, '', location.href);
+
+    if (backPressedOnce) {
+      /* 2번째 뒤로가기 → 앱 종료 */
+      window.close();
+      /* window.close()가 막히는 경우 대비 (일부 브라우저) */
+      document.documentElement.style.transition = 'opacity 0.3s';
+      document.documentElement.style.opacity = '0';
+      setTimeout(() => window.close(), 350);
+      return;
+    }
+
+    backPressedOnce = true;
+
+    /* 토스트 메시지 표시 */
+    if (!toastEl) {
+      toastEl = document.createElement('div');
+      toastEl.style.cssText = [
+        'position:fixed', 'bottom:60px', 'left:50%', 'transform:translateX(-50%)',
+        'background:rgba(0,0,0,0.78)', 'color:#fff', 'font-size:13px', 'font-weight:700',
+        'padding:10px 20px', 'border-radius:24px', 'z-index:9999',
+        'pointer-events:none', 'white-space:nowrap',
+        'transition:opacity 0.3s'
+      ].join(';');
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = '한 번 더 누르면 앱이 종료됩니다';
+    toastEl.style.opacity = '1';
+
+    setTimeout(() => {
+      backPressedOnce = false;
+      if (toastEl) toastEl.style.opacity = '0';
+    }, 2000);
+  });
+}
 
 /* ════════════════════════════════
    1. 헤더 날짜
@@ -37,32 +142,6 @@ window.addEventListener('DOMContentLoaded', () => {
 function renderHeader() {
   const el = document.getElementById('headerDate');
   if (el) el.textContent = formatDate();   /* common.js */
-}
-
-/* ════════════════════════════════
-   2. 사이드바 프로필
-   ════════════════════════════════ */
-function renderSidebar() {
-  const data = Storage.getUser();
-  const reg  = Storage.getRegistered();
-
-  const nameEl          = document.getElementById('userName');
-  const infoEl          = document.getElementById('userBasicInfo');
-  const currentWeightEl = document.getElementById('currentWeightText');
-  const targetWeightEl  = document.getElementById('targetWeightText');
-
-  if (nameEl) nameEl.textContent = reg.nickname ? `${reg.nickname}님` : '사용자';
-
-  if (infoEl) {
-    const parts = [];
-    if (data.gender) parts.push(data.gender);
-    if (data.birth)  parts.push(data.birth.slice(0, 4) + '년생');
-    if (data.height) parts.push(`키 ${data.height}cm`);
-    infoEl.textContent = parts.join(' · ') || '기본 정보 없음';
-  }
-
-  if (currentWeightEl) currentWeightEl.textContent = data.weight      ? `${data.weight}kg`      : '-';
-  if (targetWeightEl)  targetWeightEl.textContent  = data.targetWeight ? `${data.targetWeight}kg` : '-';
 }
 
 /* ════════════════════════════════
@@ -88,14 +167,24 @@ function renderProgress() {
   const bonus      = (checks.meal && checks.workout) ? 2 : (checks.meal || checks.workout) ? 1 : 0;
   const displayPct = Math.min(100, pct + bonus);
 
-  const remaining = Math.max(0, currentWeight - targetWeight);
+  const rawRemaining = currentWeight - targetWeight;
+  const remaining    = Math.max(0, rawRemaining);
+
+  /* 목표 달성 축하 팝업 (처음 달성 시 1회만) */
+  if (currentWeight > 0 && targetWeight > 0 && rawRemaining <= 0) {
+    const celebKey = `celebrated_${data.targetWeight}kg`;
+    if (!localStorage.getItem(celebKey)) {
+      localStorage.setItem(celebKey, '1');
+      setTimeout(showGoalAchievedPopup, 600);
+    }
+  }
 
   /* DOM 업데이트 */
   setText('progress',               `${displayPct}%`);
   setText('progressBadge',          `${displayPct}%`);
   setText('currentWeight',          currentWeight ? `${currentWeight}kg` : '-');
   setText('targetWeight',           targetWeight  ? `${targetWeight}kg`  : '-');
-  setText('remainingWeight',        targetWeight  ? `${remaining}kg`     : '-');
+  setText('remainingWeight',        targetWeight  ? `${remaining.toFixed(1)}kg` : '-');
   setText('goalPeriodText',         data.goalPeriod || '-');
   setText('currentWeightTextMirror', currentWeight ? `${currentWeight}kg` : '-');
 
@@ -149,31 +238,117 @@ function renderBMIGauge() {
       ? 10 * weight + 6.25 * height - 5 * age + 5
       : 10 * weight + 6.25 * height - 5 * age - 161;
 
-    const actMap = { '낮음': 1.2, '보통': 1.375, '높음': 1.55 };
+    const actMap = { '낮음': 1.2, '보통': 1.375, '높음': 1.55, '매우높음': 1.725, '선수': 1.9 };
     const factor = actMap[data.activityLevel] || 1.375;
     const tdee   = Math.round(bmr * factor);
     bmr          = Math.round(bmr);
 
     setText('bmrValue',  `${bmr} kcal`);
     setText('tdeeValue', `${tdee} kcal`);
-
-    /* 식단 목표 칼로리: 항상 최신 설정값으로 직접 계산 */
-    const targetWeight2 = Number(data.targetWeight || 0);
-    const goalWeeks2    = Number(data.goalWeeks || 12);
-    const weightToLose2 = Math.max(0, weight - targetWeight2);
-    const rawDeficit2   = Math.round((weightToLose2 * 7700) / (goalWeeks2 * 7));
-    const dailyDeficit2 = Math.min(rawDeficit2, 1000);
-    const targetCal     = Math.max(1200, tdee - dailyDeficit2);
-    setText('targetCaloriesValue', `${targetCal.toLocaleString()} kcal`);
   }
 }
 
 /* ════════════════════════════════
-   5. 오늘 목표 체크
+   5. AI 플랜 대시보드 카드 렌더링
+   ════════════════════════════════ */
+function renderAiPlan() {
+  const data        = Storage.getUser();
+  const mealPlan    = data.aiMealPlan;
+  const workoutPlan = data.aiWorkoutPlan;
+
+  /* 오늘 sc311 인증 상태 읽기 */
+  let sc311State = { meals: {}, workouts: {} };
+  try {
+    const raw = localStorage.getItem(lsKey('sc311', todayStr()));
+    if (raw) sc311State = JSON.parse(raw) || sc311State;
+  } catch {}
+
+  const mealEl    = document.getElementById('mealContent');
+  const workoutEl = document.getElementById('workoutContent');
+
+  if (mealEl) {
+    if (mealPlan) {
+      const MEAL_META = [
+        { key: 'breakfast', emoji: '🌅', label: '아침' },
+        { key: 'lunch',     emoji: '☀️', label: '점심' },
+        { key: 'dinner',    emoji: '🌙', label: '저녁' },
+      ];
+      const rows = MEAL_META.map(({ key, emoji, label }, i) => {
+        const meal = mealPlan[key];
+        if (!meal) return '';
+        const menuArr   = Array.isArray(meal.menu) ? meal.menu : [meal.menu || ''];
+        const menuText  = menuArr.join(' · ');
+        const border    = i < 2 ? 'border-bottom:1px solid rgba(255,255,255,0.07);' : '';
+        const mStatus   = sc311State.meals[key];
+        const verified  = mStatus?.verified;
+        const skipped   = mStatus?.skipped;
+        const rowOp     = verified ? 'opacity:0.45;' : '';
+        const textStyle = verified ? 'text-decoration:line-through;' : '';
+        const badge     = verified
+          ? `<span style="font-size:15px;flex-shrink:0;margin-top:14px;">${skipped ? '🚫' : '✅'}</span>`
+          : '';
+        return `
+          <div style="${border}${rowOp}padding:10px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:11px;color:var(--text-sec);margin-bottom:4px;">${emoji} ${label}</div>
+              <div style="font-size:14px;font-weight:500;line-height:1.4;word-break:keep-all;${textStyle}">${menuText}</div>
+            </div>
+            ${badge || `<span style="font-size:12px;color:var(--teal,#66D0BC);white-space:nowrap;flex-shrink:0;margin-top:18px;">${meal.calories}kcal</span>`}
+          </div>`;
+      }).join('');
+      mealEl.className = '';
+      mealEl.innerHTML = rows;
+
+      const totalKcal = ['breakfast','lunch','dinner'].reduce((s, k) => s + (mealPlan[k]?.calories || 0), 0);
+      setText('targetCaloriesValue', `${totalKcal} kcal`);
+    } else {
+      mealEl.className = '';
+      mealEl.innerHTML = '<a href="sc302.html" style="display:block;text-align:center;color:var(--teal,#66D0BC);padding:8px;font-size:13px;">✨ AI 식단 추천 받기 →</a>';
+    }
+  }
+
+  if (workoutEl) {
+    if (workoutPlan) {
+      /* 준비운동 1개 + 메인 전체 + 마무리 1개 (워크아웃 ID 포함) */
+      const sections = [];
+      (workoutPlan.warmup   || []).slice(0, 1).forEach((w, i) => sections.push({ ...w, tag: '준비',  tagColor: 'var(--text-sec)',     wId: `warmup_${i}` }));
+      (workoutPlan.main     || []).forEach((w, i) =>            sections.push({ ...w, tag: '메인',  tagColor: 'var(--teal,#66D0BC)', wId: `main_${i}` }));
+      (workoutPlan.cooldown || []).slice(0, 1).forEach((w, i) => sections.push({ ...w, tag: '마무리', tagColor: 'var(--text-sec)',     wId: `cooldown_${i}` }));
+
+      const rows = sections.map((item, i) => {
+        const detail  = item.sets ? `${item.reps}회 × ${item.sets}세트` : (item.duration || '');
+        const border  = i < sections.length - 1 ? 'border-bottom:1px solid rgba(255,255,255,0.07);' : '';
+        const isDone  = sc311State.workouts[item.wId]?.done;
+        const rowOp   = isDone ? 'opacity:0.45;' : '';
+        const nameStr = isDone ? `<span style="text-decoration:line-through;">${item.name}</span>` : item.name;
+        const tagTxt  = isDone ? '✓완료' : item.tag;
+        const tagCol  = isDone ? 'var(--teal,#66D0BC)' : item.tagColor;
+        return `
+          <div style="${border}${rowOp}display:flex;align-items:center;gap:10px;padding:8px 0;">
+            <span style="font-size:18px;flex-shrink:0;">${getWorkoutIcon(item.name)}</span>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nameStr}</div>
+              <div style="font-size:11px;color:var(--text-sec);margin-top:2px;">${detail}</div>
+            </div>
+            <span style="font-size:10px;color:${tagCol};border:1px solid ${tagCol};border-radius:4px;padding:1px 6px;white-space:nowrap;flex-shrink:0;">${tagTxt}</span>
+          </div>`;
+      }).join('');
+      workoutEl.className = '';
+      workoutEl.innerHTML = rows || '<div style="color:var(--text-mute)">운동 정보 없음</div>';
+    } else {
+      workoutEl.className = '';
+      workoutEl.innerHTML = '<a href="sc302.html" style="display:block;text-align:center;color:var(--teal,#66D0BC);padding:8px;font-size:13px;">✨ AI 운동 플랜 받기 →</a>';
+    }
+  }
+}
+
+/* ════════════════════════════════
+   6. 오늘 목표 체크
    ════════════════════════════════ */
 function getTodayKey() {
   const d = new Date();
-  return `check_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  return lsKey('check', dateStr);
 }
 
 function getTodayChecks(key) {
@@ -193,14 +368,20 @@ function renderTodayCheck() {
   const workoutChk = document.getElementById('checkWorkout');
   const statusEl   = document.getElementById('todayCheckStatus');
 
-  /* 체크박스는 sc311(식단 인증 3개 완료 / 운동 전체 완료)에서 자동 설정 — 수동 조작 불가 */
+  /* sc311에서 저장한 check_ 키 기반으로 자동 반영 (읽기전용) */
   if (mealChk) {
     mealChk.checked  = checks.meal;
-    mealChk.disabled = true;
+    mealChk.disabled = true;   /* 사용자가 직접 체크 불가 */
+    mealChk.style.opacity = '0.7';
+    mealChk.style.cursor  = 'default';
+    mealChk.title = '식단 인증 시 자동으로 체크됩니다';
   }
   if (workoutChk) {
     workoutChk.checked  = checks.workout;
     workoutChk.disabled = true;
+    workoutChk.style.opacity = '0.7';
+    workoutChk.style.cursor  = 'default';
+    workoutChk.title = '운동 완료 시 자동으로 체크됩니다';
   }
 
   updateCheckStatus(checks, statusEl);
@@ -212,50 +393,12 @@ function updateCheckStatus(checks, statusEl) {
     statusEl.textContent = '🎉 오늘 목표 달성!';
     statusEl.className   = 'today-check-status done';
   } else if (checks.meal || checks.workout) {
-    statusEl.textContent = '🔥 목표 달성 완료!';
+    statusEl.textContent = '🔥 절반 달성 중!';
     statusEl.className   = 'today-check-status half';
   } else {
     statusEl.textContent = '아직 체크하지 않았어요.';
     statusEl.className   = 'today-check-status';
   }
-}
-
-/* ════════════════════════════════
-   6. 물 섭취 트래커
-   ════════════════════════════════ */
-function renderWater() {
-  const key      = `water_${getTodayKey()}`;
-  let   count    = parseInt(localStorage.getItem(key) || '0', 10);
-  const total    = 8;
-  const cupsEl   = document.getElementById('waterCups');
-  const badgeEl  = document.getElementById('waterBadge');
-  const tipEl    = document.getElementById('waterTip');
-
-  function drawCups() {
-    if (!cupsEl) return;
-    cupsEl.innerHTML = '';
-    for (let i = 0; i < total; i++) {
-      const div = document.createElement('div');
-      div.className = 'water-cup' + (i < count ? ' filled' : '');
-      div.textContent = i < count ? '💧' : '○';
-      cupsEl.appendChild(div);
-    }
-    if (badgeEl) badgeEl.textContent = `${count} / ${total}잔`;
-    if (tipEl) {
-      tipEl.textContent = count >= total
-        ? '🎉 오늘 수분 목표 달성!'
-        : `오늘의 수분 섭취 목표: 2,000ml (${total - count}잔 남음)`;
-    }
-  }
-
-  drawCups();
-
-  document.getElementById('addWaterBtn')?.addEventListener('click', () => {
-    if (count < total) { count++; localStorage.setItem(key, count); drawCups(); }
-  });
-  document.getElementById('resetWaterBtn')?.addEventListener('click', () => {
-    count = 0; localStorage.setItem(key, 0); drawCups();
-  });
 }
 
 /* ════════════════════════════════
@@ -271,7 +414,7 @@ function renderStreak() {
   for (let i = 6; i >= 0; i--) {
     const d   = new Date(today);
     d.setDate(today.getDate() - i);
-    const key = `check_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const key = lsKey('check', `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
     const chk = getTodayChecks(key);
     const done = chk.meal && chk.workout;
     weekStatus.push({ day: weekDays[d.getDay()], done, isToday: i === 0 });
@@ -315,52 +458,85 @@ function renderCalendar() {
   calYear  = today.getFullYear();
   calMonth = today.getMonth();
 
-  try { schedules = JSON.parse(localStorage.getItem('schedules')) || {}; }
-  catch { schedules = {}; }
-
   updateSelectedDateText(today);
   buildCalendar();
   bindCalendarNav();
-  bindSchedulePopup();
 }
 
-function buildCalendar() {
-  const titleEl     = document.getElementById('calendarTitle');
-  const daysEl      = document.getElementById('calendarDays');
+async function buildCalendar() {
+  const titleEl = document.getElementById('calendarTitle');
+  const daysEl  = document.getElementById('calendarDays');
   if (!titleEl || !daysEl) return;
 
   titleEl.textContent = `${calYear}년 ${calMonth + 1}월`;
-  daysEl.innerHTML    = '';
+  daysEl.innerHTML = '';
 
+  /* Firestore에서 이번 달 check 데이터 로드 */
+  if (typeof loadMonthChecksFromFirestore === 'function') {
+    await loadMonthChecksFromFirestore(calYear, calMonth);
+  }
+
+  const regDate     = localStorage.getItem(`reg_${getCurrentUid()}`) || '';
   const firstDay    = new Date(calYear, calMonth, 1).getDay();
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
   const today       = new Date();
   const offset      = firstDay === 0 ? 6 : firstDay - 1;
 
+  /* ── 각 날짜의 달성 상태 미리 계산 ── */
+  const statusArr = [null]; // index 1부터 사용
+  for (let d = 1; d <= daysInMonth; d++) {
+    const chk = getTodayChecks(lsKey('check', dateKey(calYear, calMonth, d)));
+    if (chk.meal && chk.workout) statusArr.push('both');
+    else if (chk.meal)           statusArr.push('meal');
+    else if (chk.workout)        statusArr.push('workout');
+    else                         statusArr.push(null);
+  }
+
+  /* ── 빈 셀 ── */
   for (let i = 0; i < offset; i++) {
     const e = document.createElement('button');
     e.className = 'calendar-day empty';
     daysEl.appendChild(e);
   }
 
+  /* ── 날짜 셀 ── */
   for (let d = 1; d <= daysInMonth; d++) {
     const key     = dateKey(calYear, calMonth, d);
     const isToday = today.getFullYear() === calYear &&
                     today.getMonth()    === calMonth &&
                     today.getDate()     === d;
 
-    const btn       = document.createElement('button');
-    btn.className   = 'calendar-day' + (isToday ? ' today' : '');
+    const btn = document.createElement('button');
+    btn.className = 'calendar-day' + (isToday ? ' today' : '');
     btn.textContent = d;
     btn.dataset.key = key;
 
-    if (schedules[key]?.length > 0) btn.classList.add('has-schedule');
+    const status = statusArr[d];
+    if (status) {
+      btn.classList.add(`cal-done-${status}`);
 
-    /* 오늘 목표 완전 달성 날짜 민트 dot */
-    const chk = getTodayChecks(`check_${key}`);
-    if (chk.meal && chk.workout) btn.classList.add('check-done');
+      /* 연속 이어지기: 그리드 7열 기준 줄바꿈 체크 */
+      const col = (offset + d - 1) % 7;  // 0~6 (월~일)
+      const prev = statusArr[d - 1];
+      const next = statusArr[d + 1];
+      const samePrev = prev === status && col !== 0;   // 같은 줄의 전날
+      const sameNext = next === status && col !== 6;   // 같은 줄의 다음날
 
-    btn.addEventListener('click', () => openSchedulePopup(btn, key, d));
+      if (samePrev && sameNext)      btn.classList.add('streak-mid');
+      else if (samePrev)             btn.classList.add('streak-end');
+      else if (sameNext)             btn.classList.add('streak-start');
+      // else: 단독 → 기본 둥근 사각형
+    }
+
+    if (regDate && key < regDate) {
+      btn.disabled = true;
+      btn.classList.add('before-reg');
+    } else {
+      btn.addEventListener('click', () => {
+        location.href = `sc602.html?date=${key}`;
+      });
+    }
+
     daysEl.appendChild(btn);
   }
 }
@@ -385,168 +561,199 @@ function updateSelectedDateText(date) {
 
 let activeKey = null;
 
-function bindSchedulePopup() {
-  document.getElementById('closePopupBtn')?.addEventListener('click', closePopup);
-  document.getElementById('saveScheduleBtn')?.addEventListener('click', saveSchedule);
-  document.getElementById('scheduleInput')?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); saveSchedule(); }
-  });
-}
-
-function openSchedulePopup(btnEl, key, day) {
-  activeKey = key;
-  const popup  = document.getElementById('schedulePopup');
-  const label  = document.getElementById('popupDateLabel');
-  const input  = document.getElementById('scheduleInput');
-  const calBox = document.querySelector('.calendar-box');
-  if (!popup || !calBox) return;
-
-  label.textContent = `${calYear}년 ${calMonth + 1}월 ${day}일`;
-  input.value       = '';
-  updateSelectedDateText(new Date(calYear, calMonth, day));
-
-  const calRect = calBox.getBoundingClientRect();
-  const btnRect = btnEl.getBoundingClientRect();
-  popup.style.top  = `${btnRect.bottom - calRect.top + 4}px`;
-  popup.style.left = `${Math.min(btnRect.left - calRect.left, calRect.width - 220)}px`;
-
-  popup.classList.add('show');
-  renderScheduleList(key);
-  input.focus();
-}
-
-function closePopup() {
-  document.getElementById('schedulePopup')?.classList.remove('show');
-  activeKey = null;
-}
-
-function saveSchedule() {
-  if (!activeKey) return;
-  const input = document.getElementById('scheduleInput');
-  const text  = input?.value.trim();
-  if (!text) return;
-
-  if (!schedules[activeKey]) schedules[activeKey] = [];
-  schedules[activeKey].push(text);
-  localStorage.setItem('schedules', JSON.stringify(schedules));
-  input.value = '';
-  renderScheduleList(activeKey);
-  document.querySelector(`.calendar-day[data-key="${activeKey}"]`)
-    ?.classList.add('has-schedule');
-}
-
-function renderScheduleList(key) {
-  const list = document.getElementById('scheduleList');
-  if (!list) return;
-  list.innerHTML = '';
-  (schedules[key] || []).forEach((text, idx) => {
-    const li     = document.createElement('li');
-    li.textContent = text;
-    const del    = document.createElement('button');
-    del.textContent = '×';
-    del.style.cssText = 'float:right; background:none; border:none; color:var(--text-mute); cursor:pointer; font-size:14px;';
-    del.addEventListener('click', () => {
-      schedules[key].splice(idx, 1);
-      if (!schedules[key].length) {
-        delete schedules[key];
-        document.querySelector(`.calendar-day[data-key="${key}"]`)?.classList.remove('has-schedule');
-      }
-      localStorage.setItem('schedules', JSON.stringify(schedules));
-      renderScheduleList(key);
-    });
-    li.appendChild(del);
-    list.appendChild(li);
-  });
-}
-
 function dateKey(y, m, d) {
   return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 }
 
 /* ════════════════════════════════
-   9. 로그아웃 → sc101
+   오늘 체중 입력
    ════════════════════════════════ */
-function bindLogout() {
-  document.getElementById('logoutBtn')?.addEventListener('click', () => {
-    localStorage.removeItem('healthUserData');
-    location.href = 'sc101.html';
+function initTodayWeight() {
+  const input   = document.getElementById('todayWeightInput');
+  const saveBtn = document.getElementById('todayWeightSaveBtn');
+  const hint    = document.getElementById('todayWeightHint');
+
+  const todayKey = `todayWeight_${getTodayKey()}`;
+  const saved    = localStorage.getItem(todayKey);
+  if (saved && input) input.value = saved;
+
+  saveBtn?.addEventListener('click', () => {
+    const val = parseFloat(input?.value);
+    if (!val || val < 20 || val > 300) {
+      if (hint) { hint.textContent = '올바른 체중을 입력해주세요.'; hint.style.color = 'var(--red)'; }
+      return;
+    }
+
+    /* ── 최저 권장 체중 + 급격한 변화를 순차 커스텀 confirm으로 검증 ── */
+    const userData301 = Storage.getUser();
+    const heightCm    = Number(userData301.height || 0);
+    const minSafe301  = heightCm > 0 ? Math.round(18.5 * (heightCm/100) ** 2 * 10) / 10 : 30;
+
+    const prevKey = `todayWeight_${(function(){
+      const y = new Date(); y.setDate(y.getDate()-1);
+      return y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+    })()}`;
+    const prevWeight = parseFloat(localStorage.getItem(prevKey) || userData301.weight || 0);
+
+    function doSaveWeight() {
+      localStorage.setItem(todayKey, val);
+      Storage.mergeUser({ weight: String(val) });
+      if (hint) hint.textContent = '';
+      showWeightSavedPopup(val);
+      renderProgress();
+      renderSidebar();
+      renderStreakBanner();
+    }
+
+    function checkSuddenChange(onPass) {
+      if (prevWeight > 0 && Math.abs(val - prevWeight) >= 5) {
+        const diff = (val - prevWeight).toFixed(1);
+        const sign = Number(diff) > 0 ? '+' : '';
+        showCustomConfirm({
+          icon: '📊',
+          title: '체중 변화가 커요',
+          desc: `어제 <strong>${prevWeight}kg</strong> → 오늘 <strong>${val}kg</strong><br>하루 차이가 <strong style="color:var(--red)">${sign}${diff}kg</strong>이에요.<br><br>정말 <strong>${val}kg</strong>으로 저장할까요?`,
+          okText: '그래도 저장',
+          cancelText: '다시 입력',
+          onOk: onPass
+        });
+      } else {
+        onPass();
+      }
+    }
+
+    if (val < minSafe301) {
+      showCustomConfirm({
+        icon: '⚖️',
+        title: '권장 체중 이하예요',
+        desc: `입력한 체중 <strong>${val}kg</strong>은 키 <strong>${heightCm}cm</strong> 기준<br>최저 권장 체중 <strong style="color:var(--teal)">${minSafe301}kg</strong>(BMI 18.5)보다 낮아요.<br><br>실수가 아닌지 확인해주세요.`,
+        okText: '그래도 저장',
+        cancelText: '다시 입력',
+        danger: true,
+        onOk: () => checkSuddenChange(doSaveWeight)
+      });
+    } else {
+      checkSuddenChange(doSaveWeight);
+    }
   });
+
+  input?.addEventListener('keydown', e => { if (e.key === 'Enter') saveBtn?.click(); });
+}
+
+function showWeightSavedPopup(val) {
+  document.getElementById('weightSavedPopup')?.remove();
+  document.getElementById('weightPopupOverlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'weightPopupOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);z-index:9998;';
+
+  const popup = document.createElement('div');
+  popup.id = 'weightSavedPopup';
+  popup.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.9);background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px 36px;text-align:center;z-index:9999;box-shadow:0 24px 64px rgba(0,0,0,0.5);display:flex;flex-direction:column;align-items:center;gap:12px;opacity:0;transition:opacity 0.2s ease,transform 0.2s ease;min-width:260px;';
+  popup.innerHTML = `<div style="font-size:48px;line-height:1;">⚖️</div><div style="font-size:18px;font-weight:800;color:var(--text);letter-spacing:-0.02em;">체중이 저장됐어요!</div><div style="font-size:14px;color:var(--teal);font-weight:800;">오늘 체중: ${val}kg</div><div style="font-size:12px;color:var(--text-sec);line-height:1.6;">대시보드에 반영됐어요.</div><button onclick="document.getElementById('weightSavedPopup')?.remove();document.getElementById('weightPopupOverlay')?.remove();" style="margin-top:4px;padding:10px 28px;border:none;border-radius:10px;background:var(--teal);color:#09131a;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;">확인</button>`;
+
+  overlay.addEventListener('click', () => { popup.remove(); overlay.remove(); });
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
+  requestAnimationFrame(() => { requestAnimationFrame(() => { popup.style.opacity='1'; popup.style.transform='translate(-50%,-50%) scale(1)'; }); });
+  setTimeout(() => { popup.remove(); overlay.remove(); }, 3000);
 }
 
 /* ════════════════════════════════
-   AI 식단 / 운동 플랜 카드 렌더링
-   sc302에서 localStorage에 저장한 aiMealPlan / aiWorkoutPlan을
-   대시보드 카드(#mealContent, #workoutContent)에 표시
+   연속 달성 스트릭 배너
    ════════════════════════════════ */
-function renderAiPlan() {
-  const userData    = Storage.getUser();
-  const mealPlan    = userData.aiMealPlan;
-  const workoutPlan = userData.aiWorkoutPlan;
-
-  const mealEl    = document.getElementById('mealContent');
-  const workoutEl = document.getElementById('workoutContent');
-
-  /* ── 식단 카드 ── */
-  if (mealEl) {
-    if (mealPlan) {
-      const rows = [
-        { icon: '🌅', key: 'breakfast', label: '아침' },
-        { icon: '☀️', key: 'lunch',     label: '점심' },
-        { icon: '🌙', key: 'dinner',    label: '저녁' },
-      ].map(({ icon, key, label }) => {
-        const m = mealPlan[key];
-        if (!m) return '';
-        const menu = Array.isArray(m.menu) ? m.menu.join(', ') : m.menu;
-        return `
-          <div class="plan-row">
-            <span class="plan-row-label">${icon} ${label}</span>
-            <span class="plan-row-value">${menu}</span>
-            <span class="plan-row-kcal">${m.calories} kcal</span>
-          </div>`;
-      }).join('');
-
-      mealEl.innerHTML = `
-        <div class="plan-list">${rows}</div>
-        <div class="plan-total">하루 총 ${(mealPlan.total_calories || 0).toLocaleString()} kcal</div>
-        ${mealPlan.tip ? `<div class="plan-tip">💡 ${mealPlan.tip}</div>` : ''}
-      `;
-    } else {
-      mealEl.innerHTML = `<div class="plan-empty">sc302에서 AI 플랜을 먼저 생성해주세요.</div>`;
-    }
+function renderStreakBanner() {
+  const banner = document.getElementById('streakBanner');
+  const textEl = document.getElementById('streakBannerText');
+  if (!banner || !textEl) return;
+  let streak = 0;
+  const today = new Date();
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today); d.setDate(today.getDate() - i);
+    const key = `check_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    let checks = {};
+    try { checks = JSON.parse(localStorage.getItem(key)) || {}; } catch {}
+    if (checks.meal && checks.workout) { streak++; }
+    else if (i === 0) { continue; }
+    else { break; }
   }
-
-  /* ── 운동 카드 ── */
-  if (workoutEl) {
-    if (workoutPlan) {
-      const mainItems = (workoutPlan.main || []).map(item => {
-        const detail = item.sets && item.reps
-          ? `${item.reps}회 × ${item.sets}세트`
-          : (item.duration || '');
-        return `
-          <div class="plan-row workout-row">
-            <span class="plan-row-name">💪 ${item.name}</span>
-            <span class="plan-row-detail">${detail}</span>
-            <span class="plan-row-kcal">${item.calories || 0} kcal</span>
-          </div>`;
-      }).join('');
-
-      workoutEl.innerHTML = `
-        <div class="plan-list">${mainItems}</div>
-        <div class="plan-total">${workoutPlan.total_duration || 0}분 · ${workoutPlan.total_calories || 0} kcal 소모</div>
-        ${workoutPlan.tip ? `<div class="plan-tip">💡 ${workoutPlan.tip}</div>` : ''}
-      `;
-    } else {
-      workoutEl.innerHTML = `<div class="plan-empty">sc302에서 AI 플랜을 먼저 생성해주세요.</div>`;
-    }
-  }
+  if (streak >= 1) { banner.style.display='flex'; textEl.textContent=`${streak}일째 연속 성공 중!`; }
+  else { banner.style.display='none'; }
 }
 
 /* ════════════════════════════════
-   10. 로고 클릭 → sc101
+   목표 달성 축하 팝업
    ════════════════════════════════ */
-function bindLogoClick() {
-  document.getElementById('sidebarLogo')?.addEventListener('click', () => {
-    /* 로그인 후 페이지이므로 로고 클릭 시 대시보드로 이동 */
-    location.href = 'sc301.html';
+function showGoalAchievedPopup() {
+  document.getElementById('goalAchievedPopup')?.remove();
+  document.getElementById('goalAchievedOverlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'goalAchievedOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);z-index:9998;';
+
+  const data = Storage.getUser();
+  const popup = document.createElement('div');
+  popup.id = 'goalAchievedPopup';
+  popup.style.cssText = `
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) scale(0.85);
+    background:var(--card);border:1px solid var(--border);
+    border-radius:24px;padding:40px 36px;
+    text-align:center;z-index:9999;
+    box-shadow:0 0 0 1px rgba(102,208,188,0.2),0 32px 80px rgba(0,0,0,0.6);
+    display:flex;flex-direction:column;align-items:center;gap:14px;
+    min-width:300px;max-width:360px;width:90%;
+    opacity:0;transition:opacity 0.3s ease,transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  `;
+  popup.innerHTML = `
+    <div style="font-size:64px;line-height:1;animation:celebBounce 0.6s ease infinite alternate;">🏆</div>
+    <div style="font-size:22px;font-weight:800;color:var(--teal);letter-spacing:-0.03em;">목표 달성!</div>
+    <div style="font-size:15px;font-weight:800;color:var(--text);">
+      목표 체중 <span style="color:var(--teal);">${data.targetWeight}kg</span>에 도달했어요!
+    </div>
+    <div style="font-size:13px;color:var(--text-sec);line-height:1.7;">
+      꾸준히 노력한 결과예요. 정말 대단해요! 🎉<br>
+      새로운 목표 설정 또는 현재 체중을 유지해보세요.
+    </div>
+    <div style="display:flex;gap:10px;width:100%;margin-top:4px;">
+      <button onclick="document.getElementById('goalAchievedPopup')?.remove();document.getElementById('goalAchievedOverlay')?.remove();"
+        style="flex:1;padding:12px;border:1px solid var(--border);border-radius:12px;
+               background:transparent;color:var(--text-sec);font-size:13px;
+               font-family:inherit;font-weight:700;cursor:pointer;">닫기</button>
+      <button onclick="location.href='sc701.html';document.getElementById('goalAchievedPopup')?.remove();document.getElementById('goalAchievedOverlay')?.remove();"
+        style="flex:1;padding:12px;border:none;border-radius:12px;
+               background:var(--teal);color:#09131a;font-size:13px;
+               font-family:inherit;font-weight:800;cursor:pointer;">목표 재설정 →</button>
+    </div>
+  `;
+
+  /* 떨어지는 색종이 */
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes celebBounce { from { transform: translateY(0) rotate(-5deg); } to { transform: translateY(-8px) rotate(5deg); } }
+    @keyframes confettiFall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+  `;
+  document.head.appendChild(style);
+
+  overlay.addEventListener('click', () => { popup.remove(); overlay.remove(); });
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
+
+  const colors = ['var(--teal)','#F5A623','#C779D0','#5BA4E6','#7FD37A'];
+  for (let i = 0; i < 28; i++) {
+    const c = document.createElement('div');
+    const size = 6 + Math.random() * 8;
+    c.style.cssText = `position:fixed;left:${Math.random()*100}%;top:-20px;width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>0.5?'50%':'2px'};z-index:10000;pointer-events:none;animation:confettiFall ${2+Math.random()*2}s ease ${Math.random()*1}s forwards;`;
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 4000);
+  }
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      popup.style.opacity = '1';
+      popup.style.transform = 'translate(-50%,-50%) scale(1)';
+    });
   });
 }

@@ -1,76 +1,50 @@
 const { Router } = require('express');
-const { callGemini, FOOD_LABELS, buildReasonsText, parseGeminiJson } = require('../config');
+const { recommendMeal, adjustMeal }         = require('../services/mealService');
+const { recommendExercise, adjustExercise } = require('../services/exerciseService');
 
 const router = Router();
 
 // ──────────────────────────────────────────
-// POST /api/plan/replan — AI 플랜 재스케줄링 (식단 + 운동 병렬 생성)
-// Body: { height, weight, bmi, gender, targetWeight, remainingWeeks, missedCount, reason }
-//   remainingWeeks: 남은 목표 기간 (주)
-//   missedCount: 누적 미이행 횟수 (기본값 0)
-//   reason: 재조정 사유 (선택)
+// POST /api/plan/replan — 플랜 재스케줄링 (식단 + 운동 병렬 생성)
+// Body: { height, weight, bmi, gender, birth, activityLevel, targetWeight, remainingWeeks, missedCount, reason }
+// reason이 있으면 Gemini NLU 기반 adjust 함수 사용 (제외/선호 반영)
+// reason이 없으면 규칙 기반 recommend 함수 사용 (빠름)
 // Response: { success, data: { mealPlan, workoutPlan } }
 // ──────────────────────────────────────────
 router.post('/replan', async (req, res) => {
-    const { height, weight, bmi, gender, targetWeight, remainingWeeks, missedCount = 0, reason = '' } = req.body;
+    const { height, weight, bmi, gender, birth, activityLevel, targetWeight, remainingWeeks, missedCount = 0, reason = '' } = req.body;
 
     if (!height || !weight || !targetWeight || !remainingWeeks) {
         return res.status(400).json({ success: false, message: '필수 파라미터가 없습니다. (height, weight, targetWeight, remainingWeeks)' });
     }
 
-    // 남은 기간 기준으로 목표 칼로리 재계산
-    const weightToLose   = weight - targetWeight;
-    const tdee           = weight * 28;
+    // 남은 기간 기준으로 목표 칼로리 재계산 (Mifflin-St Jeor)
+    const age = birth ? new Date().getFullYear() - Number(String(birth).slice(0, 4)) : 25;
+    const bmr = (gender === '남성' || gender === 'M')
+        ? 10 * weight + 6.25 * height - 5 * age + 5
+        : 10 * weight + 6.25 * height - 5 * age - 161;
+    const actMap = { '낮음': 1.2, '보통': 1.375, '높음': 1.55, '매우높음': 1.725, '선수': 1.9 };
+    const tdee           = Math.round(bmr * (actMap[activityLevel] || 1.375));
+    const weightToLose   = Math.max(0, weight - targetWeight);
     const dailyDeficit   = Math.round((weightToLose * 7700) / (remainingWeeks * 7));
-    const targetCalories = Math.max(1200, tdee - dailyDeficit);
-
-    const contextText =
-        "사용자가 " + missedCount + "회 식단/운동을 미이행하여 플랜을 재조정합니다.\n" +
-        (reason ? "재조정 사유: " + reason + "\n" : "") +
-        "남은 목표 기간: " + remainingWeeks + "주\n";
-
-    const mealPrompt =
-        "당신은 전문 영양사입니다. " + contextText + "\n" +
-        "사용자 정보:\n" +
-        "- 성별: " + gender + "\n" +
-        "- 키: " + height + "cm / 체중: " + weight + "kg / BMI: " + bmi + "\n" +
-        "- 목표 체중: " + targetWeight + "kg\n" +
-        "- 하루 목표 섭취 칼로리: " + targetCalories + "kcal\n\n" +
-        "★ 하루 총 칼로리 합계가 반드시 " + targetCalories + "kcal 근처(±30kcal)가 되도록 구성하세요.\n" +
-        "★ 반드시 아래 음식 목록 안에서만 추천하세요:\n" + FOOD_LABELS + "\n\n" +
-        "★ 순수 JSON만 출력하세요.\n" +
-        '{"breakfast":{"menu":["음식명"],"calories":350,"desc":"설명"},' +
-        '"lunch":{"menu":["음식명"],"calories":500,"desc":"설명"},' +
-        '"dinner":{"menu":["음식명"],"calories":400,"desc":"설명"},' +
-        '"total_calories":' + targetCalories + ',"tip":"팁"}';
-
-    const workoutPrompt =
-        "당신은 전문 운동 트레이너입니다. " + contextText + "\n" +
-        "사용자 정보:\n" +
-        "- 성별: " + gender + "\n" +
-        "- 키: " + height + "cm / 체중: " + weight + "kg / BMI: " + bmi + "\n" +
-        "- 목표 체중: " + targetWeight + "kg / 남은 기간: " + remainingWeeks + "주\n\n" +
-        "★ 집에서 할 수 있는 맨몸 운동 위주로 추천하세요.\n" +
-        "★ 순수 JSON만 출력하세요.\n" +
-        '{"warmup":[{"name":"운동명","duration":"5분","calories":30}],' +
-        '"main":[{"name":"운동명","sets":3,"reps":15,"calories":80}],' +
-        '"cooldown":[{"name":"운동명","duration":"5분","calories":20}],' +
-        '"total_duration":45,"total_calories":300,"tip":"팁"}';
+    const targetCalories = Math.max(1200, tdee - Math.min(dailyDeficit, 1000));
 
     try {
+        const reasons = reason ? [reason] : [];
         console.log(`  재스케줄링: 미이행 ${missedCount}회 / 남은 ${remainingWeeks}주 / 목표 ${targetCalories}kcal`);
-        console.log('  식단 + 운동 Gemini 병렬 요청 중...');
+        if (reason) console.log(`  사유: "${reason}" → Gemini NLU 기반 adjust 사용`);
 
-        // 식단과 운동을 동시에 요청 (병렬)
-        const [mealText, workoutText] = await Promise.all([
-            callGemini(mealPrompt),
-            callGemini(workoutPrompt),
+        const [mealPlan, workoutPlan] = await Promise.all([
+            reasons.length > 0
+                ? adjustMeal({ targetCalories, reasons })
+                : Promise.resolve(recommendMeal({ targetCalories })),
+            reasons.length > 0
+                ? adjustExercise({ bmi: bmi || 22, targetWeeks: remainingWeeks, activityLevel, reasons })
+                : Promise.resolve(recommendExercise({ bmi: bmi || 22, targetWeeks: remainingWeeks, activityLevel })),
         ]);
 
-        const mealPlan    = parseGeminiJson(mealText);
-        const workoutPlan = parseGeminiJson(workoutText);
-
-        console.log(`  식단: ${mealPlan.total_calories}kcal / 운동: ${workoutPlan.total_calories}kcal 소모`);
+        const mealTotal = mealPlan.breakfast.calories + mealPlan.lunch.calories + mealPlan.dinner.calories;
+        console.log(`  식단: ${mealTotal}kcal / 운동: ${workoutPlan.total_calories}kcal 소모`);
         res.json({ success: true, data: { mealPlan, workoutPlan } });
     } catch (err) {
         console.error('  [오류] 재스케줄링 실패:', err.message);

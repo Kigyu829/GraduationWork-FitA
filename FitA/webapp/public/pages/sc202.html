@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#09131a">
+  <title>신체 정보 – FitA</title>
+  <link rel="manifest" href="../../manifest.json">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/sc202.css">
+</head>
+<body class="onboard-page">
+  <div class="onboard-container">
+    <div class="step-bar">
+      <div class="step-item active"><div class="step-circle">1</div><span class="step-label">신체 정보</span></div>
+      <div class="step-line"></div>
+      <div class="step-item"><div class="step-circle">2</div><span class="step-label">목표 설정</span></div>
+      <div class="step-line"></div>
+      <div class="step-item"><div class="step-circle">✓</div><span class="step-label">완료</span></div>
+    </div>
+    <section class="form-card">
+      <div class="form-header">
+        <span class="step-badge">STEP 1 / 2</span>
+        <h1>기본 신체 정보를<br>입력해주세요</h1>
+        <p>맞춤 건강 관리를 위해 필요해요.</p>
+      </div>
+      <form id="bodyInfoForm1" class="health-form">
+        <div class="input-group">
+          <label for="gender">성별</label>
+          <select id="gender">
+            <option value="">선택하세요</option>
+            <option value="여성">여성</option>
+            <option value="남성">남성</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>생년월일</label>
+          <div class="birth-wrap">
+            <input type="number" id="birthYear" placeholder="년" min="1940" max="2010">
+            <input type="number" id="birthMonth" placeholder="월" min="1" max="12">
+            <input type="number" id="birthDay" placeholder="일" min="1" max="31">
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="height">키 (cm)</label>
+            <input type="number" id="height" placeholder="170" min="100" max="250" step="0.1">
+          </div>
+          <div class="input-group">
+            <label for="weight">체중 (kg)</label>
+            <input type="number" id="weight" placeholder="65" min="30" max="300" step="0.1">
+          </div>
+        </div>
+        <div class="input-group" style="margin-top:16px;">
+          <label>기저 질환 / 주의 사항 <span style="font-weight:400;color:var(--text-mute);font-size:11px;">(해당 항목 모두 선택)</span></label>
+          <div class="condition-grid" id="conditionGrid">
+            <label class="condition-chip"><input type="checkbox" name="condition" value="당뇨"> 당뇨</label>
+            <label class="condition-chip"><input type="checkbox" name="condition" value="고혈압"> 고혈압</label>
+            <label class="condition-chip"><input type="checkbox" name="condition" value="심장질환"> 심장질환</label>
+            <label class="condition-chip"><input type="checkbox" name="condition" value="관절 문제"> 관절 문제</label>
+            <label class="condition-chip"><input type="checkbox" name="condition" value="임신/수유"> 임신/수유</label>
+            <label class="condition-chip"><input type="checkbox" name="condition" value="없음" id="condNone"> 해당 없음</label>
+          </div>
+          <p class="condition-notice">⚠️ 기저 질환이 있는 경우 AI 플랜 이용 전 전문의와 상담하세요.</p>
+        </div>
+        <button type="submit" class="primary-btn" style="width:100%;margin-top:16px;">다음 단계 →</button>
+      </form>
+    </section>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/sc202.js"></script>
+</body>
+</html>

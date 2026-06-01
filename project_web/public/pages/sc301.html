@@ -6,6 +6,11 @@
   <title>메인 대시보드</title>
   <link rel="stylesheet" href="../css/common.css" />
   <link rel="stylesheet" href="../css/sc301.css" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
   <div class="dashboard">
@@ -15,14 +20,13 @@
         <!-- 로고: id="sidebarLogo" → 클릭 시 sc101로 이동 (sc301.js) -->
         <div class="sidebar-logo" id="sidebarLogo" style="cursor:pointer;">
           <div class="sidebar-logo-icon">🏃</div>
-          <span class="sidebar-logo-text">HealthDash</span>
+          <img src="../img/FitALogo.png" alt="FitA" style="height:26px;width:auto;object-fit:contain;" />
         </div>
 
         <div class="sidebar-card profile-card">
-          <div class="profile-avatar">👤</div>
+          <div class="profile-avatar" id="profileAvatar">👤</div>
           <div id="userName">내 정보</div>
           <div id="userBasicInfo">기본 정보 불러오는 중...</div>
-          <button class="profile-edit-mini-btn" onclick="location.href='sc_profile_edit.html'">✏️ 내 정보 수정</button>
           <div class="profile-weights">
             <div class="weight-chip">
               <span class="weight-chip-label">현재 체중</span>
@@ -39,10 +43,9 @@
           <div class="menu-card-title">메뉴</div>
           <div class="menu-list">
             <button class="menu-btn active" data-href="sc301.html"><span class="menu-btn-icon">🏠</span>대시보드</button>
-            <button class="menu-btn" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
             <button class="menu-btn" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
-            <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
-            <button class="menu-btn" data-href="sc601.html"><span class="menu-btn-icon">⚙️</span>설정</button>
+            <button class="menu-btn" id="menuHistory"><span class="menu-btn-icon">📅</span>히스토리</button>
+            <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">⚙️</span>마이페이지</button>
           </div>
         </div>
       </div>
@@ -52,100 +55,99 @@
     </aside>
 
     <main class="main">
-      <div class="content-layout">
-        <section class="center-panel">
-          <div class="main-header">
-            <div>
-              <div class="main-header-title">대시보드</div>
-              <div class="main-header-date" id="headerDate"></div>
+      <div class="dash-layout">
+
+        <!-- ① 히어로카드 — 전체 너비 -->
+        <section class="hero-card dash-hero">
+          <div class="hero-copy">
+            <span class="hero-eyebrow">HEALTH OVERVIEW</span>
+            <p id="headerDate" style="font-size:13px;color:rgba(255,255,255,0.7);margin:0 0 6px;"></p>
+            <h1>오늘도 목표 체중에 가까워지는 하루</h1>
+            <p>기록, 식단, 운동, 건강지표를 한 화면에서 확인해보세요.</p>
+          </div>
+          <div class="hero-mini-stats">
+            <div class="hero-pill">
+              <span class="hero-pill-label">현재 체중</span>
+              <strong id="currentWeight">-</strong>
+            </div>
+            <div class="hero-pill">
+              <span class="hero-pill-label">목표 체중</span>
+              <strong id="targetWeight">-</strong>
+            </div>
+            <div class="hero-pill accent-pill">
+              <span class="hero-pill-label">남은 감량</span>
+              <strong id="remainingWeight">-</strong>
             </div>
           </div>
 
-          <section class="hero-card">
-            <div class="hero-copy">
-              <span class="hero-eyebrow">HEALTH OVERVIEW</span>
-              <h1>오늘도 목표 체중에 가까워지는 하루</h1>
-              <p>기록, 식단, 운동, 건강지표를 한 화면에서 확인해보세요.</p>
+          <!-- 히어로 하단: 연속 달성 스트릭 -->
+          <div class="hero-bottom-row">
+            <div class="streak-banner" id="streakBanner" style="display:none;">
+              <span class="streak-fire">🔥</span>
+              <span class="streak-text" id="streakBannerText">N일째 연속 성공 중!</span>
             </div>
-            <div class="hero-mini-stats">
-              <div class="hero-pill">
-                <span class="hero-pill-label">현재 체중</span>
-                <strong id="currentWeight">-</strong>
-              </div>
-              <div class="hero-pill">
-                <span class="hero-pill-label">목표 체중</span>
-                <strong id="targetWeight">-</strong>
-              </div>
-              <div class="hero-pill accent-pill">
-                <span class="hero-pill-label">남은 감량</span>
-                <strong id="remainingWeight">-</strong>
+          </div>
+        </section>
+
+        <!-- ② 목표 진행률 -->
+        <section class="card progress-card tint-yellow dash-progress">
+          <div class="card-header">
+            <span class="card-title">목표 진행률</span>
+            <span class="card-badge" id="progressBadge">0%</span>
+          </div>
+          <div class="progress-circle-wrap">
+            <div class="progress-circle" id="progressRing">
+              <div class="progress-inner">
+                <span id="progress">0%</span>
+                <span class="progress-sublabel">달성</span>
               </div>
             </div>
-          </section>
+          </div>
+          <div class="progress-stats">
+            <div class="stat-item">
+              <div class="stat-label">목표 기간</div>
+              <div class="stat-value" id="goalPeriodText">-</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">현재 상태</div>
+              <div class="stat-value teal" id="currentWeightTextMirror">체크 중</div>
+            </div>
+          </div>
+        </section>
 
-          <div class="summary-grid">
-            <section class="card progress-card tint-yellow">
-              <div class="card-header">
-                <span class="card-title">목표 진행률</span>
-                <span class="card-badge" id="progressBadge">0%</span>
-              </div>
-              <div class="progress-circle-wrap">
-                <div class="progress-circle" id="progressRing">
-                  <div class="progress-inner">
-                    <span id="progress">0%</span>
-                    <span class="progress-sublabel">달성</span>
-                  </div>
-                </div>
-              </div>
-              <div class="progress-stats">
-                <div class="stat-item">
-                  <div class="stat-label">목표 기간</div>
-                  <div class="stat-value" id="goalPeriodText">-</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-label">현재 상태</div>
-                  <div class="stat-value teal" id="currentWeightTextMirror">체크 중</div>
-                </div>
-              </div>
-            </section>
+        <!-- ③ 오늘의 식단 -->
+        <section class="card meal-card tint-pink dash-meal">
+          <div class="card-header">
+            <span class="card-title" style="cursor:pointer;" onclick="location.href='sc311.html?tab=meal'">오늘의 식단 →</span>
+          </div>
+          <div id="mealContent" class="ai-loading">
+            <div class="spinner"></div>
+            <span>AI가 맞춤 식단을 준비 중...</span>
+          </div>
+          <label class="today-check-row">
+            <input type="checkbox" id="checkMeal" />
+            <span class="today-check-label">식단 인증 완료 시 자동 체크</span>
+          </label>
+        </section>
 
-            <!-- 오늘의 식단 + 체크박스 -->
-            <section class="card meal-card tint-pink">
-              <div class="card-header">
-                <span class="card-title" style="cursor:pointer;" onclick="location.href='sc311.html?tab=meal'">오늘의 식단 →</span>
-                <span class="card-badge ai-badge">✨ AI 추천</span>
-              </div>
-              <div id="mealContent" class="ai-loading">
-                <div class="spinner"></div>
-                <span>AI가 맞춤 식단을 준비 중...</span>
-              </div>
-              <!-- 오늘 식단 목표 체크 -->
-              <label class="today-check-row">
-                <input type="checkbox" id="checkMeal" />
-                <span class="today-check-label">오늘 식단 목표를 지켰어요</span>
-              </label>
-            </section>
+        <!-- ④ 오늘의 운동 -->
+        <section class="card workout-card tint-green dash-workout">
+          <div class="card-header">
+            <span class="card-title" style="cursor:pointer;" onclick="location.href='sc311.html?tab=workout'">오늘의 운동 →</span>
+          </div>
+          <div id="workoutContent" class="ai-loading">
+            <div class="spinner"></div>
+            <span>AI가 운동 플랜을 준비 중...</span>
+          </div>
+          <label class="today-check-row">
+            <input type="checkbox" id="checkWorkout" />
+            <span class="today-check-label">운동 전체 완료 시 자동 체크</span>
+          </label>
+          <div class="today-check-status" id="todayCheckStatus">아직 체크하지 않았어요.</div>
+        </section>
 
-            <!-- 오늘의 운동 + 체크박스 + 달성 상태 -->
-            <section class="card workout-card tint-green">
-              <div class="card-header">
-                <span class="card-title" style="cursor:pointer;" onclick="location.href='sc311.html?tab=workout'">오늘의 운동 →</span>
-                <span class="card-badge ai-badge">✨ AI 추천</span>
-              </div>
-              <div id="workoutContent" class="ai-loading">
-                <div class="spinner"></div>
-                <span>AI가 운동 플랜을 준비 중...</span>
-              </div>
-              <!-- 오늘 운동 목표 체크 -->
-              <label class="today-check-row">
-                <input type="checkbox" id="checkWorkout" />
-                <span class="today-check-label">오늘 운동 목표를 지켰어요</span>
-              </label>
-              <!-- 전체 달성 상태 (식단+운동 합산) -->
-              <div class="today-check-status" id="todayCheckStatus">아직 체크하지 않았어요.</div>
-            </section>
-
-            <section class="card bmi-card tint-blue">
+        <!-- ⑤ 건강 지표 -->
+        <section class="card bmi-card tint-blue">
               <div class="card-header">
                 <span class="card-title">건강 지표</span>
                 <span class="card-badge" id="bmiStatusBadge">-</span>
@@ -180,13 +182,6 @@
                   </div>
                 </div>
                 <div class="metric-item">
-                  <span class="metric-icon">⚡</span>
-                  <div>
-                    <div class="metric-label">유지 칼로리</div>
-                    <div class="metric-value" id="tdeeValue">-</div>
-                  </div>
-                </div>
-                <div class="metric-item">
                   <span class="metric-icon">🎯</span>
                   <div>
                     <div class="metric-label">식단 목표 칼로리</div>
@@ -195,117 +190,101 @@
                 </div>
               </div>
             </section>
+
+        <!-- ⑥ 달력 -->
+        <section class="card calendar-card dash-calendar">
+          <div class="card-header">
+            <span class="card-title" style="cursor:pointer;" onclick="location.href='sc602.html?date='+new Date().toISOString().slice(0,10)">달력 →</span>
           </div>
-
-          <div class="insight-grid">
-            <section class="card water-card slim-card">
-              <div class="card-header">
-                <span class="card-title">물 섭취</span>
-                <span class="card-badge water-badge" id="waterBadge">0 / 8잔</span>
+          <div class="calendar-ui">
+            <div class="calendar-box">
+              <div class="calendar-header">
+                <button type="button" class="calendar-nav" id="prevMonthBtn">&#8249;</button>
+                <div class="calendar-title" id="calendarTitle">-</div>
+                <button type="button" class="calendar-nav" id="nextMonthBtn">&#8250;</button>
               </div>
-              <div class="water-cups" id="waterCups"></div>
-              <div class="water-actions">
-                <button class="water-btn" id="addWaterBtn">+ 한 잔 마셨어요</button>
-                <button class="water-btn water-btn-reset" id="resetWaterBtn">초기화</button>
+              <div class="calendar-weekdays">
+                <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
               </div>
-              <div class="water-tip" id="waterTip">오늘의 수분 섭취 목표: 2,000ml</div>
-            </section>
-
-            <section class="card streak-card slim-card">
-              <div class="card-header">
-                <span class="card-title">연속 기록</span>
-                <span class="card-badge streak-badge">🔥 스트릭</span>
-              </div>
-              <div class="streak-main">
-                <div class="streak-number" id="streakCount">0</div>
-                <div class="streak-label">일 연속</div>
-              </div>
-              <div class="streak-week" id="streakWeek"></div>
-              <div class="streak-info" id="streakInfo">체중을 매일 기록하면 스트릭이 쌓여요!</div>
-            </section>
+              <div class="calendar-days" id="calendarDays"></div>
+            </div>
+            <!-- 범례 -->
+            <div class="cal-legend">
+              <span class="cal-legend-item"><span class="cal-dot dot-both"></span>식단+운동</span>
+              <span class="cal-legend-item"><span class="cal-dot dot-meal"></span>식단</span>
+              <span class="cal-legend-item"><span class="cal-dot dot-workout"></span>운동</span>
+            </div>
           </div>
         </section>
 
-        <aside class="right-panel">
-          <section class="card calendar-card right-card">
-            <div class="card-header">
-              <span class="card-title">달력</span>
-              <span class="card-badge card-badge-red">일정 관리</span>
-            </div>
-            <div class="calendar-ui">
-              <div class="calendar-date-bar">
-                <span id="selectedDateText">-</span>
-                <span class="calendar-icon">📅</span>
-              </div>
-              <div class="calendar-box">
-                <div class="calendar-header">
-                  <button type="button" class="calendar-nav" id="prevMonthBtn">&#8249;</button>
-                  <div class="calendar-title" id="calendarTitle">-</div>
-                  <button type="button" class="calendar-nav" id="nextMonthBtn">&#8250;</button>
-                </div>
-                <div class="calendar-weekdays">
-                  <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
-                </div>
-                <div class="calendar-days" id="calendarDays"></div>
-                <div class="schedule-popup" id="schedulePopup">
-                  <div class="schedule-popup-header">
-                    <strong id="popupDateLabel">날짜</strong>
-                    <button type="button" id="closePopupBtn">×</button>
-                  </div>
-                  <input type="text" id="scheduleInput" placeholder="일정을 입력하세요" />
-                  <button type="button" id="saveScheduleBtn">저장</button>
-                  <ul id="scheduleList"></ul>
-                </div>
-              </div>
-            </div>
-          </section>
+        <!-- ⑦ 연속 기록 스트릭 -->
+        <section class="card streak-card dash-streak">
+          <div class="card-header">
+            <span class="card-title">연속 기록</span>
+            <span class="card-badge streak-badge" id="streakCount">0일</span>
+          </div>
+          <div class="streak-week" id="streakWeek"></div>
+          <div class="streak-info" id="streakInfo">오늘 식단과 운동을 체크하면 스트릭이 시작돼요!</div>
+        </section>
 
-          <section class="card weight-chart-card right-card">
-            <div class="card-header chart-card-header">
-              <div>
-                <span class="card-title">체중 변화</span>
-                <p class="subtle-text">최근 7일 체중 추이를 확인해보세요</p>
-              </div>
-              <span class="card-badge">최근 7일</span>
-            </div>
-            <div class="weight-input-wrap weight-chart-input-wrap">
-              <input type="number" id="todayWeightInput" class="weight-input" placeholder="오늘 체중(kg)" step="0.1" min="20" max="300" />
-              <button id="saveWeightBtn" class="weight-save-btn">기록</button>
-            </div>
-            <div class="weight-chart-wrap">
-              <canvas id="weightChart"></canvas>
-              <div class="chart-empty" id="chartEmpty">체중을 기록하면 그래프가 표시돼요</div>
-            </div>
-          </section>
-        </aside>
-      </div>
+      </div><!-- /dash-layout -->
     </main>
+
+
+  <!-- sc601: 히스토리 달력 모달 -->
+  <div class="hist-modal-overlay" id="histModalOverlay">
+    <div class="hist-modal" id="histModal">
+      <div class="hist-modal-header">
+        <div class="hist-modal-title">📅 히스토리</div>
+        <button class="hist-modal-close" id="histModalClose">×</button>
+      </div>
+      <div class="hist-modal-body">
+        <div class="hist-cal-nav">
+          <button class="hist-cal-arrow" id="histPrevMonth">&#8249;</button>
+          <span class="hist-cal-title" id="histCalTitle">-</span>
+          <button class="hist-cal-arrow" id="histNextMonth">&#8250;</button>
+        </div>
+        <div class="hist-legend">
+          <span class="hist-legend-item"><span class="hist-dot dot-both"></span>식단+운동</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-meal"></span>식단</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-workout"></span>운동</span>
+        </div>
+        <div class="hist-weekdays">
+          <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+        </div>
+        <div class="hist-days" id="histDays"></div>
+      </div>
+    </div>
   </div>
 
-  <!-- 푸터 -->
-  <footer class="dashboard-footer">
-    <div class="dashboard-footer-inner">
-      <div class="dashboard-footer-links">
-        <a href="#" class="dashboard-footer-link" id="footerTerms">이용약관</a>
-        <a href="#" class="dashboard-footer-link" id="footerPrivacy">개인정보처리방침</a>
-        <a href="#" class="dashboard-footer-link" id="footerNotice">공지사항</a>
-        <a href="#" class="dashboard-footer-link" id="footerContact">문의하기</a>
+  <!-- ── sc501: AI 상담 오버레이 패널 ── -->
+  <div class="ai-overlay" id="aiOverlay">
+    <div class="ai-overlay-panel" id="aiOverlayPanel">
+      <div class="ai-overlay-header">
+        <div class="ai-overlay-title">🤖 AI 상담</div>
+        <button class="ai-overlay-close" id="aiOverlayClose">×</button>
       </div>
-      <span class="dashboard-footer-copy">© 2025 HealthDash. All rights reserved.</span>
-    </div>
-  </footer>
-
-  <!-- 푸터 모달 -->
-  <div class="footer-modal-overlay" id="footerModalOverlay">
-    <div class="footer-modal" id="footerModal">
-      <div class="footer-modal-header">
-        <span class="footer-modal-title" id="footerModalTitle"></span>
-        <button class="footer-modal-close" id="footerModalClose">×</button>
+      <div class="ai-overlay-messages" id="aiOverlayMessages">
+        <div class="chat-msg ai">
+          <div class="chat-avatar">🤖</div>
+          <div>
+            <div class="chat-bubble">안녕하세요! 식단이나 운동, 건강에 대해 궁금한 점을 편하게 물어보세요 😊</div>
+            <div class="chat-time">AI 상담사</div>
+          </div>
+        </div>
       </div>
-      <div class="footer-modal-body" id="footerModalBody"></div>
+      <div class="ai-overlay-input-wrap">
+        <textarea class="ai-overlay-input" id="aiOverlayInput" placeholder="질문을 입력하세요..." rows="1"></textarea>
+        <button class="ai-overlay-send" id="aiOverlaySend">➤</button>
+      </div>
     </div>
   </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="../js/firebase-config.js"></script>
   <script src="../js/common.js"></script>
   <script src="../js/sc301.js"></script>
 </body>

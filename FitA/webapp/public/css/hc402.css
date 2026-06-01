@@ -1,0 +1,91 @@
+/* hc402.css — Food Scan Loading */
+
+.scan-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.scan-status {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.scan-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.scan-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scan-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--teal);
+  animation: scan 1.8s ease-in-out infinite;
+}
+
+.scan-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(9, 19, 26, 0.4));
+}
+
+@keyframes scan {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(100%); }
+}
+
+.scan-progress-wrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.scan-progress-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.scan-progress-fill {
+  height: 100%;
+  background: var(--teal);
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.scan-progress-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--teal);
+  min-width: 36px;
+}
+
+.scan-hint {
+  font-size: 13px;
+  color: var(--text-sec);
+  text-align: center;
+}

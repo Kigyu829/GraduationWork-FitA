@@ -3,9 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>회원가입 – HealthDash</title>
+  <title>회원가입 – FitA</title>
   <link rel="stylesheet" href="../css/common.css" />
   <link rel="stylesheet" href="../css/sc201_2.css" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
 
@@ -24,14 +29,14 @@
 
     <a href="sc101.html" class="site-logo">
       <div class="site-logo-icon">🏃</div>
-      <span class="site-logo-text">HealthDash</span>
+      <img src="../img/FitALogo.png" alt="FitA" style="height:28px;width:auto;object-fit:contain;" />
     </a>
 
     <section class="form-card">
       <div class="signup-header">
         <span class="page-badge">JOIN FREE</span>
         <h1>회원가입</h1>
-        <p>아래 정보를 입력하고 HealthDash를 시작하세요.</p>
+        <p>아래 정보를 입력하고 FitA를 시작하세요.</p>
       </div>
 
       <form id="signupForm" class="signup-form">
@@ -80,6 +85,9 @@
           </div>
         </div>
 
+        <!-- reCAPTCHA (invisible) -->
+        <div id="recaptcha-container"></div>
+
         <!-- 인증번호 입력 -->
         <div class="input-group" id="verifyCodeGroup" style="display:none;">
           <label for="verifyCode">인증번호</label>
@@ -99,7 +107,11 @@
     </div>
   </div>
 
-  <script src="../js/common.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+<script src="../js/common.js"></script>
   <script src="../js/sc201_2.js"></script>
 </body>
 </html>

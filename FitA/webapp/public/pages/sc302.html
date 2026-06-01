@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#09131a">
+  <title>AI 플랜 생성 – FitA</title>
+  <link rel="manifest" href="../../manifest.json">
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/sc302.css">
+</head>
+<body>
+  <header class="mob-header">
+    <button class="mob-header-back" onclick="location.href='sc301.html'">‹</button>
+    <span class="mob-header-title">AI 플랜 생성</span>
+  </header>
+
+  <main class="mob-main-sub">
+    <div class="mob-inner" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 56px);padding:24px 20px;">
+
+      <!-- 이미 플랜 있음 카드 -->
+      <div class="loading-card already-plan-card" id="alreadyPlanCard" style="display:none;width:100%;max-width:400px;">
+        <div class="loading-character">✅</div>
+        <div class="loading-title">오늘은 이미 추천을 받았어요</div>
+        <div class="loading-subtitle">변경을 원하신다면 AI 상담 기능을 이용해보세요.</div>
+        <div class="already-plan-btns">
+          <button class="secondary-btn" id="btnBackToDash" style="width:100%;margin-bottom:10px;">🏠 대시보드로 돌아가기</button>
+          <button class="primary-btn" id="btnOpenAiChat" style="width:100%;">🤖 AI 상담 받아보기</button>
+        </div>
+      </div>
+
+      <!-- 로딩 카드 -->
+      <div class="loading-card" id="loadingCard" style="width:100%;max-width:400px;">
+        <div class="loading-character">🤖</div>
+        <div class="loading-title">AI가 플랜을 만들고 있어요</div>
+        <div class="loading-subtitle">신체 정보와 목표를 분석해<br>맞춤형 식단과 운동을 준비 중이에요.</div>
+        <div class="loading-msg" id="loadingMsg">식단 패턴을 분석하고 있어요...</div>
+        <div class="loading-bar-wrap">
+          <div class="loading-bar-track"><div class="loading-bar-fill" id="loadingBar"></div></div>
+          <div class="loading-bar-label" id="loadingPct">잠시만 기다려 주세요</div>
+        </div>
+        <div class="loading-steps">
+          <div class="loading-step done" id="step1"><div class="step-dot"></div>신체 분석</div>
+          <div class="step-sep">—</div>
+          <div class="loading-step active" id="step2"><div class="step-dot"></div>플랜 생성</div>
+          <div class="step-sep">—</div>
+          <div class="loading-step" id="step3"><div class="step-dot"></div>최종 검토</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- AI Overlay -->
+  <div class="ai-overlay" id="aiOverlay">
+    <div class="ai-overlay-panel" id="aiOverlayPanel">
+      <div class="ai-overlay-header">
+        <div class="ai-overlay-title">🤖 AI 상담</div>
+        <button class="ai-overlay-close" id="aiOverlayClose">×</button>
+      </div>
+      <div class="ai-overlay-messages" id="aiOverlayMessages">
+        <div class="chat-msg ai">
+          <div class="chat-avatar">🤖</div>
+          <div><div class="chat-bubble">안녕하세요! FitA AI 상담사입니다. 건강 관련 질문이나 식단/운동 조언이 필요하시면 언제든 물어보세요! 💪</div><div class="chat-time">AI 상담사</div></div>
+        </div>
+      </div>
+      <div class="ai-overlay-input-wrap">
+        <textarea class="ai-overlay-input" id="aiOverlayInput" placeholder="메시지를 입력하세요..." rows="1"></textarea>
+        <button class="ai-overlay-send" id="aiOverlaySend">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div class="hist-modal-overlay" id="histModalOverlay">
+    <div class="hist-modal" id="histModal">
+      <div class="hist-modal-header">
+        <div class="hist-modal-title">📅 히스토리</div>
+        <button class="hist-modal-close" id="histModalClose">×</button>
+      </div>
+      <div class="hist-modal-body">
+        <div class="hist-cal-nav">
+          <button class="hist-cal-arrow" id="histPrevMonth">&#8249;</button>
+          <span class="hist-cal-title" id="histCalTitle">-</span>
+          <button class="hist-cal-arrow" id="histNextMonth">&#8250;</button>
+        </div>
+        <div class="hist-legend">
+          <span class="hist-legend-item"><span class="hist-dot dot-both"></span>식단+운동</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-meal"></span>식단</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-workout"></span>운동</span>
+        </div>
+        <div class="hist-weekdays"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+        <div class="hist-days" id="histDays"></div>
+      </div>
+    </div>
+  </div>
+
+  <button id="logoutBtn" style="display:none;"></button>
+  <button id="menuHistory" style="display:none;"></button>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/sc302.js"></script>
+  <script>
+    document.getElementById('menuAiChat')?.addEventListener('click', () => document.getElementById('aiOverlay')?.classList.add('show'));
+    document.getElementById('btnOpenAiChat')?.addEventListener('click', () => document.getElementById('aiOverlay')?.classList.add('show'));
+  </script>
+</body>
+</html>

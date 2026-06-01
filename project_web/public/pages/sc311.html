@@ -3,24 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>오늘의 식단/운동 – HealthDash</title>
+  <title>오늘의 식단/운동 – FitA</title>
   <link rel="stylesheet" href="../css/common.css" />
   <link rel="stylesheet" href="../css/sc301.css" />
   <link rel="stylesheet" href="../css/sc311.css" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
 <div class="dashboard">
 
-  <!-- ── 좌측 사이드바 (sc301과 동일) ── -->
+  <!-- ── 좌측 사이드바 ── -->
   <aside class="sidebar">
     <div class="sidebar-top">
       <div class="sidebar-logo" id="sidebarLogo" style="cursor:pointer;">
         <div class="sidebar-logo-icon">🏃</div>
-        <span class="sidebar-logo-text">HealthDash</span>
+        <img src="../img/FitALogo.png" alt="FitA" style="height:26px;width:auto;object-fit:contain;" />
       </div>
 
       <div class="sidebar-card profile-card">
-        <div class="profile-avatar">👤</div>
+        <div class="profile-avatar" id="profileAvatar">👤</div>
         <div id="userName">내 정보</div>
         <div id="userBasicInfo">불러오는 중...</div>
         <div class="profile-weights">
@@ -39,10 +44,10 @@
         <div class="menu-card-title">메뉴</div>
         <div class="menu-list">
           <button class="menu-btn" data-href="sc301.html"><span class="menu-btn-icon">🏠</span>대시보드</button>
-          <button class="menu-btn" data-href="sc302.html"><span class="menu-btn-icon">🤖</span>AI 식단 추천</button>
           <button class="menu-btn active" data-href="sc311.html"><span class="menu-btn-icon">💪</span>오늘의 식단/운동</button>
-          <button class="menu-btn" data-href="sc401.html"><span class="menu-btn-icon">🥗</span>식단 인증</button>
-          <button class="menu-btn" data-href="sc601.html"><span class="menu-btn-icon">⚙️</span>설정</button>
+          
+            <button class="menu-btn" id="menuHistory"><span class="menu-btn-icon">📅</span>히스토리</button>
+            <button class="menu-btn" data-href="sc701.html"><span class="menu-btn-icon">⚙️</span>마이페이지</button>
         </div>
       </div>
     </div>
@@ -69,25 +74,6 @@
       <button class="tab-btn" id="tabWorkout" data-tab="workout">💪 운동</button>
     </div>
 
-    <!-- 동기부여 메시지 카드 -->
-    <div id="motivationCard" style="
-      background: linear-gradient(135deg, var(--card) 0%, rgba(78,205,196,0.08) 100%);
-      border: 1px solid rgba(78,205,196,0.25);
-      border-radius: 14px;
-      padding: 14px 18px;
-      margin-bottom: 16px;
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      min-height: 56px;
-    ">
-      <span style="font-size:22px;line-height:1.4;">🤖</span>
-      <p id="motivationText" style="
-        margin:0; font-size:13px; line-height:1.7;
-        color:var(--text-sec,#aaa); white-space:pre-wrap;
-      ">AI가 오늘의 메시지를 준비하고 있어요...</p>
-    </div>
-
     <!-- 콘텐츠 + AI채팅 레이아웃 -->
     <div class="content-with-chat">
 
@@ -109,9 +95,26 @@
             <span class="summary-pill-label">남은 칼로리</span>
           </div>
           <div class="summary-pill">
-            <span class="summary-pill-val" id="verifiedCount" style="color:var(--pink,#C779D0)">0/4</span>
+            <span class="summary-pill-val" id="verifiedCount" style="color:var(--pink,#C779D0)">0/3</span>
             <span class="summary-pill-label">인증 현황</span>
           </div>
+        </div>
+
+        <!-- 칼로리 섭취 진행 바 -->
+        <div class="kcal-bar-wrap">
+          <div class="kcal-bar-track">
+            <div class="kcal-bar-fill" id="kcalBarFill"></div>
+          </div>
+          <div class="kcal-bar-labels">
+            <span id="kcalBarConsumed">0 kcal 섭취</span>
+            <span id="kcalBarTarget">목표 - kcal</span>
+          </div>
+        </div>
+
+        <!-- 동기부여 메시지 -->
+        <div class="motivation-card" id="motivationCard">
+          <span class="motivation-icon">🤖</span>
+          <p id="motivationText">AI가 오늘의 메시지를 준비하고 있어요...</p>
         </div>
 
         <!-- 아침 -->
@@ -124,6 +127,7 @@
           </div>
           <div class="meal-kcal">340 kcal</div>
           <button class="verify-btn" data-meal="breakfast" data-kcal="340">📷 인증</button>
+          <button class="skip-btn"   data-meal="breakfast" data-kcal="340" data-menu-json='["그릭요거트","견과류","바나나"]'>🚫 안먹었어요</button>
         </div>
 
         <!-- 점심 -->
@@ -136,6 +140,7 @@
           </div>
           <div class="meal-kcal">580 kcal</div>
           <button class="verify-btn" data-meal="lunch" data-kcal="580">📷 인증</button>
+          <button class="skip-btn"   data-meal="lunch" data-kcal="580" data-menu-json='["현미밥","닭가슴살 샐러드","된장국"]'>🚫 안먹었어요</button>
         </div>
 
         <!-- 저녁 -->
@@ -148,7 +153,10 @@
           </div>
           <div class="meal-kcal">620 kcal</div>
           <button class="verify-btn" data-meal="dinner" data-kcal="620">📷 인증</button>
+          <button class="skip-btn"   data-meal="dinner" data-kcal="620" data-menu-json='["연어구이","구운 채소","두부"]'>🚫 안먹었어요</button>
         </div>
+
+        <div id="mealTip" style="margin-top:8px;font-size:12px;color:var(--text-mute);"></div>
 
       </div><!-- /식단 탭 -->
 
@@ -167,6 +175,12 @@
             </div>
           </div>
           <div style="font-size:24px; font-weight:800; color:var(--teal);" id="workoutBurnKcal">0 kcal</div>
+        </div>
+
+        <!-- 루틴 저장/불러오기 버튼 -->
+        <div class="routine-action-bar" id="routineActionBar" style="display:none;">
+          <button class="routine-save-btn" id="routineSaveBtn">💾 이 루틴 저장</button>
+          <button class="routine-load-btn" id="routineLoadBtn">📂 저장된 루틴</button>
         </div>
 
         <!-- 운동 목록 -->
@@ -214,6 +228,16 @@
           </div>
         </div>
 
+        <!-- 자세 분석 버튼 -->
+        <div style="margin: 16px 0 8px;">
+          <a href="hc503.html"
+             style="display:block; padding:12px; background:#1a4466; color:#66D0BC;
+                    border-radius:8px; text-align:center; font-weight:700;
+                    text-decoration:none; font-size:14px;">
+            🤸 AI 자세 분석 시작하기
+          </a>
+        </div>
+
         <div class="meal-section-title" style="margin-top:20px;">🧘 스트레칭</div>
         <div class="workout-list">
           <div class="workout-item" data-workout="stretch1" data-kcal="30">
@@ -237,7 +261,6 @@
         </div>
 
         <div class="chat-messages" id="chatMessages">
-          <!-- AI 환영 메시지 -->
           <div class="chat-msg ai">
             <div class="chat-avatar">🤖</div>
             <div>
@@ -261,6 +284,61 @@
   </main>
 </div>
 
+
+  <!-- sc501: AI 상담 오버레이 -->
+  <div class="ai-overlay" id="aiOverlay">
+    <div class="ai-overlay-panel" id="aiOverlayPanel">
+      <div class="ai-overlay-header">
+        <div class="ai-overlay-title">🤖 AI 상담</div>
+        <button class="ai-overlay-close" id="aiOverlayClose">×</button>
+      </div>
+      <div class="ai-overlay-messages" id="aiOverlayMessages">
+        <div class="chat-msg ai">
+          <div class="chat-avatar">🤖</div>
+          <div>
+            <div class="chat-bubble">안녕하세요! 식단이나 운동, 건강에 대해 궁금한 점을 편하게 물어보세요 😊</div>
+            <div class="chat-time">AI 상담사</div>
+          </div>
+        </div>
+      </div>
+      <div class="ai-overlay-input-wrap">
+        <textarea class="ai-overlay-input" id="aiOverlayInput" placeholder="질문을 입력하세요..." rows="1"></textarea>
+        <button class="ai-overlay-send" id="aiOverlaySend">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- sc601: 히스토리 달력 모달 -->
+  <div class="hist-modal-overlay" id="histModalOverlay">
+    <div class="hist-modal" id="histModal">
+      <div class="hist-modal-header">
+        <div class="hist-modal-title">📅 히스토리</div>
+        <button class="hist-modal-close" id="histModalClose">×</button>
+      </div>
+      <div class="hist-modal-body">
+        <div class="hist-cal-nav">
+          <button class="hist-cal-arrow" id="histPrevMonth">&#8249;</button>
+          <span class="hist-cal-title" id="histCalTitle">-</span>
+          <button class="hist-cal-arrow" id="histNextMonth">&#8250;</button>
+        </div>
+        <div class="hist-legend">
+          <span class="hist-legend-item"><span class="hist-dot dot-both"></span>식단+운동</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-meal"></span>식단만</span>
+          <span class="hist-legend-item"><span class="hist-dot dot-workout"></span>운동만</span>
+        </div>
+        <div class="hist-weekdays">
+          <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+        </div>
+        <div class="hist-days" id="histDays"></div>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
 <script src="../js/common.js"></script>
 <script src="../js/sc311.js"></script>
 </body>

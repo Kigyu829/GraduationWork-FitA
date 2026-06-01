@@ -1,151 +1,3 @@
-/* drawer.css — 슬라이드 사이드바 공통 */
-
-/* 햄버거 버튼 — 좌상단 고정 */
-.drawer-toggle {
-  position: fixed;
-  top: 18px;
-  left: 20px;
-  z-index: 300;
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s, border-color 0.15s;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-}
-.drawer-toggle:hover {
-  background: var(--card);
-  border-color: var(--teal);
-  color: var(--teal);
-}
-
-/* 드로어 본체 — 왼쪽에서 슬라이드 */
-.drawer {
-  position: fixed;
-  top: 0; left: 0;
-  width: 260px;
-  height: 100vh;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  z-index: 400;
-  display: flex;
-  flex-direction: column;
-  padding: 20px 16px;
-  gap: 8px;
-  transform: translateX(-100%);
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-  box-shadow: 4px 0 32px rgba(0,0,0,0.3);
-}
-.drawer.open {
-  transform: translateX(0);
-}
-
-/* 드로어 헤더 */
-.drawer-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 8px;
-}
-.drawer-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.drawer-logo-icon {
-  width: 34px; height: 34px;
-  border-radius: 10px;
-  background: var(--teal);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-.drawer-logo-text {
-  font-size: 16px; font-weight: 800;
-  letter-spacing: -0.02em; color: var(--text);
-}
-.drawer-close {
-  background: none;
-  border: none;
-  color: var(--text-mute);
-  font-size: 16px;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 8px;
-  transition: background 0.15s, color 0.15s;
-}
-.drawer-close:hover { background: var(--card); color: var(--text); }
-
-/* 메뉴 */
-.drawer-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1;
-}
-.drawer-menu-btn {
-  width: 100%;
-  padding: 11px 14px;
-  border: none;
-  border-radius: 10px;
-  background: transparent;
-  color: var(--text-sec);
-  font-size: 13px;
-  font-family: inherit;
-  font-weight: 700;
-  cursor: pointer;
-  text-align: left;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transition: background 0.15s, color 0.15s;
-}
-.drawer-menu-btn span { font-size: 15px; width: 20px; text-align: center; }
-.drawer-menu-btn:hover { background: var(--teal-dim); color: var(--teal); }
-.drawer-menu-btn.active { background: var(--teal-dim); color: var(--teal); }
-
-/* 로그아웃 */
-.drawer-logout {
-  width: 100%;
-  padding: 11px;
-  border: 1px solid rgba(255,11,85,0.25);
-  border-radius: 10px;
-  background: var(--red-dim);
-  color: var(--red);
-  font-size: 13px;
-  font-family: inherit;
-  font-weight: 800;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-  margin-top: 8px;
-}
-.drawer-logout:hover { background: rgba(255,11,85,0.2); border-color: var(--red); }
-
-/* 오버레이 */
-.drawer-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 350;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  backdrop-filter: blur(2px);
-}
-.drawer-overlay.show {
-  opacity: 1;
-  pointer-events: auto;
-}
-
 /* sc402.css */
 :root {
   --green: #7FD37A;
@@ -272,32 +124,7 @@ body.page-exit {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* 햄버거 버튼 등장 */
-.drawer-toggle {
-  animation: cardSlideUp 0.4s ease 0.1s both;
-}
 /* ── navbar 안 햄버거 버튼 ── */
-.drawer-toggle-nav {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text);
-  font-size: 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-  flex-shrink: 0;
-}
-.drawer-toggle-nav:hover {
-  background: var(--teal-dim);
-  border-color: var(--teal);
-  color: var(--teal);
-}
-
 /* navbar 레이아웃: 왼쪽 정렬 + 간격 */
 .nav-inner {
   justify-content: flex-start !important;
@@ -391,4 +218,120 @@ body.page-exit {
   align-items: center;
   gap: 16px;
   width: 100%;
+}
+/* ════════════════════════════════
+   sc401 — 끼니 선택 UI (직접 진입 시)
+   ════════════════════════════════ */
+.meal-selector {
+  width: 100%;
+  max-width: 900px;
+  animation: cardSlideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+
+.meal-selector-inner {
+  background: var(--card, #172530);
+  border: 1px solid var(--border, #243840);
+  border-radius: var(--radius-lg, 20px);
+  padding: 24px 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.selector-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-sec, #8faebb);
+  white-space: nowrap;
+}
+
+.meal-select-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.meal-select-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 24px;
+  border: 1px solid var(--border, #243840);
+  border-radius: 14px;
+  background: var(--surface, #132029);
+  color: var(--text-sec, #8faebb);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s, color 0.15s, transform 0.1s;
+  min-width: 80px;
+}
+.meal-select-btn:hover {
+  border-color: var(--teal, #66D0BC);
+  background: rgba(102,208,188,0.08);
+  color: var(--text, #fff);
+  transform: translateY(-2px);
+}
+.meal-select-btn.active {
+  border-color: var(--teal, #66D0BC);
+  background: rgba(102,208,188,0.12);
+  color: var(--teal, #66D0BC);
+  transform: translateY(-2px);
+}
+
+.msb-icon  { font-size: 24px; line-height: 1; }
+.msb-label { font-size: 13px; font-weight: 800; }
+
+/* 흔들기 애니메이션 (끼니 미선택 시) */
+.selector-shake { animation: selectorShake 0.5s ease; }
+@keyframes selectorShake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
+
+/* ── 반응형 ── */
+@media (max-width: 768px) {
+  .upload-main {
+    padding: 20px 16px;
+    padding-top: 24px;
+    gap: 16px;
+  }
+  .upload-card {
+    padding: 20px 16px;
+    gap: 16px;
+  }
+  .upload-zone {
+    min-height: 300px; /* 모바일에서 560px → 300px */
+  }
+  .upload-icon  { font-size: 48px; }
+  .upload-label { font-size: 14px; }
+  .upload-title { font-size: 18px; }
+
+  /* 끼니 선택 */
+  .meal-selector-inner {
+    padding: 16px 16px;
+    gap: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .meal-select-btns {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .meal-select-btn {
+    padding: 10px 8px;
+    min-width: unset;
+  }
+  .msb-icon  { font-size: 20px; }
+  .msb-label { font-size: 11px; }
+
+  .upload-header {
+    gap: 10px;
+  }
+  .upload-title { font-size: 18px; }
 }

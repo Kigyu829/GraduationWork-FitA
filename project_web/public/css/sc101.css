@@ -173,6 +173,7 @@
   color: var(--text);
 }
 
+/* 필요없을 시 제거 */
 .preview-badge {
   font-size: 10px;
   color: var(--teal);

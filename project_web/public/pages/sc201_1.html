@@ -3,9 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>로그인 – HealthDash</title>
+  <title>로그인 – FitA</title>
   <link rel="stylesheet" href="../css/common.css" />
   <link rel="stylesheet" href="../css/sc201_1.css" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
   <div class="login-wrap">
@@ -13,7 +18,7 @@
     <!-- 로고 -->
     <a href="sc101.html" class="site-logo">
       <div class="site-logo-icon">🏃</div>
-      <span class="site-logo-text">HealthDash</span>
+      <img src="../img/FitALogo.png" alt="FitA" style="height:28px;width:auto;object-fit:contain;" />
     </a>
 
     <section class="form-card">
@@ -74,7 +79,13 @@
     </div>
   </div>
 
-  <script src="../js/common.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+<script src="../js/common.js"></script>
+  <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"></script>
+  <script>Kakao.init('cefe0d41d31ee2db932cfe89d7cf6d8b');</script>
   <script src="../js/sc201_1.js"></script>
 </body>
 </html>
