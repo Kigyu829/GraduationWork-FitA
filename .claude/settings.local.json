@@ -70,7 +70,9 @@
       "Bash(find C:/Users/김인규/Desktop/Graduation_Work/FitAiness -name build.gradle* -o -name *.gradle.kts)",
       "Bash(find /c/Users/김인규/Desktop/Graduation_Work -maxdepth 3 -name *.pdf -o -name *.docx -o -name *.hwp -o -name *.xlsx)",
       "Bash(pip install:*)",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(git -C /c/Users/김인규/Desktop/Graduation_Work diff --name-only HEAD main)",
+      "Bash(git -C /c/Users/김인규/Desktop/Graduation_Work status --short)"
     ]
   }
 }
