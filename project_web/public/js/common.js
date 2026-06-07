@@ -46,6 +46,7 @@ async function _commonAdjustPlan(type, reason) {
 
     if (isMeal) {
       Storage.mergeUser({ aiMealPlan: json.data, mealAdjustReasons: accumulated });
+      /* sc311 UI 즉시 반영 (함수 있을 때만) */
       if (typeof clearAdjustState   === 'function') clearAdjustState('meals');
       if (typeof renderMealItems    === 'function') renderMealItems(json.data);
       if (typeof applyIcons         === 'function') applyIcons();
@@ -54,10 +55,10 @@ async function _commonAdjustPlan(type, reason) {
       if (typeof updateMealSummary  === 'function') updateMealSummary(0, 0);
     } else {
       Storage.mergeUser({ aiWorkoutPlan: json.data, workoutAdjustReasons: accumulated });
-      if (typeof clearAdjustState     === 'function') clearAdjustState('workouts');
-      if (typeof renderWorkoutItems   === 'function') renderWorkoutItems(json.data);
-      if (typeof applyIcons           === 'function') applyIcons();
-      if (typeof initWorkoutCheck     === 'function') initWorkoutCheck();
+      if (typeof clearAdjustState   === 'function') clearAdjustState('workouts');
+      if (typeof renderWorkoutItems === 'function') renderWorkoutItems(json.data);
+      if (typeof applyIcons         === 'function') applyIcons();
+      if (typeof initWorkoutCheck   === 'function') initWorkoutCheck();
       if (typeof updateWorkoutSummary === 'function') updateWorkoutSummary();
     }
 
@@ -144,8 +145,30 @@ const Storage = {
     sessionStorage.removeItem('_fitUid');
     sessionStorage.removeItem('_fitEmail');
     sessionStorage.removeItem('_fitNick');
+    localStorage.removeItem('_fitUid');
   },
 };
+
+/**
+ * localStorage가 비어있을 때 Firestore에서 사용자 데이터 복원
+ * 로그인 상태인데 캐시 삭제 등으로 localStorage가 날아간 경우 대응
+ */
+async function restoreUserFromFirestore() {
+  const uid = getCurrentUid();
+  if (!uid || typeof db === 'undefined') return;
+  /* 이미 데이터가 있으면 스킵 */
+  if (localStorage.getItem(`hud_${uid}`)) return;
+  try {
+    const doc = await db.collection('users').doc(uid).get();
+    if (!doc.exists) return;
+    const userData = doc.data().userData;
+    if (userData && typeof userData === 'object') {
+      localStorage.setItem(`hud_${uid}`, JSON.stringify(userData));
+    }
+  } catch (err) {
+    console.warn('[FitA] Firestore 사용자 데이터 복원 실패:', err.message);
+  }
+}
 
 /* ── BMI 계산 ── */
 function calculateBMI(heightCm, weightKg) {
@@ -196,26 +219,6 @@ function requireLogin() {
     return false;
   }
   return true;
-}
-
-/**
- * localStorage가 비어있을 때 Firestore에서 사용자 데이터 복원
- * 로그인 상태인데 캐시 삭제 등으로 localStorage가 날아간 경우 대응
- */
-async function restoreUserFromFirestore() {
-  const uid = getCurrentUid();
-  if (!uid || typeof db === 'undefined') return;
-  if (localStorage.getItem(`hud_${uid}`)) return;
-  try {
-    const doc = await db.collection('users').doc(uid).get();
-    if (!doc.exists) return;
-    const userData = doc.data().userData;
-    if (userData && typeof userData === 'object') {
-      localStorage.setItem(`hud_${uid}`, JSON.stringify(userData));
-    }
-  } catch (err) {
-    console.warn('[FitA] Firestore 사용자 데이터 복원 실패:', err.message);
-  }
 }
 
 /* ============================================================
@@ -391,6 +394,7 @@ function initAiOverlay() {
   const input     = document.getElementById('aiOverlayInput');
   const messages  = document.getElementById('aiOverlayMessages');
 
+  /* ── 채팅 히스토리 로드 (UID별 localStorage) ── */
   const chatKey = `aiChat_${getCurrentUid() || 'guest'}`;
   let chatHistory = [];
   try { chatHistory = JSON.parse(localStorage.getItem(chatKey)) || []; } catch { chatHistory = []; }
@@ -403,7 +407,7 @@ function initAiOverlay() {
     if (e.target === overlay) overlay.classList.remove('show');
   });
 
-  /* ── Socket.io 연결 (lazy) ── */
+  /* ── Socket.io 연결 (lazy, socket.io 미로드 시 null 반환) ── */
   let _socket = null;
   function getSocket() {
     if (!_socket && typeof io !== 'undefined') {
@@ -412,7 +416,7 @@ function initAiOverlay() {
     return _socket;
   }
 
-  /* ── 스트리밍 버블 생성 ── */
+  /* ── 스트리밍 버블 생성 (토큰이 들어오면 텍스트가 쌓임) ── */
   function createStreamBubble() {
     if (!messages) return null;
     const now  = new Date();
@@ -444,7 +448,7 @@ function initAiOverlay() {
 
     appendAiMsg('user', text);
     input.value = '';
-    if (input) input.style.height = 'auto';
+    if (input) { input.style.height = 'auto'; }
     if (sendBtn) sendBtn.disabled = true;
 
     const userData = Storage.getUser();
@@ -480,6 +484,7 @@ function initAiOverlay() {
         cleanup();
         const finalReply = reply || bubble?.textContent || '응답을 받지 못했어요.';
         if (bubble) bubble.textContent = finalReply;
+        /* 히스토리 저장 (렌더는 이미 완료) */
         const now = new Date();
         const t   = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
         chatHistory.push({ role: 'ai', text: finalReply, time: t });
@@ -497,7 +502,7 @@ function initAiOverlay() {
         if (sendBtn) sendBtn.disabled = false;
       }
 
-      cleanup();
+      cleanup(); /* 이전 핸들러 정리 */
       socket.on('chat_token', onToken);
       socket.on('chat_done',  onDone);
       socket.on('chat_error', onError);
@@ -512,7 +517,7 @@ function initAiOverlay() {
       return;
     }
 
-    /* ── HTTP 폴백 ── */
+    /* ── HTTP 폴백 (socket.io 미지원 환경) ── */
     const typing = appendTypingIndicator();
     const controller = new AbortController();
     const timeoutId  = setTimeout(() => controller.abort(), 15000);
@@ -557,20 +562,26 @@ function initAiOverlay() {
     input.style.height = Math.min(input.scrollHeight, 100) + 'px';
   });
 
+  /* ── 메시지 렌더 (복원/신규 공통) ── */
   function renderMsg(role, text, time) {
     if (!messages) return;
     const div = document.createElement('div');
     div.className = `chat-msg ${role}`;
+
     const avatar = document.createElement('div');
     avatar.className = 'chat-avatar';
     avatar.textContent = role === 'ai' ? '🤖' : '👤';
+
     const inner = document.createElement('div');
+
     const bubble = document.createElement('div');
     bubble.className = 'chat-bubble';
-    bubble.textContent = text;
+    bubble.textContent = text;   /* XSS 방지: textContent 사용 */
+
     const timeEl = document.createElement('div');
     timeEl.className = 'chat-time';
     timeEl.textContent = `${role === 'ai' ? 'AI 상담사' : '나'} · ${time}`;
+
     inner.appendChild(bubble);
     inner.appendChild(timeEl);
     div.appendChild(avatar);
@@ -578,11 +589,13 @@ function initAiOverlay() {
     messages.appendChild(div);
   }
 
+  /* ── 신규 메시지: 렌더 + 히스토리 저장 ── */
   function appendAiMsg(role, text) {
     const now  = new Date();
     const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     renderMsg(role, text, time);
-    if (messages) messages.scrollTop = messages.scrollHeight;
+    messages.scrollTop = messages.scrollHeight;
+
     chatHistory.push({ role, text, time });
     if (chatHistory.length > 30) chatHistory.splice(0, chatHistory.length - 30);
     try { localStorage.setItem(chatKey, JSON.stringify(chatHistory)); } catch {}
@@ -597,11 +610,11 @@ function initAiOverlay() {
         <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
       </div>`;
     messages?.appendChild(div);
-    if (messages) messages.scrollTop = messages.scrollHeight;
+    messages.scrollTop = messages.scrollHeight;
     return div;
   }
 
-  /* 저장된 히스토리 복원 */
+  /* ── 저장된 히스토리 복원 ── */
   if (chatHistory.length > 0) {
     chatHistory.forEach(msg => renderMsg(msg.role, msg.text, msg.time));
     if (messages) messages.scrollTop = messages.scrollHeight;
@@ -991,4 +1004,17 @@ function showCustomConfirm({ icon='⚠️', title='', desc='', okText='확인', 
     if (e.key === 'Escape') { close(); if (onCancel) onCancel(); document.removeEventListener('keydown', escHandler); }
     if (e.key === 'Enter')  { close(); if (onOk) onOk();     document.removeEventListener('keydown', escHandler); }
   });
+}
+
+/* ── 오늘 날짜 문자열 (YYYY-MM-DD) ── */
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* ── 키 기반 최저 권장 체중 (BMI 18.5) ── */
+function calcMinSafeWeight(heightCm) {
+  if (!heightCm || heightCm < 100) return 40;
+  const h = heightCm / 100;
+  return Math.round(18.5 * h * h * 10) / 10;
 }

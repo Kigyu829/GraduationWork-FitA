@@ -28,7 +28,7 @@ public class AppConfig {
     // 아래 3줄 중 하나만 주석 해제해서 사용
 
     // [발표/외부 데모] start_all.bat 실행 후 Cloudflare 창의 URL 복사
-    public static final String BASE_URL = "https://undefined-enhancements-painted-deleted.trycloudflare.com";
+    public static final String BASE_URL = "https://llc-intensity-ratio-ships.trycloudflare.com";
 
     // [실기기 + 같은 Wi-Fi] cmd에서 ipconfig → IPv4 주소 확인
     // public static final String BASE_URL = "http://192.168.0.39:3000";
