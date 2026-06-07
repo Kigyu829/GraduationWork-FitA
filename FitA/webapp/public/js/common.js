@@ -1005,3 +1005,16 @@ function showCustomConfirm({ icon='⚠️', title='', desc='', okText='확인', 
     if (e.key === 'Enter')  { close(); if (onOk) onOk();     document.removeEventListener('keydown', escHandler); }
   });
 }
+
+/* ── 오늘 날짜 문자열 (YYYY-MM-DD) ── */
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* ── 키 기반 최저 권장 체중 (BMI 18.5) ── */
+function calcMinSafeWeight(heightCm) {
+  if (!heightCm || heightCm < 100) return 40;
+  const h = heightCm / 100;
+  return Math.round(18.5 * h * h * 10) / 10;
+}

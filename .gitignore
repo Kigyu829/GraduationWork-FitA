@@ -45,6 +45,12 @@ uploads/
 Thumbs.db
 
 # ──────────────────────────
+# Cloudflare Tunnel 실행파일
+# ──────────────────────────
+cloudflared.exe
+cloudflared
+
+# ──────────────────────────
 # 도구
 # ──────────────────────────
 CLAUDE.md

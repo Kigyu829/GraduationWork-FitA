@@ -1,9 +1,11 @@
 require('dotenv').config();
 
-const express  = require('express');
-const cors     = require('cors');
-const http     = require('http');
-const { Server } = require('socket.io');
+const express       = require('express');
+const cors          = require('cors');
+const http          = require('http');
+const { Server }    = require('socket.io');
+const swaggerUi     = require('swagger-ui-express');
+const swaggerSpec   = require('./src/swagger');
 
 const mealRouter       = require('./src/routes/meal');
 const exerciseRouter   = require('./src/routes/exercise');
@@ -56,6 +58,13 @@ app.use((req, res, next) => {
     next();
 });
 
+// ── Swagger UI ──
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customSiteTitle: 'FitAiNess API Docs',
+    swaggerOptions: { defaultModelsExpandDepth: -1 },
+}));
+app.get('/api-docs.json', (req, res) => res.json(swaggerSpec));
+
 // ── 라우트 연결 ──
 app.use('/api/meal',       mealRouter);
 app.use('/api/exercise',   exerciseRouter);
@@ -104,6 +113,7 @@ server.listen(PORT, () => {
     console.log('==============================');
     console.log('  FitAiNess AI Server');
     console.log(`  http://localhost:${PORT}`);
+    console.log(`  http://localhost:${PORT}/api-docs  ← Swagger UI`);
     console.log('  ws://localhost:' + PORT + '  (socket.io)');
     console.log('==============================');
     console.log(`  식단/운동:  규칙 기반 + 감성 점수 알고리즘`);

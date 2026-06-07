@@ -61,14 +61,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
   <script src="../js/firebase-config.js"></script>
   <script src="../js/common.js"></script>
-  <script src="../js/sc401.js"></script>
-  <script>
-    document.getElementById('selectPhotoBtn')?.addEventListener('click', () => document.getElementById('foodFileInput')?.click());
-    document.getElementById('dropZone')?.addEventListener('click', e => {
-      if (e.target === document.getElementById('dropZone') || e.target === document.getElementById('uploadPlaceholder')) {
-        document.getElementById('foodFileInput')?.click();
-      }
-    });
-  </script>
+  <script src="../js/sc401/mealSelector.js"></script>
+  <script src="../js/sc401/sidebar.js"></script>
+  <script src="../js/sc401/upload.js"></script>
+  <script src="../js/sc401/init.js"></script>
 </body>
 </html>

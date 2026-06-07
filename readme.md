@@ -1,7 +1,7 @@
-# FitA — AI 기반 다이어트 코칭 앱
+# FitAiNess — AI 기반 다이어트 코칭 앱
 
 > 2026 캡스톤 디자인 졸업작품  
-> CNN 음식 인식 → 식단 자동 검증 → Gemini AI 재스케줄링의 폐쇄 루프 다이어트 코칭 시스템
+> CNN 음식 인식 → 식단 자동 검증 → Gemini AI 재스케줄링의 **폐쇄 루프 다이어트 코칭 시스템**
 
 ---
 
@@ -10,17 +10,20 @@
 ```
 사용자
   │
-  ├─► FitAIness (Android, Java)
-  │       └─ WebView → http://localhost:3000/fita/
+  ├─► FitAIness (Android, Java WebView)
+  │       └─► http://[서버IP]:3000/fita/
   │
   └─► 브라우저 → http://localhost:3000
-              │
-              project_web (포트 3000) ← 정적 파일 서빙 + 프록시 게이트웨이
-                  ├─► /api/*    → Ai_server (포트 5000)  Gemini 2.5-flash
-                  ├─► /cnn/*    → Server    (포트 4000)  CNN 음식 인식
-                  └─► /fita/    → FitA/webapp/           모바일 웹앱
+                  │
+         project_web (포트 3000)
+         정적 파일 서빙 + 리버스 프록시
+                  │
+                  ├─► /api/*     → Ai_server  (포트 5000) — Gemini 2.5-flash
+                  ├─► /cnn/*     → Server     (포트 4000) — CNN 음식 인식
+                  ├─► /socket.io → Ai_server  (포트 5000) — Socket.io WebSocket
+                  └─► /fita/     → FitA/webapp/            — 모바일 PWA
 
-model_CNN/   ← PyTorch 모델 학습/평가 (오프라인)
+model_CNN/  ← PyTorch 모델 학습 · 평가 (오프라인, 서비스와 무관)
 ```
 
 ---
@@ -29,21 +32,36 @@ model_CNN/   ← PyTorch 모델 학습/평가 (오프라인)
 
 | 폴더 | 역할 | 포트 | 기술 |
 |------|------|------|------|
-| `project_web/` | 웹 서버 + 프록시 게이트웨이 | 3000 | Node.js, Express 5 |
+| `project_web/` | 웹 서버 + 리버스 프록시 게이트웨이 | 3000 | Node.js, Express 5 |
 | `FitA/webapp/` | 모바일 웹앱 UI (PWA) | — | HTML/CSS/JS, Firebase SDK |
-| `Ai_server/` | AI 추천/채팅 서버 | 5000 | Node.js, Gemini 2.5-flash, Socket.io |
+| `Ai_server/` | AI 추천 · 채팅 · 재스케줄링 서버 | 5000 | Node.js, Gemini 2.5-flash, Socket.io |
 | `Server/` | CNN 음식 인식 서버 | 4000 | Node.js, Python spawn, PyTorch |
-| `model_CNN/` | CNN 모델 학습/평가 | — | PyTorch, CUDA, Albumentations |
+| `model_CNN/` | CNN 모델 학습 · 평가 스크립트 | — | PyTorch, CUDA, Albumentations |
 | `FitAIness/` | Android 앱 (WebView 래퍼) | — | Java 2파일, WebView |
 
 ---
 
 ## 사전 요구사항
 
-- **Node.js** LTS
-- **Python 3.11** (3.12+ 일부 라이브러리 호환 문제)
-- **NVIDIA GPU + CUDA** (CNN 추론용, CPU도 동작하지만 느림)
-- **Android Studio** Hedgehog 이상 (앱 빌드 시)
+| 항목 | 권장 버전 | 비고 |
+|------|-----------|------|
+| Node.js | v24.x (개발: v24.14.0) | v18 LTS 이상이면 동작 |
+| npm | v11.x | Node.js와 함께 설치 |
+| Python | 3.11.x | 3.12+는 일부 라이브러리 호환 문제 |
+| CUDA | 12.6 권장 | CPU 동작 가능하나 속도 느림 |
+| Android Studio | Hedgehog 이상 | 앱 빌드 시만 필요 |
+
+**주요 라이브러리:**
+
+| 라이브러리 | 버전 |
+|------------|------|
+| Express (project_web, Server) | 5.x |
+| Express (Ai_server) | 4.x |
+| Socket.io | 4.8.x |
+| @google/generative-ai | 0.21.x |
+| swagger-ui-express | 5.x |
+| http-proxy-middleware | 3.0.x |
+| torch / torchvision | 2.1+ / 0.16+ |
 
 ---
 
@@ -52,7 +70,7 @@ model_CNN/   ← PyTorch 모델 학습/평가 (오프라인)
 ### `Ai_server/.env`
 
 ```env
-# Gemini API 키 (쉼표로 여러 개 나열 → 429 초과 시 자동으로 다음 키 사용)
+# Gemini API 키 (쉼표로 여러 개 입력 → 429 초과 시 자동으로 다음 키 사용)
 GEMINI_API_KEY=키1,키2,키3
 
 # AI 채팅 모델
@@ -65,7 +83,7 @@ CNN_SERVER_URL=http://localhost:4000
 PORT=5000
 ```
 
-> [Google AI Studio](https://aistudio.google.com)에서 API 키 발급
+> [Google AI Studio](https://aistudio.google.com)에서 API 키 무료 발급 가능
 
 ---
 
@@ -77,7 +95,7 @@ PORT=5000
 start_all.bat
 ```
 
-4개 창이 열림: AI 서버(5000), CNN 서버(4000), 웹 서버(3000), Cloudflare Tunnel
+4개 창이 자동으로 열립니다: AI 서버(5000) · CNN 서버(4000) · 웹 서버(3000) · Cloudflare Tunnel
 
 ### 수동 실행
 
@@ -91,7 +109,7 @@ npm install
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
 pip install -r ../model_CNN/requirements.txt
 
-node server.js   # port 4000
+node server.js   # → http://localhost:4000
 ```
 
 **2. AI 서버 (`Ai_server/`)**
@@ -99,8 +117,10 @@ node server.js   # port 4000
 ```bash
 cd Ai_server
 npm install
-# Ai_server/.env 파일에 GEMINI_API_KEY 입력 후
-node server.js   # port 5000
+# Ai_server/.env 에 GEMINI_API_KEY 입력 후
+
+node server.js   # → http://localhost:5000
+                 # → http://localhost:5000/api-docs  (Swagger UI)
 ```
 
 **3. 웹 서버 (`project_web/`)**
@@ -108,10 +128,77 @@ node server.js   # port 5000
 ```bash
 cd project_web
 npm install
-node server.js   # port 3000
+node server.js   # → http://localhost:3000
 ```
 
 브라우저에서 `http://localhost:3000` 접속
+
+---
+
+## API 문서 (Swagger UI)
+
+AI 서버 실행 후 브라우저에서 접속:
+
+```
+http://localhost:5000/api-docs
+```
+
+전체 API 엔드포인트의 **요청/응답 스펙 확인** 및 **브라우저에서 직접 테스트** 가능.
+
+---
+
+## API 엔드포인트 요약
+
+### AI 서버 (포트 5000)
+
+| 메서드 | 경로 | 설명 |
+|--------|------|------|
+| POST | `/api/meal/recommend` | 식단 추천 (규칙 기반 + 선택적 Gemini) |
+| POST | `/api/meal/adjust` | 식단 재조정 (Gemini NLU) |
+| POST | `/api/exercise/recommend` | 운동 추천 |
+| POST | `/api/exercise/adjust` | 운동 재조정 (Gemini NLU) |
+| POST | `/api/chat` | AI 상담 채팅 (HTTP, Android WebView용) |
+| POST | `/api/goal/calories` | 일일 목표 칼로리 계산 (Mifflin-St Jeor) |
+| POST | `/api/motivation` | 동기부여 메시지 |
+| POST | `/api/plan/replan` | 식단 + 운동 일괄 재스케줄링 |
+| WS | `chat_message` | AI 채팅 스트리밍 (Socket.io, 브라우저용) |
+| GET | `/api/health` | 서버 상태 확인 |
+| GET | `/api-docs` | **Swagger UI** |
+
+### CNN 서버 (포트 4000)
+
+| 메서드 | 경로 | 설명 |
+|--------|------|------|
+| POST | `/api/analyze` | 이미지 업로드 → 음식 분류 (field: `image`) |
+| GET | `/api/health` | 서버 상태 확인 |
+| GET | `/api/model/info` | 모델 정보 조회 |
+
+---
+
+## 앱 화면 구성
+
+```
+로그인 / 회원가입 (Firebase Auth)
+    │
+    └─► 온보딩: 신체정보 → 목표 설정 → AI 플랜 생성 로딩
+              │
+              대시보드 (sc301)
+                  ├─ 오늘의 식단 / 운동 (sc311)
+                  │       ├─ CNN 식단 인증 (hc402 → hc403)
+                  │       ├─ AI 채팅 재조정 (Socket.io 스트리밍)
+                  │       └─ 운동 루틴 저장 / 불러오기
+                  ├─ 기록 히스토리 (sc602) — Firestore 크로스디바이스 복원
+                  └─ 프로필 / 설정 (sc701) — 체중 그래프 · 아바타
+```
+
+**데이터 흐름:**
+
+```
+Firebase Auth (로그인)
+    → Firestore users/{uid}          (신체정보, AI 플랜, 조정 사유)
+    → localStorage                   (캐시, 즉시 읽기용)
+    ↔ Firestore daily/{YYYY-MM-DD}  (식단 인증, 운동 기록, 체중)
+```
 
 ---
 
@@ -121,7 +208,8 @@ node server.js   # port 3000
 cloudflared.exe tunnel --url http://localhost:3000
 ```
 
-터미널에 표시되는 `https://xxxx.trycloudflare.com` URL을 `FitAIness/app/src/main/java/.../AppConfig.java` 의 `BASE_URL`에 입력 후 재빌드.
+터미널에 표시되는 `https://xxxx.trycloudflare.com` URL을  
+`FitAIness/app/src/main/java/.../AppConfig.java` 의 `BASE_URL`에 입력 후 재빌드.
 
 ---
 
@@ -131,7 +219,7 @@ WebView 래퍼 앱 — Java 파일 2개(`AppConfig.java`, `MainActivity.java`)�
 
 1. Firebase Console에서 `google-services.json` 다운로드 → `FitAIness/app/` 에 배치
 2. Android Studio에서 `FitAIness/` 폴더 열기
-3. `AppConfig.java` 에서 서버 URL 확인
+3. `AppConfig.java` 에서 서버 URL 설정
 
 ```java
 // 에뮬레이터
@@ -148,7 +236,7 @@ static final String BASE_URL = "https://xxxx.trycloudflare.com";
 
 ## 다른 PC로 이전 시 필수 파일
 
-git clone으로 코드는 복원되지만, `.gitignore`에 의해 제외된 파일은 직접 옮겨야 함.
+git clone으로 소스코드는 복원되지만, `.gitignore`에 의해 제외된 파일은 직접 옮겨야 합니다.
 
 | 파일 | 경로 | 비고 |
 |------|------|------|
@@ -157,23 +245,10 @@ git clone으로 코드는 복원되지만, `.gitignore`에 의해 제외된 파�
 | `food_detector_v1.pth` | `Server/weights/` | 음식 감지 모델 |
 | `sam_vit_b.pth` | `Server/weights/` | SAM 세그멘테이션 (~375MB) |
 | `cloudflared.exe` | 루트 | Cloudflare 터널 실행파일 |
-| `google-services.json` | `FitAIness/app/` | Firebase 콘솔에서 재다운 가능 |
+| `google-services.json` | `FitAIness/app/` | Firebase 콘솔에서 재다운로드 가능 |
 
 > `local.properties`는 Android Studio가 자동 생성하므로 불필요  
 > `checkpoint_epoch*.pth`는 학습 재개 안 할 경우 불필요
-
----
-
-## 모델 가중치
-
-CNN 모델 가중치 파일은 용량 문제로 git에 포함되지 않음.
-
-**배치 위치:**
-```
-model_CNN/weights/food_scouter_v2.pth   ← 학습용
-Server/weights/food_detector_v1.pth     ← CNN 서버 추론용
-Server/weights/sam_vit_b.pth            ← SAM 세그멘테이션
-```
 
 ---
 
@@ -200,9 +275,9 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
 pip install -r requirements.txt
 
 python src/preprocess.py        # 데이터 전처리
-python src/train.py             # v1 (SE Block)
-# python src/train_v2.py        # v2 (ResBlock + CBAM, 성능 개선)
-python src/evaluate.py          # 평가
+python src/train.py             # v1 학습 (SE Block)
+# python src/train_v2.py        # v2 학습 (ResBlock + CBAM, 성능 개선)
+python src/evaluate.py          # 평가 및 혼동 행렬 출력
 ```
 
 완료 후 `model_CNN/weights/food_scouter_v*.pth` 저장  
@@ -231,53 +306,6 @@ Input (3×256×256)
 
 ---
 
-## 주요 API 엔드포인트
-
-### CNN 서버 (port 4000)
-
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| POST | `/api/analyze` | 이미지 업로드 → 음식 분류 (field: `image`) |
-| GET | `/api/health` | 서버 상태 확인 |
-| GET | `/api/model/info` | 모델 정보 |
-
-### AI 서버 (port 5000)
-
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| POST | `/api/meal/recommend` | 식단 추천 |
-| POST | `/api/meal/adjust` | 식단 재조정 |
-| POST | `/api/exercise/recommend` | 운동 추천 |
-| POST | `/api/exercise/adjust` | 운동 재조정 |
-| POST | `/api/chat` | AI 채팅 (HTTP, Android WebView용) |
-| POST | `/api/goal/calories` | 일일 목표 칼로리 계산 |
-| POST | `/api/plan/reschedule` | 식단+운동 일괄 재스케줄링 |
-| WS | `chat_message` | AI 채팅 스트리밍 (Socket.io, 브라우저용) |
-
----
-
-## 앱 화면 구성
-
-```
-로그인/회원가입 → 신체정보 입력 (온보딩)
-    │
-    └─ 대시보드 (sc301) — 오늘의 식단/운동 현황
-         ├─ 오늘 식단/운동 (sc311) ← CNN 음식 인증 + AI 채팅
-         ├─ 운동 가이드 (hc503)   ← 포즈 인식 + 렙 카운팅
-         ├─ 히스토리 (sc602)      ← Firestore 크로스 디바이스 복원
-         └─ 프로필 (sc701)        ← 체중 그래프 + 아바타
-```
-
-**데이터 흐름:**
-```
-Firebase Auth (로그인)
-    → Firestore users/{uid} (userData: 신체정보, AI 플랜, 조정 사유)
-    → localStorage (캐시, 즉시 읽기)
-    ↔ Firestore daily/{YYYY-MM-DD} (식단 인증, 운동 기록, 체중)
-```
-
----
-
 ## 기술 스택
 
 | 영역 | 기술 |
@@ -286,9 +314,10 @@ Firebase Auth (로그인)
 | 음식 분류 | 한국 음식 150종, AI Hub 데이터 약 15만 장 |
 | AI 추천 | Google Gemini 2.5-flash |
 | 백엔드 | Node.js, Express, Python spawn, Socket.io |
+| API 문서 | Swagger UI (OpenAPI 3.0) |
 | 데이터베이스 | Firebase Firestore + Firebase Storage |
 | Android | Java, WebView (하이브리드 앱) |
-| 웹 | 순수 HTML/CSS/JS + Express 프록시 |
+| 웹 클라이언트 | 순수 HTML/CSS/JS, Firebase SDK (CDN) |
 | 외부 접속 | Cloudflare Tunnel |
 
 ---
@@ -298,4 +327,5 @@ Firebase Auth (로그인)
 - [AI Hub 한국 음식 이미지 데이터셋](https://aihub.or.kr/aihubdata/data/view.do?dataSetSn=79)
 - [Google AI Studio (Gemini API)](https://aistudio.google.com)
 - [Firebase 콘솔](https://console.firebase.google.com)
+- [Swagger UI](https://swagger.io/tools/swagger-ui/)
 - [PyTorch 설치 가이드](https://pytorch.org/get-started/locally/)
