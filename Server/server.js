@@ -19,13 +19,14 @@ function predictFood(imagePath) {
         const pythonPath = process.env.PYTHON_PATH || 'python';
         const scriptPath = path.join(__dirname, 'model', 'predict.py');
         const samPath = path.join(__dirname, 'weights', 'sam_vit_b.pth');
-        const cnnPath = path.join(__dirname, '..', 'model_CNN', 'weights', 'food_scouter_v1.pth');
+        const cnnPath  = path.join(__dirname, '..', 'model_CNN', 'weights', 'food_scouter_v2.pth');
+        const cnnPath2 = path.join(__dirname, '..', 'model_CNN', 'weights', 'food_scouter_v1.pth');
 
         console.log(`SAM + CNN 추론 시작: ${path.basename(imagePath)}`);
         const startTime = Date.now();
 
         const python = spawn(pythonPath, [
-            scriptPath, '--image', imagePath, '--sam', samPath, '--cnn', cnnPath
+            scriptPath, '--image', imagePath, '--sam', samPath, '--cnn', cnnPath, '--cnn2', cnnPath2
         ], {
             env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
         });
@@ -45,9 +46,9 @@ function predictFood(imagePath) {
                 const result = JSON.parse(stdout.trim());
                 const best = result.best;
                 if (best) {
-                    console.log(`Faster R-CNN 추론 완료 (${elapsed}ms): ${best.class_name} (${(best.confidence * 100).toFixed(1)}%)`);
+                    console.log(`SAM+CNN 추론 완료 (${elapsed}ms): ${best.class_name} (${(best.confidence * 100).toFixed(1)}%)`);
                 } else {
-                    console.log(`Faster R-CNN 추론 완료 (${elapsed}ms): 탐지 없음`);
+                    console.log(`SAM+CNN 추론 완료 (${elapsed}ms): 탐지 없음`);
                 }
                 resolve(result);
             } catch {
@@ -113,7 +114,7 @@ app.post('/api/analyze', upload.single('image'), async (req, res) => {
                 is_verified:      best ? best.confidence >= 0.45 : false,
                 top_5:            top5,
                 analyzed_at:      new Date().toISOString(),
-                server:           'rcnn_server',
+                server:           'sam_cnn_server',
             }
         });
 
@@ -125,7 +126,7 @@ app.post('/api/analyze', upload.single('image'), async (req, res) => {
 
 // CNN 모델 정보
 app.get('/api/model/info', (req, res) => {
-    const modelPath = path.join(__dirname, 'weights', 'food_detector_v1.pth');
+    const modelPath = path.join(__dirname, '..', 'model_CNN', 'weights', 'food_scouter_v1.pth');
     const labelsPath = path.join(__dirname, 'model', 'data', 'labels.json');
 
     const modelExists = fs.existsSync(modelPath);
@@ -141,8 +142,8 @@ app.get('/api/model/info', (req, res) => {
         model_loaded: modelExists,
         labels_loaded: labelsExist,
         num_classes: numClasses,
-        model_file: modelExists ? 'food_detector_v1.pth' : 'NOT FOUND',
-        architecture: 'Faster R-CNN (ResNet50 + FPN)',
+        model_file: modelExists ? 'food_scouter_v1.pth + food_scouter_v2.pth (ensemble)' : 'NOT FOUND',
+        architecture: 'SAM (ViT-B) segmentation + FoodScouterCNN v1/v2 ensemble classification',
     });
 });
 
@@ -164,9 +165,9 @@ app.use((err, req, res, next) => {
 
 // 서버 시작
 app.listen(CNN_PORT, () => {
-    console.log('Food Scouter AI 서버 (Faster R-CNN)');
+    console.log('Food Scouter AI 서버 (SAM + CNN)');
     console.log(`http://localhost:${CNN_PORT}`);
-    console.log('Food Scouter Faster R-CNN 모델 대기 중');
+    console.log('Food Scouter SAM+CNN 모델 대기 중');
 
     // 모델 파일 확인
     const modelPath = path.join(__dirname, 'weights', 'food_detector_v1.pth');

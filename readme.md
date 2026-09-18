@@ -276,7 +276,7 @@ pip install -r requirements.txt
 
 python src/preprocess.py        # 데이터 전처리
 python src/train.py             # v1 학습 (SE Block)
-# python src/train_v2.py        # v2 학습 (ResBlock + CBAM, 성능 개선)
+# v2 코드는 model_CNN/src/v2_backup/ 에 보관 (현재 학습 파이프라인 미포함)
 python src/evaluate.py          # 평가 및 혼동 행렬 출력
 ```
 
@@ -287,8 +287,8 @@ python src/evaluate.py          # 평가 및 혼동 행렬 출력
 
 **v1 — FoodScouterCNN (SE Block)**
 ```
-Input (3×224×224)
-→ ConvBlock×5 + SE Block + MaxPool  →  7×7×512
+Input (3×256×256)
+→ ConvBlock×5 + SE Block + MaxPool  →  8×8×512
 → Global Average Pooling
 → FC(512→256) → Dropout → FC(256→150)
 ```
@@ -302,7 +302,9 @@ Input (3×256×256)
 → FC(512→256→150)
 ```
 
-적용 기법: Label Smoothing, Mixup/CutMix, Cosine Annealing LR, WeightedRandomSampler, Stochastic Depth
+적용 기법(v1): Label Smoothing(ε=0.1), Mixup(α=0.2), Cutout, Cosine Annealing LR, WeightedRandomSampler(*)
+(*) 데이터셋이 클래스당 약 1,000장으로 이미 균형(표준편차 1.75)이라 실질적 효과는 제한적
+CutMix / Stochastic Depth는 v2_backup에만 존재, 현재 배포 파이프라인 미적용
 
 ---
 
@@ -311,6 +313,8 @@ Input (3×256×256)
 | 영역 | 기술 |
 |------|------|
 | CNN 모델 | PyTorch (SE Block, CBAM), Albumentations |
+| 음식 영역 분할 | SAM (Segment Anything, ViT-B) |
+| 운동 자세 분석 | MediaPipe Pose |
 | 음식 분류 | 한국 음식 150종, AI Hub 데이터 약 15만 장 |
 | AI 추천 | Google Gemini 2.5-flash |
 | 백엔드 | Node.js, Express, Python spawn, Socket.io |
