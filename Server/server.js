@@ -127,20 +127,13 @@ app.post('/api/analyze', upload.single('image'), async (req, res) => {
 // CNN 모델 정보
 app.get('/api/model/info', (req, res) => {
     const modelPath = path.join(__dirname, '..', 'model_CNN', 'weights', 'food_scouter_v1.pth');
-    const labelsPath = path.join(__dirname, 'model', 'data', 'labels.json');
+    const numClasses = 150;  // model_CNN/src/config.py의 NUM_CLASSES와 일치. 클래스 목록은 체크포인트(.pth)에 내장되어 별도 labels.json 불필요
 
     const modelExists = fs.existsSync(modelPath);
-    const labelsExist = fs.existsSync(labelsPath);
-
-    let numClasses = 0;
-    if (labelsExist) {
-        const labels = JSON.parse(fs.readFileSync(labelsPath, 'utf-8'));
-        numClasses = Object.keys(labels).length;
-    }
 
     res.json({
         model_loaded: modelExists,
-        labels_loaded: labelsExist,
+        labels_loaded: modelExists,
         num_classes: numClasses,
         model_file: modelExists ? 'food_scouter_v1.pth + food_scouter_v2.pth (ensemble)' : 'NOT FOUND',
         architecture: 'SAM (ViT-B) segmentation + FoodScouterCNN v1/v2 ensemble classification',
@@ -170,8 +163,6 @@ app.listen(CNN_PORT, () => {
     console.log('Food Scouter SAM+CNN 모델 대기 중');
 
     // 모델 파일 확인
-    const modelPath = path.join(__dirname, 'weights', 'food_detector_v1.pth');
-    const labelsPath = path.join(__dirname, 'model', 'data', 'labels.json');
+    const modelPath = path.join(__dirname, '..', 'model_CNN', 'weights', 'food_scouter_v1.pth');
     console.log(`모델 파일: ${fs.existsSync(modelPath) ? '로드됨' : '없음 (학습 후 생성됨)'}`);
-    console.log(`라벨 파일: ${fs.existsSync(labelsPath) ? '로드됨' : '없음'}`);
 });

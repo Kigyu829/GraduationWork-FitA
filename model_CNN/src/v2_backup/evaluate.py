@@ -17,6 +17,7 @@ import seaborn as sns
 from sklearn.metrics import classification_report, confusion_matrix
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 from model import FoodScouterCNN
 from dataset import create_dataloaders
