@@ -1,35 +1,32 @@
 /**
  * 4.6.1 Gemini NLU 재조정(/api/meal/recommend + reasons → adjustMeal) 응답 시간 측정
  *
- * bench_response_time.js에서 분리한 이유:
- *   Gemini 호출은 1건당 2~5초가 걸려 N=30 전체가 aiRateLimit(분당 60건) 버킷을
- *   넘나들 수 있고, 규칙 기반 파트(빠르게 60건 소모)와 같은 스크립트에서 이어
- *   돌리면 레이트리밋과 섞여 순수한 Gemini 응답시간만 보기 어려워진다.
- *   이 스크립트는 Gemini 호출만 단독으로 수행한다.
+ * v2: 요청 간 딜레이를 추가해 분당 요청 한도(RPM) 소진으로 인한 안전 폴백 오염을 피하고,
+ *     비정상적으로 빠른 응답(폴백 의심)을 자동으로 분리 집계한다.
  *
  * 사전 준비:
  *   1) Ai_server/.env 에 실제 GEMINI_API_KEY가 설정되어 있어야 함
  *   2) 별도 터미널에서 서버 실행: cd Ai_server && node server.js
- *      (콘솔에 "Food Scouter AI 서버" 또는 "AI Server" 관련 시작 로그가 뜨면 준비 완료)
  *
  * 실행: cd Ai_server && node bench_gemini_time.js
  */
 
 const BASE = process.env.AI_SERVER_URL || 'http://localhost:5000';
-const N = 20; // Gemini 호출은 느리므로 30보다 줄임 (레이트리밋 여유 확보)
+const N = 12;                 // RPM 한도를 넘지 않도록 줄임
+const DELAY_MS = 4000;        // 요청 사이 대기 시간 (RPM 여유 확보)
+const FALLBACK_THRESHOLD_MS = 1000; // 이보다 빠르면 폴백 의심으로 분류
 
 function stats(arr) {
+    if (arr.length === 0) return null;
     const n = arr.length;
     const mean = arr.reduce((a, b) => a + b, 0) / n;
     const variance = arr.reduce((a, b) => a + (b - mean) ** 2, 0) / n;
     const std = Math.sqrt(variance);
     const sorted = [...arr].sort((a, b) => a - b);
     return {
-        n, mean_ms: Math.round(mean), std_ms: Math.round(std),
-        min_ms: Math.round(sorted[0]), max_ms: Math.round(sorted[n - 1]),
-        p50_ms: Math.round(sorted[Math.floor(n * 0.5)]),
-        p95_ms: Math.round(sorted[Math.floor(n * 0.95)]),
-        mean_s: (mean / 1000).toFixed(2), min_s: (sorted[0] / 1000).toFixed(2), max_s: (sorted[n - 1] / 1000).toFixed(2),
+        n, mean_s: (mean / 1000).toFixed(2), std_ms: Math.round(std),
+        min_s: (sorted[0] / 1000).toFixed(2), max_s: (sorted[n - 1] / 1000).toFixed(2),
+        p50_s: (sorted[Math.floor(n * 0.5)] / 1000).toFixed(2),
     };
 }
 
@@ -51,11 +48,14 @@ const REASONS_POOL = [
     '해산물 알레르기가 있어요', '오늘은 운동을 쉬고 싶어요',
 ];
 
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
 async function main() {
-    console.log(`Gemini NLU 재조정 응답시간 측정 시작 (N=${N})`);
+    console.log(`Gemini NLU 재조정 응답시간 측정 시작 (N=${N}, 요청 간 ${DELAY_MS / 1000}초 대기)`);
     console.log(`대상: ${BASE}/api/meal/recommend (reasons 포함 → adjustMeal 경로)\n`);
 
-    const times = [];
+    const normalTimes = [];
+    const suspectFallback = [];
     let errors = 0;
 
     for (let i = 0; i < N; i++) {
@@ -75,28 +75,37 @@ async function main() {
             if (data.success === false) {
                 console.log(`  [${i + 1}/${N}] 실패: ${data.message}`);
                 errors++;
-                continue;
+            } else if (elapsed < FALLBACK_THRESHOLD_MS) {
+                console.log(`  [${i + 1}/${N}] ${(elapsed / 1000).toFixed(2)}초  ⚠ 폴백 의심 (서버 콘솔에서 [Gemini 추출] excluded/preferred 확인 필요)`);
+                suspectFallback.push(elapsed);
+            } else {
+                console.log(`  [${i + 1}/${N}] ${(elapsed / 1000).toFixed(2)}초`);
+                normalTimes.push(elapsed);
             }
-            times.push(elapsed);
-            console.log(`  [${i + 1}/${N}] ${(elapsed / 1000).toFixed(2)}초`);
         } catch (e) {
             console.log(`  [${i + 1}/${N}] 예외: ${e.message}`);
             errors++;
         }
+
+        if (i < N - 1) await sleep(DELAY_MS);
     }
 
-    console.log('\n' + '='.repeat(50));
-    if (times.length === 0) {
-        console.log('모든 호출이 실패했습니다. GEMINI_API_KEY와 서버 실행 상태를 확인하세요.');
-        return;
+    console.log('\n' + '='.repeat(55));
+    console.log(`정상 응답(≥${FALLBACK_THRESHOLD_MS}ms) ${normalTimes.length}건 / 폴백 의심 ${suspectFallback.length}건 / 실패 ${errors}건`);
+
+    const s = stats(normalTimes);
+    if (s) {
+        console.log(`\n[정상 Gemini 응답만 집계]`);
+        console.log(`평균: ${s.mean_s}초 / p50: ${s.p50_s}초 / 최소~최대: ${s.min_s}초 ~ ${s.max_s}초`);
+    } else {
+        console.log('\n정상 응답이 없습니다. 전부 폴백되었거나 실패했습니다 — GEMINI_API_KEY/쿼터를 확인하세요.');
     }
-    const s = stats(times);
-    console.log(`유효 응답 ${s.n}건 (실패 ${errors}건 제외)`);
-    console.log(`평균: ${s.mean_s}초 (${s.mean_ms}ms)`);
-    console.log(`표준편차: ${s.std_ms}ms`);
-    console.log(`최소~최대: ${s.min_s}초 ~ ${s.max_s}초`);
-    console.log(`p50: ${s.p50_ms}ms, p95: ${s.p95_ms}ms`);
-    console.log('='.repeat(50));
+    if (suspectFallback.length > 0) {
+        console.log(`\n⚠ 폴백 의심 ${suspectFallback.length}건은 통계에서 제외했습니다.`);
+        console.log('  서버 콘솔에서 해당 시점에 429/503/[키 교체] 메시지가 있었는지, [Gemini 추출] excluded/preferred가');
+        console.log('  계속 빈 배열이었는지 확인해서 폴백이 맞는지 교차검증해줘.');
+    }
+    console.log('='.repeat(55));
 }
 
 main().catch(err => { console.error(err); process.exit(1); });
