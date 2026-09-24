@@ -999,7 +999,9 @@ function renderAngles(angles) {
   ).join('');
 }
 
-/* ── 4.6.4 측정 결과 로그 (성공 시 / 중지 시 공통 호출) ── */
+/* ── 4.6.4 측정 결과 로그 (성공 시 / 중지 시 공통 호출) ──
+   브라우저 콘솔에 찍는 것과 동시에, 서버(/api/log-measurement)로도 보내
+   호스트 PC 터미널에서 바로 확인할 수 있게 한다 (원격 PC 실험용). ── */
 function logMeasurement() {
   if (_frameLatencies.length === 0) return;
   const avg = arr => arr.reduce((a,b)=>a+b,0) / arr.length;
@@ -1013,6 +1015,20 @@ function logMeasurement() {
     console.log('렙 카운팅 완료 소요시간(시작~REQUIRED_REPS 도달):', _repDurations.map(d => (d/1000).toFixed(2) + '초'));
     console.log(`평균: ${(avg(_repDurations)/1000).toFixed(2)}초`);
   }
+
+  const summary = {
+    운동:              exerciseName,
+    측정시각:          new Date().toLocaleString('ko-KR'),
+    프레임처리지연_평균ms: Number(avg(_frameLatencies).toFixed(1)),
+    프레임샘플수:       _frameLatencies.length,
+    홀드소요시간_초:    _holdDurations.map(d => Number((d/1000).toFixed(2))),
+    렙카운팅소요시간_초: _repDurations.map(d => Number((d/1000).toFixed(2))),
+  };
+  fetch('/api/log-measurement', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(summary),
+  }).catch(() => { /* 서버 전송 실패해도 브라우저 콘솔 로그는 이미 찍혔으니 무시 */ });
 }
 
 /* ── 성공 표시 (측정용 임시: 자동 이동 없이 이 페이지에 그대로 남음) ── */

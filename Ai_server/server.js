@@ -73,6 +73,15 @@ app.use('/api/goal',       goalRouter);
 app.use('/api/motivation', motivationRouter);
 app.use('/api/plan',       planRouter);
 
+// ── 4.6.3/4.6.4 측정 로그 수신 (원격 PC 실험용 임시 엔드포인트) ──
+// hc503.html이 브라우저 콘솔에 찍는 것과 동일한 데이터를 여기로도 보내
+// 서버(호스트 PC)의 이 터미널에서 바로 볼 수 있게 한다.
+// (위 전역 로깅 미들웨어가 req.body를 이미 예쁘게 찍어주므로 별도 포맷팅 불필요)
+app.post('/api/log-measurement', (req, res) => {
+    console.log('  ↑ [원격 PC 측정 결과 수신]');
+    res.json({ success: true });
+});
+
 // ── 헬스체크 ──
 app.get('/api/health', (req, res) => {
     res.json({
