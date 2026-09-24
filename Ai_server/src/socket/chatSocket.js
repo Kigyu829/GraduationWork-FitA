@@ -151,9 +151,27 @@ module.exports = function registerChatSocket(io) {
                     fullReply = await tryChat();
                 } catch (err) {
                     const is429 = err.message?.includes('429') || err.status === 429;
+                    const is503 = err.message?.includes('503') || err.status === 503;
+
                     if (is429 && rotateKey()) {
                         console.warn('[Socket] 429 → 다음 키로 재시도');
                         fullReply = await tryChat();
+                    } else if (is503) {
+                        let lastErr = err;
+                        let succeeded = false;
+                        for (let i = 1; i <= 3 && !succeeded; i++) {
+                            console.warn(`[Socket] 503 과부하 → ${i}/3 재시도 (5초 대기)...`);
+                            await new Promise(r => setTimeout(r, 5000));
+                            try {
+                                fullReply = await tryChat();
+                                succeeded = true;
+                            } catch (retryErr) {
+                                lastErr = retryErr;
+                                const stillErr = retryErr.message?.includes('503') || retryErr.status === 503;
+                                if (!stillErr) throw retryErr;
+                            }
+                        }
+                        if (!succeeded) throw lastErr;
                     } else {
                         throw err;
                     }
@@ -168,7 +186,8 @@ module.exports = function registerChatSocket(io) {
 
             } catch (err) {
                 console.error('[Socket] Gemini 오류:', err.message);
-                if (err.message?.includes('429')) {
+                const isOverload = err.message?.includes('429') || err.message?.includes('503');
+                if (isOverload) {
                     const fallback = '현재 AI 상담 서버가 잠시 과부하 상태예요. 식단/운동 플랜은 정상 제공 중이니 잠시 후 다시 시도해 주세요! 💪';
                     socket.emit('chat_token', fallback);
                     socket.emit('chat_done', { reply: fallback, action: null, reason: null });
