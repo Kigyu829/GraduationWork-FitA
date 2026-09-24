@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -137,13 +137,11 @@
     }
 
     @media (max-width: 768px) {
-      .pose-main { flex-direction: column; padding: 12px; }
+      .pose-main { flex-direction: column; }
       .info-section { width: 100%; }
-      .pose-header { padding: 12px 16px; }
-      .pose-header h1 { font-size: 16px; }
     }
   </style>
-  <link rel="manifest" href="../../manifest.json">
+  <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#1a1a2e">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -259,6 +257,13 @@ const REQUIRED_REPS = 3;
 let repCount = 0;
 let repPhase = 'up'; // 'up'=시작자세 | 'down'=운동자세
 
+/* 4.6.4 측정용 임시 로깅 */
+const _frameLatencies = [];
+const _holdDurations  = [];
+let _holdStartTime = null;
+let _repStartTime  = null;
+const _repDurations   = [];
+
 /* ── 각도 계산 (세 랜드마크 사이 각도, b가 꼭짓점) ── */
 function calcAngle(a, b, c) {
   const abx = a.x - b.x, aby = a.y - b.y;
@@ -343,10 +348,10 @@ const POSE_RULES = {
     check: (lms) => {
       const lk = calcAngle(lms[23], lms[25], lms[27]);
       const rk = calcAngle(lms[24], lms[26], lms[28]);
-      const ok = (lk < 120 && rk > 100) || (rk < 120 && lk > 100);
+      const ok = (lk < 110 && rk > 110) || (rk < 110 && lk > 110);
       return { ok, angles: [
-        { label: '앞쪽 무릎', value: Math.min(lk, rk), ok: Math.min(lk, rk) < 120, fix: '앞 무릎을 더 구부리세요' },
-        { label: '뒤쪽 무릎', value: Math.max(lk, rk), ok: Math.max(lk, rk) > 100, fix: '뒷다리를 더 뒤로 뻗어 자세를 넓히세요' },
+        { label: '앞쪽 무릎', value: Math.min(lk, rk), ok: Math.min(lk, rk) < 110, fix: '앞 무릎을 90° 가깝게 더 구부리세요' },
+        { label: '뒤쪽 무릎', value: Math.max(lk, rk), ok: Math.max(lk, rk) > 110, fix: '뒷다리를 더 뒤로 뻗어 자세를 넓히세요' },
       ]};
     },
     hint: '한 발을 앞으로 내딛어 무릎을 구부려주세요',
@@ -355,10 +360,10 @@ const POSE_RULES = {
     check: (lms) => {
       const lk = calcAngle(lms[23], lms[25], lms[27]);
       const rk = calcAngle(lms[24], lms[26], lms[28]);
-      const ok = lk < 130 || rk < 130;
+      const ok = lk < 120 || rk < 120;
       return { ok, angles: [
-        { label: '왼쪽 무릎', value: lk, ok: lk < 130, fix: '왼쪽으로 더 넓게 벌려 무릎을 구부리세요' },
-        { label: '오른쪽 무릎', value: rk, ok: rk < 130, fix: '오른쪽으로 더 넓게 벌려 무릎을 구부리세요' },
+        { label: '왼쪽 무릎', value: lk, ok: lk < 120, fix: '왼쪽으로 더 넓게 벌려 무릎을 구부리세요' },
+        { label: '오른쪽 무릎', value: rk, ok: rk < 120, fix: '오른쪽으로 더 넓게 벌려 무릎을 구부리세요' },
       ]};
     },
     hint: '옆으로 발을 넓게 벌리며 한쪽 무릎을 구부리세요',
@@ -468,10 +473,10 @@ const POSE_RULES = {
     check: (lms) => {
       const lk = calcAngle(lms[23], lms[25], lms[27]);
       const rk = calcAngle(lms[24], lms[26], lms[28]);
-      const ok = (lk < 120 && rk > 120) || (rk < 120 && lk > 120);
+      const ok = (lk < 110 && rk > 130) || (rk < 110 && lk > 130);
       return { ok, angles: [
-        { label: '앞쪽 무릎', value: Math.min(lk, rk), ok: Math.min(lk, rk) < 120, fix: '앞 무릎을 더 구부리세요' },
-        { label: '뒤쪽 무릎', value: Math.max(lk, rk), ok: Math.max(lk, rk) > 120, fix: '뒷다리를 더 뒤로 뻗으세요' },
+        { label: '앞쪽 무릎', value: Math.min(lk, rk), ok: Math.min(lk, rk) < 110, fix: '앞 무릎을 90° 가깝게 더 구부리세요' },
+        { label: '뒤쪽 무릎', value: Math.max(lk, rk), ok: Math.max(lk, rk) > 130, fix: '뒷다리를 더 뒤로 뻗으세요' },
       ]};
     },
     hint: '큰 보폭으로 한 발을 내딛어 무릎을 깊게 구부리세요',
@@ -645,10 +650,10 @@ const POSE_RULES = {
     check: (lms) => {
       const lk = calcAngle(lms[23], lms[25], lms[27]);
       const rk = calcAngle(lms[24], lms[26], lms[28]);
-      const ok = (lk < 120 && rk > 120) || (rk < 120 && lk > 120);
+      const ok = (lk < 110 && rk > 130) || (rk < 110 && lk > 130);
       return { ok, angles: [
-        { label: '앞쪽 무릎', value: Math.min(lk, rk), ok: Math.min(lk, rk) < 120, fix: '앞 무릎을 더 구부리세요' },
-        { label: '뒤쪽 무릎', value: Math.max(lk, rk), ok: Math.max(lk, rk) > 120, fix: '뒷다리를 더 뒤로 뻗으세요' },
+        { label: '앞쪽 무릎', value: Math.min(lk, rk), ok: Math.min(lk, rk) < 110, fix: '앞 무릎을 90° 가깝게 구부리세요' },
+        { label: '뒤쪽 무릎', value: Math.max(lk, rk), ok: Math.max(lk, rk) > 130, fix: '뒷다리를 더 뒤로 뻗으세요' },
       ]};
     },
     hint: '한 발을 뒤로 내딛어 앞 무릎을 90°로 구부리세요',
@@ -726,10 +731,10 @@ const POSE_RULES = {
     check: (lms) => {
       const lk = calcAngle(lms[23], lms[25], lms[27]);
       const rk = calcAngle(lms[24], lms[26], lms[28]);
-      const ok = lk < 125 && rk < 125;
+      const ok = lk < 115 && rk < 115;
       return { ok, angles: [
-        { label: '왼쪽 무릎', value: lk, ok: lk < 125, fix: '왼쪽 무릎을 구부려 앉으세요' },
-        { label: '오른쪽 무릎', value: rk, ok: rk < 125, fix: '오른쪽 무릎을 구부려 앉으세요' },
+        { label: '왼쪽 무릎', value: lk, ok: lk < 115, fix: '왼쪽 무릎을 더 구부려 앉으세요' },
+        { label: '오른쪽 무릎', value: rk, ok: rk < 115, fix: '오른쪽 무릎을 더 구부려 앉으세요' },
       ]};
     },
     hint: '뒤에 의자가 있다 생각하며 무릎을 90° 구부려 앉으세요',
@@ -752,10 +757,10 @@ const POSE_RULES = {
     check: (lms) => {
       const lk = calcAngle(lms[23], lms[25], lms[27]);
       const rk = calcAngle(lms[24], lms[26], lms[28]);
-      const ok = (lk < 120 && rk > 120) || (rk < 120 && lk > 120);
+      const ok = (lk < 110 && rk > 130) || (rk < 110 && lk > 130);
       return { ok, angles: [
-        { label: '앞쪽 무릎', value: Math.min(lk, rk), ok: Math.min(lk, rk) < 120, fix: '앞 무릎을 더 구부리세요' },
-        { label: '뒤쪽 무릎', value: Math.max(lk, rk), ok: Math.max(lk, rk) > 120, fix: '뒷다리를 더 뒤로 뻗으세요' },
+        { label: '앞쪽 무릎', value: Math.min(lk, rk), ok: Math.min(lk, rk) < 110, fix: '앞 무릎을 90° 가깝게 더 구부리세요' },
+        { label: '뒤쪽 무릎', value: Math.max(lk, rk), ok: Math.max(lk, rk) > 130, fix: '뒷다리를 더 뒤로 뻗으세요' },
       ]};
     },
     hint: '크게 런지 후 점프하여 다리를 바꾸세요',
@@ -846,10 +851,10 @@ const POSE_RULES = {
     check: (lms) => {
       const lk = calcAngle(lms[23], lms[25], lms[27]);
       const rk = calcAngle(lms[24], lms[26], lms[28]);
-      const ok = (lk < 120 && rk > 120) || (rk < 120 && lk > 120);
+      const ok = (lk < 110 && rk > 130) || (rk < 110 && lk > 130);
       return { ok, angles: [
-        { label: '앞쪽 무릎', value: Math.min(lk, rk), ok: Math.min(lk, rk) < 120, fix: '앞 무릎을 더 구부리세요' },
-        { label: '뒤쪽 무릎', value: Math.max(lk, rk), ok: Math.max(lk, rk) > 120, fix: '뒷다리를 더 뒤로 뻗으세요' },
+        { label: '앞쪽 무릎', value: Math.min(lk, rk), ok: Math.min(lk, rk) < 110, fix: '앞 무릎을 90° 가깝게 구부리세요' },
+        { label: '뒤쪽 무릎', value: Math.max(lk, rk), ok: Math.max(lk, rk) > 130, fix: '뒷다리를 더 뒤로 뻗으세요' },
       ]};
     },
     hint: '런지 자세에서 점프하여 다리를 바꿔 착지하세요',
@@ -896,11 +901,11 @@ const HOLD_EXERCISES = new Set(['플랭크','사이드 플랭크','월 싯','버
 
 /* ── 렙 카운팅 규칙 { up(lms)→bool, down(lms)→bool } ── */
 /* up = 시작/복귀 자세, down = 운동 자세, down→up 전환 1회 = 1렙 */
-const _kStr  = (l) => calcAngle(l[23],l[25],l[27]) > 150 && calcAngle(l[24],l[26],l[28]) > 150;
+const _kStr  = (l) => calcAngle(l[23],l[25],l[27]) > 155 && calcAngle(l[24],l[26],l[28]) > 155;
 const _kBent = (l) => calcAngle(l[23],l[25],l[27]) < 110 && calcAngle(l[24],l[26],l[28]) < 110;
 const _eStr  = (l) => calcAngle(l[11],l[13],l[15]) > 150 && calcAngle(l[12],l[14],l[16]) > 150;
 const _eBent = (l) => calcAngle(l[11],l[13],l[15]) < 110 || calcAngle(l[12],l[14],l[16]) < 110;
-const _lunge = (l) => { const a=calcAngle(l[23],l[25],l[27]),b=calcAngle(l[24],l[26],l[28]); return (a<120&&b>100)||(b<120&&a>100); };
+const _lunge = (l) => { const a=calcAngle(l[23],l[25],l[27]),b=calcAngle(l[24],l[26],l[28]); return (a<110&&b>110)||(b<110&&a>110); };
 const _stand = (l) => (l[11].y+l[12].y)/2 < (l[23].y+l[24].y)/2 - 0.20;
 const _floor = (l) => Math.abs(l[11].y-l[23].y) < 0.18;
 
@@ -908,7 +913,7 @@ const REP_RULES = {
   // 스쿼트 계열
   '스쿼트':        { up: _kStr, down: _kBent },
   '점프 스쿼트':   { up: _kStr, down: _kBent },
-  '박스 스쿼트':   { up: _kStr, down: (l)=>calcAngle(l[23],l[25],l[27])<125&&calcAngle(l[24],l[26],l[28])<125 },
+  '박스 스쿼트':   { up: _kStr, down: (l)=>calcAngle(l[23],l[25],l[27])<115&&calcAngle(l[24],l[26],l[28])<115 },
   '타바타 스쿼트': { up: _kStr, down: _kBent },
   '와이드 스쿼트': { up: _kStr, down: (l)=>_kBent(l)&&Math.abs(l[27].x-l[28].x)>0.20 },
   // 런지 계열
@@ -917,8 +922,8 @@ const REP_RULES = {
   '리버스 런지':   { up: _kStr, down: _lunge },
   '플라이오 런지': { up: _kStr, down: _lunge },
   '점프 런지':     { up: _kStr, down: _lunge },
-  '사이드 런지':   { up: _kStr, down: (l)=>calcAngle(l[23],l[25],l[27])<130||calcAngle(l[24],l[26],l[28])<130 },
-  '레터럴 런지':   { up: _kStr, down: (l)=>calcAngle(l[23],l[25],l[27])<130||calcAngle(l[24],l[26],l[28])<130 },
+  '사이드 런지':   { up: _kStr, down: (l)=>calcAngle(l[23],l[25],l[27])<120||calcAngle(l[24],l[26],l[28])<120 },
+  '레터럴 런지':   { up: _kStr, down: (l)=>calcAngle(l[23],l[25],l[27])<120||calcAngle(l[24],l[26],l[28])<120 },
   '스케이터 점프': { up: _kStr, down: (l)=>{ const a=calcAngle(l[23],l[25],l[27]),b=calcAngle(l[24],l[26],l[28]); return (a<130&&b>150)||(b<130&&a>150); }},
   // 푸시업 계열
   '팔굽혀펴기':         { up: _eStr, down: _eBent },
@@ -994,15 +999,34 @@ function renderAngles(angles) {
   ).join('');
 }
 
-/* ── 성공 표시 → sc311로 복귀 및 자동 체크 ── */
+/* ── 4.6.4 측정 결과 로그 (성공 시 / 중지 시 공통 호출) ── */
+function logMeasurement() {
+  if (_frameLatencies.length === 0) return;
+  const avg = arr => arr.reduce((a,b)=>a+b,0) / arr.length;
+  console.log('=== 4.6.4 측정 결과 ===');
+  console.log(`프레임 처리 지연(경고 반영 지연 대응): 평균 ${avg(_frameLatencies).toFixed(1)}ms, 샘플 ${_frameLatencies.length}개`);
+  if (_holdDurations.length > 0) {
+    console.log('홀드 판정 소요시간(30프레임=1초 가정 대비):', _holdDurations.map(d => (d/1000).toFixed(2) + '초'));
+    console.log(`평균: ${(avg(_holdDurations)/1000).toFixed(2)}초 (가정값 1.00초 대비 오차 ${((avg(_holdDurations)/1000 - 1)*100).toFixed(1)}%)`);
+  }
+  if (_repDurations.length > 0) {
+    console.log('렙 카운팅 완료 소요시간(시작~REQUIRED_REPS 도달):', _repDurations.map(d => (d/1000).toFixed(2) + '초'));
+    console.log(`평균: ${(avg(_repDurations)/1000).toFixed(2)}초`);
+  }
+}
+
+/* ── 성공 표시 (측정용 임시: 자동 이동 없이 이 페이지에 그대로 남음) ── */
 function showSuccess() {
+  logMeasurement();
   successOverlay.classList.add('show');
-  statusBar.textContent = '✅ 자세가 정확합니다! 운동 화면으로 돌아갑니다...';
+  statusBar.textContent = '✅ 자세가 정확합니다! (측정 모드: 콘솔 로그 확인 후 아래 버튼으로 다음 시행 진행)';
   statusBar.className = 'status-bar correct';
   progressWrap.style.display = 'none';
+  /* 측정 끝나고 실제 서비스에 쓸 때는 아래 주석을 다시 풀어서 자동 이동시키세요.
   setTimeout(() => {
     location.href = `sc311.html?tab=workout&poseVerified=${encodeURIComponent(exerciseName)}`;
   }, 2500);
+  */
 }
 
 /* ── MediaPipe 초기화 ── */
@@ -1053,6 +1077,7 @@ btnStart.addEventListener('click', async () => {
         instrEl.textContent = `${REQUIRED_REPS}회 반복`;
       }
     }
+    _repStartTime = performance.now();
     requestAnimationFrame(detectLoop);
   } catch (err) {
     statusBar.textContent = '카메라 접근 실패: ' + err.message;
@@ -1078,10 +1103,12 @@ btnStop.addEventListener('click', () => {
   repCount = 0;
   repPhase = 'up';
   renderAngles([]);
+  logMeasurement();
 });
 
 /* ── 감지 루프 ── */
 function detectLoop() {
+  const _frameT0 = performance.now();
   animId = requestAnimationFrame(detectLoop);
   if (!poseLandmarker || videoEl.readyState < 2) return;
 
@@ -1123,9 +1150,10 @@ function detectLoop() {
   const repRule = REP_RULES[exerciseName];
   const isHold  = HOLD_EXERCISES.has(exerciseName) || !repRule;
 
-  if (isHold) {
+    if (isHold) {
     /* ── 홀드 모드 (플랭크·월 싯 등) ── */
     if (ok) {
+      if (correctFrames === 0) _holdStartTime = performance.now();
       correctFrames++;
       const pct = Math.min(100, Math.round((correctFrames / CONFIRM_FRAMES) * 100));
       progressFill.style.width   = pct + '%';
@@ -1133,9 +1161,13 @@ function detectLoop() {
       progressLabel.textContent  = `자세 유지 중... (${pct}%)`;
       statusBar.textContent = `자세 유지 중... (${pct}%)`;
       statusBar.className   = 'status-bar detected';
-      if (correctFrames >= CONFIRM_FRAMES) { successShown = true; showSuccess(); }
+      if (correctFrames >= CONFIRM_FRAMES) {
+        _holdDurations.push(performance.now() - _holdStartTime);
+        successShown = true; showSuccess();
+      }
     } else {
       correctFrames = 0;
+      _holdStartTime = null;
       progressFill.style.width   = '0%';
       progressWrap.style.display = 'none';
       const failAngle = angles.find(a => !a.ok && a.fix);
@@ -1166,8 +1198,12 @@ function detectLoop() {
       statusBar.className   = 'status-bar';
     }
 
-    if (repCount >= REQUIRED_REPS) { successShown = true; showSuccess(); }
+    if (repCount >= REQUIRED_REPS) {
+      _repDurations.push(performance.now() - _repStartTime);
+      successShown = true; showSuccess();
+    }
   }
+    _frameLatencies.push(performance.now() - _frameT0);
 }
 
 initModel();
