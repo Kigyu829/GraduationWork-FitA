@@ -64,15 +64,18 @@ function makeErrorHandler(label) {
 }
 
 /* /api/* → AI 서버 :5000
-   Express 가 /api 를 strip 하므로 pathRewrite 로 복원 */
+   Express 가 req.url 에서 마운트 경로를 벗겨내는 시점과 프록시가 실제 요청을
+   내보내는 시점(비동기) 사이에 타이밍 차이가 있어, path 인자 기준으로 '/api'를
+   다시 붙이면 이미 남아있는 '/api'와 중복돼 '/api/api/...'가 된다.
+   req.originalUrl(항상 원본 그대로) 을 그대로 사용해 이 문제를 피한다. */
 app.use('/api', apiRateLimit, createProxyMiddleware({
   target:        'http://localhost:5000',
   changeOrigin:  true,
-  pathRewrite:   (path) => '/api' + path,
+  pathRewrite:   (path, req) => req.originalUrl,
   proxyTimeout:  60000,
   timeout:       60000,
   on: {
-    proxyReq: (proxyReq, req) => console.log(`[proxy→AI] ${req.method} /api${req.url}`),
+    proxyReq: (proxyReq, req) => console.log(`[proxy→AI] ${req.method} ${req.originalUrl}`),
     error:    makeErrorHandler('AI'),
   },
 }));
@@ -82,7 +85,7 @@ const socketProxy = createProxyMiddleware({
   target:       'http://localhost:5000',
   changeOrigin: true,
   ws:           true,
-  pathRewrite:  (path) => '/socket.io' + path,
+  pathRewrite:  (path, req) => req.originalUrl,
   on: { error: makeErrorHandler('Socket') },
 });
 app.use('/socket.io', socketProxy);

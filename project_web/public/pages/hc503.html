@@ -257,6 +257,13 @@ const REQUIRED_REPS = 3;
 let repCount = 0;
 let repPhase = 'up'; // 'up'=시작자세 | 'down'=운동자세
 
+/* 4.6.4 측정용 임시 로깅 */
+const _frameLatencies = [];
+const _holdDurations  = [];
+let _holdStartTime = null;
+let _repStartTime  = null;
+const _repDurations   = [];
+
 /* ── 각도 계산 (세 랜드마크 사이 각도, b가 꼭짓점) ── */
 function calcAngle(a, b, c) {
   const abx = a.x - b.x, aby = a.y - b.y;
@@ -992,15 +999,50 @@ function renderAngles(angles) {
   ).join('');
 }
 
-/* ── 성공 표시 → sc311로 복귀 및 자동 체크 ── */
+/* ── 4.6.4 측정 결과 로그 (성공 시 / 중지 시 공통 호출) ──
+   브라우저 콘솔에 찍는 것과 동시에, 서버(/api/log-measurement)로도 보내
+   호스트 PC 터미널에서 바로 확인할 수 있게 한다 (원격 PC 실험용). ── */
+function logMeasurement() {
+  if (_frameLatencies.length === 0) return;
+  const avg = arr => arr.reduce((a,b)=>a+b,0) / arr.length;
+  console.log('=== 4.6.4 측정 결과 ===');
+  console.log(`프레임 처리 지연(경고 반영 지연 대응): 평균 ${avg(_frameLatencies).toFixed(1)}ms, 샘플 ${_frameLatencies.length}개`);
+  if (_holdDurations.length > 0) {
+    console.log('홀드 판정 소요시간(30프레임=1초 가정 대비):', _holdDurations.map(d => (d/1000).toFixed(2) + '초'));
+    console.log(`평균: ${(avg(_holdDurations)/1000).toFixed(2)}초 (가정값 1.00초 대비 오차 ${((avg(_holdDurations)/1000 - 1)*100).toFixed(1)}%)`);
+  }
+  if (_repDurations.length > 0) {
+    console.log('렙 카운팅 완료 소요시간(시작~REQUIRED_REPS 도달):', _repDurations.map(d => (d/1000).toFixed(2) + '초'));
+    console.log(`평균: ${(avg(_repDurations)/1000).toFixed(2)}초`);
+  }
+
+  const summary = {
+    운동:              exerciseName,
+    측정시각:          new Date().toLocaleString('ko-KR'),
+    프레임처리지연_평균ms: Number(avg(_frameLatencies).toFixed(1)),
+    프레임샘플수:       _frameLatencies.length,
+    홀드소요시간_초:    _holdDurations.map(d => Number((d/1000).toFixed(2))),
+    렙카운팅소요시간_초: _repDurations.map(d => Number((d/1000).toFixed(2))),
+  };
+  fetch('/api/log-measurement', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(summary),
+  }).catch(() => { /* 서버 전송 실패해도 브라우저 콘솔 로그는 이미 찍혔으니 무시 */ });
+}
+
+/* ── 성공 표시 (측정용 임시: 자동 이동 없이 이 페이지에 그대로 남음) ── */
 function showSuccess() {
+  logMeasurement();
   successOverlay.classList.add('show');
-  statusBar.textContent = '✅ 자세가 정확합니다! 운동 화면으로 돌아갑니다...';
+  statusBar.textContent = '✅ 자세가 정확합니다! (측정 모드: 콘솔 로그 확인 후 아래 버튼으로 다음 시행 진행)';
   statusBar.className = 'status-bar correct';
   progressWrap.style.display = 'none';
+  /* 측정 끝나고 실제 서비스에 쓸 때는 아래 주석을 다시 풀어서 자동 이동시키세요.
   setTimeout(() => {
     location.href = `sc311.html?tab=workout&poseVerified=${encodeURIComponent(exerciseName)}`;
   }, 2500);
+  */
 }
 
 /* ── MediaPipe 초기화 ── */
@@ -1051,6 +1093,7 @@ btnStart.addEventListener('click', async () => {
         instrEl.textContent = `${REQUIRED_REPS}회 반복`;
       }
     }
+    _repStartTime = performance.now();
     requestAnimationFrame(detectLoop);
   } catch (err) {
     statusBar.textContent = '카메라 접근 실패: ' + err.message;
@@ -1076,10 +1119,12 @@ btnStop.addEventListener('click', () => {
   repCount = 0;
   repPhase = 'up';
   renderAngles([]);
+  logMeasurement();
 });
 
 /* ── 감지 루프 ── */
 function detectLoop() {
+  const _frameT0 = performance.now();
   animId = requestAnimationFrame(detectLoop);
   if (!poseLandmarker || videoEl.readyState < 2) return;
 
@@ -1121,9 +1166,10 @@ function detectLoop() {
   const repRule = REP_RULES[exerciseName];
   const isHold  = HOLD_EXERCISES.has(exerciseName) || !repRule;
 
-  if (isHold) {
+    if (isHold) {
     /* ── 홀드 모드 (플랭크·월 싯 등) ── */
     if (ok) {
+      if (correctFrames === 0) _holdStartTime = performance.now();
       correctFrames++;
       const pct = Math.min(100, Math.round((correctFrames / CONFIRM_FRAMES) * 100));
       progressFill.style.width   = pct + '%';
@@ -1131,9 +1177,13 @@ function detectLoop() {
       progressLabel.textContent  = `자세 유지 중... (${pct}%)`;
       statusBar.textContent = `자세 유지 중... (${pct}%)`;
       statusBar.className   = 'status-bar detected';
-      if (correctFrames >= CONFIRM_FRAMES) { successShown = true; showSuccess(); }
+      if (correctFrames >= CONFIRM_FRAMES) {
+        _holdDurations.push(performance.now() - _holdStartTime);
+        successShown = true; showSuccess();
+      }
     } else {
       correctFrames = 0;
+      _holdStartTime = null;
       progressFill.style.width   = '0%';
       progressWrap.style.display = 'none';
       const failAngle = angles.find(a => !a.ok && a.fix);
@@ -1164,8 +1214,12 @@ function detectLoop() {
       statusBar.className   = 'status-bar';
     }
 
-    if (repCount >= REQUIRED_REPS) { successShown = true; showSuccess(); }
+    if (repCount >= REQUIRED_REPS) {
+      _repDurations.push(performance.now() - _repStartTime);
+      successShown = true; showSuccess();
+    }
   }
+    _frameLatencies.push(performance.now() - _frameT0);
 }
 
 initModel();
