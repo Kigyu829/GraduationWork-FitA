@@ -47,7 +47,7 @@ function extractJson(text) {
 }
 
 // ──────────────────────────────────────────
-// POST /api/chat — AI 채팅 상담 (Ollama + RAG)
+// POST /api/chat — AI 채팅 상담 (gemini-2.5-flash)
 // Body: { message, userInfo, mealPlan, workoutPlan, recentHistory }
 // Response: { success, reply, action, reason }
 // ──────────────────────────────────────────
